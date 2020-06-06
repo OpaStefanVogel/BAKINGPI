@@ -1,0 +1,1 @@
+hexdump kernel.img -e '"%08.08_ax " 1/4 "%04x " "\n"'
