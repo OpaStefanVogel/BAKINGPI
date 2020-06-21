@@ -1,1 +1,16 @@
 hexdump kernel.img -e '"%08.08_ax " 1/4 "%04x " "\n"'
+
+
+
+//aus doppioandante.github.io/2015/07/10/Simple-ARM-programming-on-linux.html
+arm-none-eabi-as source/main.s -g -o empty.o
+arm-none-eabi-ld empty.o -o empty
+sudo gdb epty
+  file empty
+  ^X A
+  layout regs
+  b 1
+  r
+  s
+  s
+  s
