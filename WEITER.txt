@@ -14,3 +14,9 @@ sudo gdb epty
   s
   s
   s
+  
+  
+  
+#https://www.raspberrypi.org/forums/viewtopic.php?f=72&t=274528
+sudo cat /proc/iomem  
+#fe200000-fe2000b3 : gpio@7e200000
