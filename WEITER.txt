@@ -1,11 +1,14 @@
+cd ok02
 hexdump kernel.img -e '"%08.08_ax " 1/4 "%04x " "\n"'
-
+make
+#dann kernel.img nach RPIB:/boot kopieren.
+#----------------------------------------------------
 
 
 //aus doppioandante.github.io/2015/07/10/Simple-ARM-programming-on-linux.html
 arm-none-eabi-as source/main.s -g -o empty.o
 arm-none-eabi-ld empty.o -o empty
-sudo gdb epty
+sudo gdb empty
   file empty
   ^X A
   layout regs

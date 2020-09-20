@@ -22,7 +22,7 @@
 _start:
 
 /* 
-* This command loads the physical address of the GPIO region into r0.
+* This command loads the physical address of the GPIO region into r0.0x20200000
 */
 ldr r0,=0x20200000
 
@@ -64,7 +64,7 @@ str r1,[r0,#40]
 * Now, to create a delay, we busy the processor on a pointless quest to 
 * decrement the number 0x3F0000 to 0!
 */
-mov r2,#0x3F0000
+mov r2,#0x1F0000 /*original #0x3F0000 */
 wait1$:
 	sub r2,#1
 	cmp r2,#0
@@ -78,7 +78,7 @@ str r1,[r0,#28]
 /* NEW
 * Wait once more.
 */
-mov r2,#0x3F0000
+mov r2,#0x1F0000 /*original #0x3F0000 */
 wait2$:
 	sub r2,#1
 	cmp r2,#0
