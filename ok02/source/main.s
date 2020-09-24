@@ -1,3 +1,6 @@
+//0 geändert:
+//1 GPIO16 ersetzt durch GPIO4
+
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -37,18 +40,18 @@ ldr r0,=0x20200000
 *				to decrement to 0, allowing us to create a delay.
 */
 mov r1,#1
-lsl r1,#18
+lsl r1,#12 //1 war vorher #18
 
 /*
 * Set the GPIO function select.
 */
-str r1,[r0,#4]
+str r1,[r0,#0] //1 war vorher #4
 
 /* 
 * Set the 16th bit of r1.
 */
 mov r1,#1
-lsl r1,#16
+lsl r1,#4 //1 war vorher #16 
 
 /* NEW
 * Label the next line loop$ for the infinite looping
