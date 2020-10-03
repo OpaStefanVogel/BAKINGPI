@@ -10,6 +10,7 @@ Disassembly of section .init:
     8008:	e1a01601 	lsl	r1, r1, #12
     800c:	e5801000 	str	r1, [r0]
     8010:	e3a01001 	mov	r1, #1
+<<<<<<< HEAD
     8014:	e1a01201 	lsl	r1, r1, #4
     8018:	e3a0300a 	mov	r3, #10
 

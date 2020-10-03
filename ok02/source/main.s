@@ -2,6 +2,7 @@
 //1 GPIO16 ersetzt durch GPIO4
 //2 nur einige Wiederholungen
 //3 GPIO15 in GPIO4 ausgeben
+//4 und auch in GPIO14 ausgeben
 
 /******************************************************************************
 *	main.s
@@ -27,7 +28,7 @@
 _start:
 
 /* 
-* This command loads the physical address of the GPIO region into r0.
+* This command loads the physical address of the GPIO region into r0.0x20200000
 */
 ldr r0,=0x20200000
 
@@ -48,12 +49,16 @@ lsl r1,#12 //1 war vorher #18
 * Set the GPIO function select.
 */
 str r1,[r0,#0] //1 war vorher #4
+str r1,[r0,#4] //4 wieder #4, zusätzlich wegen GPIO14
 
 /* 
 * Set the 16th bit of r1.
 */
 mov r1,#1
 lsl r1,#4 //1 war vorher #16 
+mov r2,#1    //4
+lsl r2,#14   //4 Bitposition von GPIO14
+or  r1,r1,r2 //4 gleich mit der Bitposition von GPIO4 verknüpfen
 
 mov r3,#0x0A //2 Anzahl Wiederholungen
 
