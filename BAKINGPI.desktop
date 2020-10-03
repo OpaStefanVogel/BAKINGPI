@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=lxterminal -e "ls;git pull;gitk --all &mousepad ok02/source/main.s&mousepad WEITER.txt&bash"
+Type=Application
+Path=/home/pi/Desktop/CLONE/BAKINGPI
+Terminal=false
+StartupNotify=true
+Icon=
