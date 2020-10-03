@@ -104,7 +104,7 @@ mov r4,#1  //3
 lsl r4,#15 //3 Pin GPIO15
 
 loop2$:   //2
-ldr   r5,[r0,#20] //3 GPIO15 lesen
+ldr   r5,[r0,#34] //3 GPIO15 lesen
 and   r5,r5,r4    //3 Pin
 cmp   r5,#0       //3
 strne r1,[r0,#40] //3 und in GPIO4 ausgeben
