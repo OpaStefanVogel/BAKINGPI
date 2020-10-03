@@ -5,41 +5,44 @@ build/output.elf:     file format elf32-littlearm
 Disassembly of section .init:
 
 00008000 <_start>:
-    8000:	e59f0068 	ldr	r0, [pc, #104]	; 8070 <loop2$+0x18>
+    8000:	e59f0078 	ldr	r0, [pc, #120]	; 8080 <loop2$+0x18>
     8004:	e3a01001 	mov	r1, #1
     8008:	e1a01601 	lsl	r1, r1, #12
     800c:	e5801000 	str	r1, [r0]
-    8010:	e3a01001 	mov	r1, #1
-<<<<<<< HEAD
-    8014:	e1a01201 	lsl	r1, r1, #4
-    8018:	e3a0300a 	mov	r3, #10
+    8010:	e5801004 	str	r1, [r0, #4]
+    8014:	e3a01001 	mov	r1, #1
+    8018:	e1a01201 	lsl	r1, r1, #4
+    801c:	e3a02001 	mov	r2, #1
+    8020:	e1a02702 	lsl	r2, r2, #14
+    8024:	e1811002 	orr	r1, r1, r2
+    8028:	e3a0300a 	mov	r3, #10
 
-0000801c <loop$>:
-    801c:	e5801028 	str	r1, [r0, #40]	; 0x28
-    8020:	e3a0281f 	mov	r2, #2031616	; 0x1f0000
+0000802c <loop$>:
+    802c:	e5801028 	str	r1, [r0, #40]	; 0x28
+    8030:	e3a0281f 	mov	r2, #2031616	; 0x1f0000
 
-00008024 <wait1$>:
-    8024:	e2422001 	sub	r2, r2, #1
-    8028:	e3520000 	cmp	r2, #0
-    802c:	1afffffc 	bne	8024 <wait1$>
-    8030:	e580101c 	str	r1, [r0, #28]
-    8034:	e3a0281f 	mov	r2, #2031616	; 0x1f0000
+00008034 <wait1$>:
+    8034:	e2422001 	sub	r2, r2, #1
+    8038:	e3520000 	cmp	r2, #0
+    803c:	1afffffc 	bne	8034 <wait1$>
+    8040:	e580101c 	str	r1, [r0, #28]
+    8044:	e3a0281f 	mov	r2, #2031616	; 0x1f0000
 
-00008038 <wait2$>:
-    8038:	e2422001 	sub	r2, r2, #1
-    803c:	e3520000 	cmp	r2, #0
-    8040:	1afffffc 	bne	8038 <wait2$>
-    8044:	e2433001 	sub	r3, r3, #1
-    8048:	e3530000 	cmp	r3, #0
-    804c:	1afffff2 	bne	801c <loop$>
-    8050:	e3a04001 	mov	r4, #1
-    8054:	e1a04784 	lsl	r4, r4, #15
+00008048 <wait2$>:
+    8048:	e2422001 	sub	r2, r2, #1
+    804c:	e3520000 	cmp	r2, #0
+    8050:	1afffffc 	bne	8048 <wait2$>
+    8054:	e2433001 	sub	r3, r3, #1
+    8058:	e3530000 	cmp	r3, #0
+    805c:	1afffff2 	bne	802c <loop$>
+    8060:	e3a04001 	mov	r4, #1
+    8064:	e1a04784 	lsl	r4, r4, #15
 
-00008058 <loop2$>:
-    8058:	e5905022 	ldr	r5, [r0, #34]	; 0x22
-    805c:	e0055004 	and	r5, r5, r4
-    8060:	e3550000 	cmp	r5, #0
-    8064:	15801028 	strne	r1, [r0, #40]	; 0x28
-    8068:	0580101c 	streq	r1, [r0, #28]
-    806c:	eafffff9 	b	8058 <loop2$>
-    8070:	20200000 	.word	0x20200000
+00008068 <loop2$>:
+    8068:	e5905034 	ldr	r5, [r0, #52]	; 0x34
+    806c:	e0055004 	and	r5, r5, r4
+    8070:	e3550000 	cmp	r5, #0
+    8074:	05801028 	streq	r1, [r0, #40]	; 0x28
+    8078:	1580101c 	strne	r1, [r0, #28]
+    807c:	eafffff9 	b	8068 <loop2$>
+    8080:	20200000 	.word	0x20200000

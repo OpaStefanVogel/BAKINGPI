@@ -3,6 +3,7 @@
 //2 nur einige Wiederholungen
 //3 GPIO15 in GPIO4 ausgeben
 //4 und auch in GPIO14 ausgeben
+//5 .. als nächstes GPIO4 auf GPIO2
 
 /******************************************************************************
 *	main.s
@@ -58,7 +59,7 @@ mov r1,#1
 lsl r1,#4 //1 war vorher #16 
 mov r2,#1    //4
 lsl r2,#14   //4 Bitposition von GPIO14
-or  r1,r1,r2 //4 gleich mit der Bitposition von GPIO4 verknüpfen
+orr  r1,r1,r2 //4 gleich mit der Bitposition von GPIO4 verknüpfen
 
 mov r3,#0x0A //2 Anzahl Wiederholungen
 
@@ -109,9 +110,9 @@ mov r4,#1  //3
 lsl r4,#15 //3 Pin GPIO15
 
 loop2$:   //2
-ldr   r5,[r0,#34] //3 GPIO15 lesen
+ldr   r5,[r0,#0x34] //3 GPIO15 lesen
 and   r5,r5,r4    //3 Pin
 cmp   r5,#0       //3
-strne r1,[r0,#40] //3 und in GPIO4 ausgeben
-streq r1,[r0,#28] //3
+streq r1,[r0,#40] //3 und in GPIO4 ausgeben, LED an 3,3V 
+strne r1,[r0,#28] //3
 b loop2$ //2 Ende Versuch 2
