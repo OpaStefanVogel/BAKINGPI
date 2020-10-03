@@ -54,7 +54,7 @@ str r1,[r0,#0] //1 war vorher #4
 mov r1,#1
 lsl r1,#4 //1 war vorher #16 
 
-mov r3,#x0A //2 Anzahl Wiederholungen
+mov r3,#0x0A //2 Anzahl Wiederholungen
 
 /* NEW
 * Label the next line loop$ for the infinite looping
@@ -94,8 +94,8 @@ wait2$:
 * Loop over this process forevermore
 */
 
-sub r2,#1 //2 nur wenige Wiederholungen
-cmp r2,#0
+sub r3,#1 //2 nur wenige Wiederholungen
+cmp r3,#0
 bne loop$
 
 loop2$:
