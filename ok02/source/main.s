@@ -1,6 +1,7 @@
 //0 geändert:
 //1 GPIO16 ersetzt durch GPIO4
 //2 nur einige Wiederholungen
+//3 GPIO15 in GPIO4 ausgeben
 
 /******************************************************************************
 *	main.s
@@ -95,8 +96,17 @@ wait2$:
 */
 
 sub r3,#1 //2 nur wenige Wiederholungen
-cmp r3,#0
-bne loop$
+cmp r3,#0 //2
+bne loop$ //2
 
-loop2$:
+
+mov r4,#1  //3
+lsl r4,#15 //3 Pin GPIO15
+
+loop2$:   //2
+ldr   r5,[r0,#20] //3 GPIO15 lesen
+and   r5,r5,r4    //3 Pin
+cmp   r5,#0       //3
+strne r1,[r0,#40] //3 und in GPIO4 ausgeben
+streq r1,[r0,#28] //3
 b loop2$ //2 Ende Versuch 2
