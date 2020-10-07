@@ -3,7 +3,7 @@
 //2 nur einige Wiederholungen
 //3 GPIO15 in GPIO4 ausgeben
 //4 und auch in GPIO14 ausgeben
-//5 .. als nächstes GPIO4 auf GPIO2
+//5 als nächstes GPIO4 auf GPIO2
 
 /******************************************************************************
 *	main.s
@@ -43,23 +43,23 @@ ldr r0,=0x20200000
 * r2=0x003F0000 a number that will take a noticeable duration for the processor 
 *				to decrement to 0, allowing us to create a delay.
 */
-mov r1,#1
-lsl r1,#12 //1 war vorher #18
 
 /*
 * Set the GPIO function select.
 */
+mov r1,#1 //5
+lsl r1,#6 //5 war vorher #12 und #18
 str r1,[r0,#0] //1 war vorher #4
+
+mov r1,#1  //5
+lsl r1,#12 //5 war vorher #18
 str r1,[r0,#4] //4 wieder #4, zusätzlich wegen GPIO14
 
 /* 
 * Set the 16th bit of r1.
 */
 mov r1,#1
-lsl r1,#4 //1 war vorher #16 
-mov r2,#1    //4
-lsl r2,#14   //4 Bitposition von GPIO14
-orr  r1,r1,r2 //4 gleich mit der Bitposition von GPIO4 verknüpfen
+lsl r1,#2 //5 war vorher #4 und #16 
 
 mov r3,#0x0A //2 Anzahl Wiederholungen
 
@@ -105,6 +105,10 @@ sub r3,#1 //2 nur wenige Wiederholungen
 cmp r3,#0 //2
 bne loop$ //2
 
+
+mov r2,#1    //4
+lsl r2,#14   //4 Bitposition von GPIO14
+orr  r1,r1,r2 //4 gleich mit der Bitposition von GPIO4 verknüpfen
 
 mov r4,#1  //3
 lsl r4,#15 //3 Pin GPIO15
