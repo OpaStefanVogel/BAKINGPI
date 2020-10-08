@@ -147,5 +147,6 @@ streq r1,[r0,#40] //3 und in GPIO2 ausgeben, LED an 3,3V
 strne r1,[r0,#28] //3
 beq loop2$          //7 Fortsetzung wenn Daten da
 ldr   r5,[r2,#0x40] //7 Zeichen lesen
+add   r5,r5,#1      //8 benachbartes Zeichen nehmen
 str   r5,[r2,#0x40] //7 Zeichen zurückschicken
 b loop2$ //2 Ende Versuch 2
