@@ -5,7 +5,7 @@ build/output.elf:     file format elf32-littlearm
 Disassembly of section .init:
 
 00008000 <_start>:
-    8000:	e59f00bc 	ldr	r0, [pc, #188]	; 80c4 <data$>
+    8000:	e59f00d8 	ldr	r0, [pc, #216]	; 80e0 <data$>
     8004:	e3a01001 	mov	r1, #1
     8008:	e1a01301 	lsl	r1, r1, #6
     800c:	e5801000 	str	r1, [r0]
@@ -37,7 +37,7 @@ Disassembly of section .init:
     805c:	e1a02782 	lsl	r2, r2, #15
     8060:	e1811002 	orr	r1, r1, r2
     8064:	e5801004 	str	r1, [r0, #4]
-    8068:	e59f2058 	ldr	r2, [pc, #88]	; 80c8 <data$+0x4>
+    8068:	e59f2074 	ldr	r2, [pc, #116]	; 80e4 <data$+0x4>
     806c:	e3a03001 	mov	r3, #1
     8070:	e5823004 	str	r3, [r2, #4]
     8074:	e3a03000 	mov	r3, #0
@@ -48,22 +48,29 @@ Disassembly of section .init:
     8088:	e582304c 	str	r3, [r2, #76]	; 0x4c
     808c:	e3a03000 	mov	r3, #0
     8090:	e5823050 	str	r3, [r2, #80]	; 0x50
-    8094:	e59f3030 	ldr	r3, [pc, #48]	; 80cc <data$+0x8>
+    8094:	e59f304c 	ldr	r3, [pc, #76]	; 80e8 <data$+0x8>
     8098:	e5823068 	str	r3, [r2, #104]	; 0x68
     809c:	e3a03003 	mov	r3, #3
     80a0:	e5823060 	str	r3, [r2, #96]	; 0x60
     80a4:	e3a01001 	mov	r1, #1
     80a8:	e1a01101 	lsl	r1, r1, #2
+    80ac:	e3a07000 	mov	r7, #0
 
-000080ac <loop2$>:
-    80ac:	e5925054 	ldr	r5, [r2, #84]	; 0x54
-    80b0:	e2055001 	and	r5, r5, #1
-    80b4:	e3550000 	cmp	r5, #0
-    80b8:	15801028 	strne	r1, [r0, #40]	; 0x28
-    80bc:	0580101c 	streq	r1, [r0, #28]
-    80c0:	eafffff9 	b	80ac <loop2$>
+000080b0 <loop2$>:
+    80b0:	e5925054 	ldr	r5, [r2, #84]	; 0x54
+    80b4:	e2055001 	and	r5, r5, #1
+    80b8:	e3550000 	cmp	r5, #0
+    80bc:	0afffffb 	beq	80b0 <loop2$>
+    80c0:	e5926040 	ldr	r6, [r2, #64]	; 0x40
+    80c4:	e2877001 	add	r7, r7, #1
+    80c8:	e2075001 	and	r5, r7, #1
+    80cc:	e3550000 	cmp	r5, #0
+    80d0:	15801028 	strne	r1, [r0, #40]	; 0x28
+    80d4:	0580101c 	streq	r1, [r0, #28]
+    80d8:	e5826040 	str	r6, [r2, #64]	; 0x40
+    80dc:	eafffff3 	b	80b0 <loop2$>
 
-000080c4 <data$>:
-    80c4:	20200000 	.word	0x20200000
-    80c8:	20215000 	.word	0x20215000
-    80cc:	0000010e 	.word	0x0000010e
+000080e0 <data$>:
+    80e0:	20200000 	.word	0x20200000
+    80e4:	20215000 	.word	0x20215000
+    80e8:	000065b8 	.word	0x000065b8

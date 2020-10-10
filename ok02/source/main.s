@@ -112,7 +112,7 @@ mov r3,#1         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
-ldr r3,=#270
+ldr r3,=#26040 //#270 für 115200, #26040 für 1200
 str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to 115200"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
@@ -142,16 +142,20 @@ char uart_recv ( void )
 
 mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
+mov r7,#0 //7 Anzahl der empfangenen Zeichen
 
 loop2$:  //2
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
-and   r5,r5,#1    //6 Bit0
+and   r5,r5,#1      //6 Bit0
+cmp   r5,#0         //7
+beq loop2$          //7 zurück wenn keine Daten da
+ldr   r6,[r2,#0x40] //7 Zeichen lesen
+add   r7,r7,#1    //7 ist ein Zeichen mehr
+and   r5,r7,#1    //7 Bit0 der Anzahl
 cmp   r5,#0       //3
-strne r1,[r0,#40] //3 und in GPIO2 ausgeben, LED an 3,3V 
+strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
-beq loop2$          //7 Fortsetzung wenn Daten da
-ldr   r5,[r2,#0x40] //7 Zeichen lesen
-str   r5,[r2,#0x40] //7 Zeichen zurückschicken
+str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 b loop2$ //2 Ende Versuch 2
 
 data$:
