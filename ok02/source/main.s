@@ -5,6 +5,7 @@
 //4 und auch in GPIO14 ausgeben
 //5 als nächstes GPIO4 auf GPIO2
 //6 GPIO14 und GPIO15 als UART1
+//7 GPIO15 wieder an GPIO14 zurückschicken
 
 /******************************************************************************
 *	main.s
@@ -143,11 +144,14 @@ mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
 
 loop2$:  //2
-ldr   r5,[r2,#0x54] //6 RXD lesen
+ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1    //6 Bit0
 cmp   r5,#0       //3
 strne r1,[r0,#40] //3 und in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
+beq loop2$          //7 Fortsetzung wenn Daten da
+ldr   r5,[r2,#0x40] //7 Zeichen lesen
+str   r5,[r2,#0x40] //7 Zeichen zurückschicken
 b loop2$ //2 Ende Versuch 2
 
 data$:
