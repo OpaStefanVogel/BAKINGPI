@@ -56,13 +56,13 @@ lsl r1,#2 //6 Bitposition für  GPIO2
 mov r3,#0x0A //2 Anzahl Wiederholungen
 loop$: 
 str r1,[r0,#40]
-mov r2,#0x1F0000 //2 etwas schneller
+mov r2,#0x0F0000 //6 noch etwas schneller
 wait1$:
 	sub r2,#1
 	cmp r2,#0
 	bne wait1$
 str r1,[r0,#28]
-mov r2,#0x1F0000 //2 etwas schneller
+mov r2,#0x0F0000 //6 noch etwas schneller
 wait2$:
 	sub r2,#1
 	cmp r2,#0
@@ -80,10 +80,11 @@ lsl r2,#15     //6 nach GPIO15 schieben
 orr r1,r1,r2   //6 beide zusammenfassen 
 str r1,[r0,#4] //6 und Funktion auswählen
 
+
 //6 hierher kommt noch Pull up für GPIO14 und GPIO15
 
 //6 UART1 Adressen:
-ldr r0,=0x20215000 //AUXIRQ
+ldr r2,=0x20215000 //AUXIRQ
 /*6
 #define AUX_ENABLES     (PBASE+0x00215004)
 #define AUX_MU_IO_REG   (PBASE+0x00215040)
@@ -110,7 +111,7 @@ mov r3,#1         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
-mov r3,#270
+ldr r3,=#270
 str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to 115200"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
@@ -138,10 +139,15 @@ char uart_recv ( void )
 
 6*/
 
+mov r1,#1
+lsl r1,#2 //6 Bitposition für GPIO2
+
 loop2$:  //2
 ldr   r5,[r2,#0x54] //6 RXD lesen
 and   r5,r5,#1    //6 Bit0
 cmp   r5,#0       //3
-streq r1,[r0,#40] //3 und in GPIO2 ausgeben, LED an 3,3V 
-strne r1,[r0,#28] //3
+strne r1,[r0,#40] //3 und in GPIO2 ausgeben, LED an 3,3V 
+streq r1,[r0,#28] //3
 b loop2$ //2 Ende Versuch 2
+
+data$:
