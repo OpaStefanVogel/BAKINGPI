@@ -44,7 +44,7 @@ Disassembly of section .init:
     8078:	e5823060 	str	r3, [r2, #96]	; 0x60
     807c:	e3a03000 	mov	r3, #0
     8080:	e5823044 	str	r3, [r2, #68]	; 0x44
-    8084:	e3a03001 	mov	r3, #1
+    8084:	e3a03003 	mov	r3, #3
     8088:	e582304c 	str	r3, [r2, #76]	; 0x4c
     808c:	e3a03000 	mov	r3, #0
     8090:	e5823050 	str	r3, [r2, #80]	; 0x50
