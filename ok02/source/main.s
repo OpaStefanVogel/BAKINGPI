@@ -6,6 +6,7 @@
 //5 als nächstes GPIO4 auf GPIO2
 //6 GPIO14 und GPIO15 als UART1
 //7 GPIO15 wieder an GPIO14 zurückschicken
+//9 char_to_int
 
 /******************************************************************************
 *	main.s
@@ -150,3 +151,27 @@ ldr   r5,[r2,#0x40] //7 Zeichen lesen
 add   r5,r5,#1      //8 benachbartes Zeichen nehmen
 str   r5,[r2,#0x40] //7 Zeichen zurückschicken
 b loop2$ //2 Ende Versuch 2
+
+char_to_int: //9 c --> n
+STMFD SP!,{R0,LR} //A2-8
+LDMEA R12!,{R0}
+CMP   R0,#0X60    //a,b,c,d,e,f
+SUBGT R0,R0,#0X20
+CMP   R0,#0X40    //A,B,C,D,E,F
+SUBGT R0,R0,#0X07
+SUB   R0,R0,#0X30 //0,1,2,3,4,5,6,7,8,9
+STMEA R12!,{R0}
+LDMFD LR!,{R0,PC}
+
+
+
+
+
+
+
+
+
+
+
+
+
