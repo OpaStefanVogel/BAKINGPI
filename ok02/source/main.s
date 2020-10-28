@@ -7,7 +7,8 @@
 //6 GPIO14 und GPIO15 als UART1
 //7 GPIO15 wieder an GPIO14 zurückschicken
 //9 char_to_int
-
+//10 mul_16_add
+//11 load_hex_dump KEY EMIT
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -150,9 +151,30 @@ beq loop2$          //7 Fortsetzung wenn Daten da
 ldr   r5,[r2,#0x40] //7 Zeichen lesen
 add   r5,r5,#1      //8 benachbartes Zeichen nehmen
 str   r5,[r2,#0x40] //7 Zeichen zurückschicken
+cmp   r5,#0x12      //11 wenn L,
+bleq  load_hex_dump //11 dann ein hex dump laden
 b loop2$ //2 Ende Versuch 2
 
-char_to_int: //9 c --> n
+
+load_hex_dump:
+mov sp,#0x9000
+mov r12,#0x9000
+STMFD SP!,{R0-R7,LR}]
+MOV   R0,#0X0D 
+STMEA R12!,{R0}// ( CR )
+BL    EMIT     // ( )
+MOV   R0,#0X0A 
+STMEA R12!,{R0}// ( LF )
+BL    EMIT     // ( )
+MOV   R0,#0X50 
+STMEA R12!,{R0}// ( P )
+BL    EMIT     // ( )
+BL    KEY      // ( c )
+BL    EMIT     // ( )
+LDMFD SP!,{R0-R7,PC}
+
+
+char_to_int: //9// ( c --> n )
 STMFD SP!,{R0,LR} //A2-8
 LDMEA R12!,{R0}
 CMP   R0,#0X60    //a,b,c,d,e,f
@@ -163,9 +185,43 @@ SUB   R0,R0,#0X30 //0,1,2,3,4,5,6,7,8,9
 STMEA R12!,{R0}
 LDMFD LR!,{R0,PC}
 
+mul_16_add: //10// ( m n --> 16*m+n )
+STMFD SP!,{R0,R1,LR}
+LDMEA R12!,{R0,R1}
+LSL   R0,R0,#8
+ADD   R0,R0,R1
+STMEA R12!,{R0}
+LDMFD SP!,{R0,R1,PC}
 
+EMIT: //11// ( c --> )
+STMFD SP!,{R0-R7,LR}
+LDMEA R12!,{R0}
+MOV   R8,#0X20000000     //12 PBASE
+ADD   R8,R8,#0X200000    //12 GPIO_
+ADD   R8,R8,#0X15000     //12 AUXIRQ
+emitloop1$:
+ldr   r5,[r8,#0x54]
+and   r5,r5,#0x20
+cmp   r5,#0
+beq   emitloop1$
+str   r0,[r8,#0x40]
+//STMEA R12!,{}
+LDMFD SP!,{R0-R7,PC}
 
-
+KEY: //11// ( --> c)
+STMFD SP!,{R0-R7,LR}
+//LDMEA R12!,{R0}
+MOV   R8,#0X20000000     //12 PBASE
+ADD   R8,R8,#0X200000    //12 GPIO_
+ADD   R8,R8,#0X15000     //12 AUXIRQ
+keyloop1$:
+ldr   r5,[r8,#0x54]
+and   r5,r5,#1
+cmp   r5,#0
+beq   keyloop1$
+ldr   r5,[r8,#0x40]
+STMEA R12!,{R5}
+LDMFD SP!,{R0-R7,PC}
 
 
 
