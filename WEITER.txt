@@ -28,6 +28,7 @@ sudo cat /proc/iomem
 stty -F /dev/ttyS0 115200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 stty raw -echo opost quit ^C isig ixon -ixoff #hiernach ist es finster!!!
 cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0
+hexdump kernel.img -e '"%08.08_ax " 1/4 "%08x " "\n"' >/dev/ttyS0
 
 #Terminal über ttyS0
 screen /dev/ttyS0 115200
