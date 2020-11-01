@@ -158,7 +158,9 @@ cmp   r5,#0       //3
 strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
-cmp   r6,#0x12      //11 wenn L,
+cmp   r6,#0x4B      //11 wenn L,
+mov   r6,#0x4B
+str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 bleq  load_hex_dump //11 dann ein hex dump laden
 b loop2$ //2 Ende Versuch 2
 
@@ -166,7 +168,7 @@ b loop2$ //2 Ende Versuch 2
 load_hex_dump:
 mov sp,#0x9000
 mov r12,#0x9000
-STMFD SP!,{R0-R7,LR}]
+STMFD SP!,{R0-R7,LR}
 MOV   R0,#0X0D 
 STMEA R12!,{R0}// ( CR )
 BL    EMIT     // ( )
@@ -176,8 +178,8 @@ BL    EMIT     // ( )
 MOV   R0,#0X50 
 STMEA R12!,{R0}// ( P )
 BL    EMIT     // ( )
-BL    KEY      // ( c )
-BL    EMIT     // ( )
+//BL    KEY      // ( c )
+//BL    EMIT     // ( )
 LDMFD SP!,{R0-R7,PC}
 
 
@@ -206,11 +208,11 @@ LDMEA R12!,{R0}
 MOV   R8,#0X20000000     //12 PBASE
 ADD   R8,R8,#0X200000    //12 GPIO_
 ADD   R8,R8,#0X15000     //12 AUXIRQ
-emitloop1$:
-ldr   r5,[r8,#0x54]
-and   r5,r5,#0x20
-cmp   r5,#0
-beq   emitloop1$
+//emitloop1$:
+//ldr   r5,[r8,#0x54]
+//and   r5,r5,#0x20
+//cmp   r5,#0
+//beq   emitloop1$
 str   r0,[r8,#0x40]
 //STMEA R12!,{}
 LDMFD SP!,{R0-R7,PC}
@@ -229,13 +231,3 @@ beq   keyloop1$
 ldr   r5,[r8,#0x40]
 STMEA R12!,{R5}
 LDMFD SP!,{R0-R7,PC}
-
-
-
-
-
-
-
-
-
->>>>>>> 3e54a2f1c2798782a90529b145f36ad0c7a57e90

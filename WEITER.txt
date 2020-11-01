@@ -1,5 +1,5 @@
 cd ok02
-hexdump kernel.img -e '"%08.08_ax " 1/4 "%04x " "\n"'
+hexdump kernel.img -e '"%08.08_ax " 1/4 "%08x " "\n"'
 make
 #dann kernel.img nach RPIB:/boot kopieren.
 #----------------------------------------------------
