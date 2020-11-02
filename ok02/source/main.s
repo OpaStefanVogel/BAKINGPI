@@ -9,7 +9,7 @@
 //9 char_to_int
 //10 mul_16_add
 //11 load_hex_dump KEY EMIT
-//12 DUP
+//12 DUP ADD
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -177,11 +177,15 @@ MOV   R0,#0X0A
 STMEA R12!,{R0}// ( LF )
 BL    EMIT     // ( )
 MOV   R0,#0X50 
-STMEA R12!,{R0}// ( P )
+STMEA R12!,{R0}// ( "P" )
 BL    EMIT     // ( )
 BL    KEY      // ( c )
 BL    DUP      // ( c c )
 BL    EMIT     // ( c )
+BL char_to_int // ( n )
+MOV   R0,#0X30 
+STMEA R12!,{30}// ( n m )
+BL    ADD      // ( n+m )
 BL    EMIT     // ( )
 LDMFD SP!,{R0-R7,PC}
 
@@ -241,3 +245,10 @@ LDMEA R12!,{R0}
 STMEA R12!,{R0}
 STMEA R12!,{R0}
 LDMFD SP!,{R0,PC}
+
+ADD: //12// ( a b --> a+b )
+STMFD SP!,{R0,R1,LR}
+LDMEA R12!,{R0,R1}
+ADD   R0,R0,R1
+STMEA R12!,{R0}
+LDMFD SP!,{R0,R1,PC}
