@@ -9,6 +9,7 @@
 //9 char_to_int
 //10 mul_16_add
 //11 load_hex_dump KEY EMIT
+//12 DUP
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -179,6 +180,8 @@ MOV   R0,#0X50
 STMEA R12!,{R0}// ( P )
 BL    EMIT     // ( )
 BL    KEY      // ( c )
+BL    DUP      // ( c c )
+BL    EMIT     // ( c )
 BL    EMIT     // ( )
 LDMFD SP!,{R0-R7,PC}
 
@@ -231,3 +234,10 @@ beq   keyloop1$
 ldr   r5,[r8,#0x40]
 STMEA R12!,{R5}
 LDMFD SP!,{R0-R7,PC}
+
+DUP: //12// ( n --> n n )
+STMFD SP!,{R0,LR}
+LDMEA R12!,{R0}
+STMEA R12!,{R0}
+STMEA R12!,{R0}
+LDMFD SP!,{R0,PC}
