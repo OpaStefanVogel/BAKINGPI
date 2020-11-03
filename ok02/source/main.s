@@ -10,6 +10,8 @@
 //10 mul_16_add
 //11 load_hex_dump KEY EMIT
 //12 DUP ADD
+//13 load_hex_dump mit MOV R2,#0X7000 und MOV R1,#8
+
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -159,10 +161,10 @@ cmp   r5,#0       //3
 strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
-cmp   r6,#0x4C      //11 wenn L,
+cmp   r6,#0x4C      //11 wenn L...
 mov   r6,#0x4C
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
-bleq  load_hex_dump //11 dann ein hex dump laden
+bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
 b loop2$ //2 Ende Versuch 2
 
 
@@ -170,22 +172,32 @@ load_hex_dump:
 mov sp,#0x9000
 mov r12,#0x9000
 STMFD SP!,{R0-R7,LR}
+MOV   R2,#0X7000 //13//
+MOV   R1,#8
+MOV   R0,#0    // m=0
+STMEA R12!,{R0}// ( m )
+load_hex_dump_1:
 MOV   R0,#0X0D 
-STMEA R12!,{R0}// ( CR )
+STMEA R12!,{R0}// ( m CR )
 BL    EMIT     // ( )
 MOV   R0,#0X0A 
-STMEA R12!,{R0}// ( LF )
+STMEA R12!,{R0}// ( m LF )
 BL    EMIT     // ( )
-MOV   R0,#0X50 
-STMEA R12!,{R0}// ( "P" )
+MOV   R0,#0X50
+STMEA R12!,{R0}// ( m "P" )
 BL    EMIT     // ( )
-BL    KEY      // ( c )
-BL    DUP      // ( c c )
-BL    EMIT     // ( c )
-BL char_to_int // ( n )
-MOV   R0,#0X30 
-STMEA R12!,{30}// ( n m )
-BL    ADD      // ( n+m )
+BL    KEY      // ( m c )
+BL    DUP      // ( m c c )
+BL    EMIT     // ( m c )
+BL char_to_int // ( m n )
+BL mul_256_add // ( 256*m+n )
+SUB   R1,R1,#1
+CMP   R1,#0
+BNE   load_hex_dump_1 (m')
+LDMEA R12!,{R0}// ( )
+STMEA R2!,{R0} //
+MOV   R0,#0X50
+STMEA R12!,{R0}// ( "r" )
 BL    EMIT     // ( )
 LDMFD SP!,{R0-R7,PC}
 
@@ -201,7 +213,7 @@ SUB   R0,R0,#0X30 //0,1,2,3,4,5,6,7,8,9
 STMEA R12!,{R0}
 LDMFD LR!,{R0,PC}
 
-mul_16_add: //10// ( m n --> 16*m+n )
+mul_256_add: //10// ( m n --> 256*m+n )
 STMFD SP!,{R0,R1,LR}
 LDMEA R12!,{R0,R1}
 LSL   R0,R0,#8
