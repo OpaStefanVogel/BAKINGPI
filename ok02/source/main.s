@@ -11,6 +11,7 @@
 //11 load_hex_dump KEY EMIT
 //12 DUP ADD
 //13 load_hex_dump mit MOV R2,#0X7000 und MOV R1,#8
+//14 KEY=0D,0A ignorieren und bei M Start des neuen Programms 
 
 /******************************************************************************
 *	main.s
@@ -186,11 +187,17 @@ BL    EMIT     // ( )
 MOV   R0,#0X50
 STMEA R12!,{R0}// ( m "P" )
 BL    EMIT     // ( )
+load_hex_dump_2:
 BL    KEY      // ( m c )
 BL    DUP      // ( m c c )
 BL    EMIT     // ( m c )
+LDMEA R12,{R0} // ( m c )
+CMP   R0,#0X10       //14
+BLT load_hex_dump_2  //14
+CMP   R0,#0X4D       //14 if "M"
+MOVEQ PC,#0X8000     //14
 BL char_to_int // ( m n )
-BL mul_256_add // ( 256*m+n )
+BL mul_16_add  // ( 16*m+n )
 SUB   R1,R1,#1
 CMP   R1,#0
 BNE   load_hex_dump_1 (m')
@@ -211,12 +218,12 @@ CMP   R0,#0X40    //A,B,C,D,E,F
 SUBGT R0,R0,#0X07
 SUB   R0,R0,#0X30 //0,1,2,3,4,5,6,7,8,9
 STMEA R12!,{R0}
-LDMFD LR!,{R0,PC}
+LDMFD SP!,{R0,PC}
 
-mul_256_add: //10// ( m n --> 256*m+n )
+mul_16_add: //10// ( m n --> 16*m+n )
 STMFD SP!,{R0,R1,LR}
 LDMEA R12!,{R0,R1}
-LSL   R0,R0,#8
+LSL   R0,R0,#4
 ADD   R0,R0,R1
 STMEA R12!,{R0}
 LDMFD SP!,{R0,R1,PC}
@@ -264,3 +271,5 @@ LDMEA R12!,{R0,R1}
 ADD   R0,R0,R1
 STMEA R12!,{R0}
 LDMFD SP!,{R0,R1,PC}
+
+Daten:
