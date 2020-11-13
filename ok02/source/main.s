@@ -61,7 +61,7 @@ str r1,[r0,#0] //6 Funktion auswählen
 //6 GPIO2 paarmal schalten
 mov r1,#1
 lsl r1,#2 //6 Bitposition für  GPIO2
-add r3,r3,#0x0A //16 Anzahl Wiederholungen mit r3=0 als Anfangsannahme
+mov r3,#0x0A //16 Anzahl Wiederholungen mit r3=0 als Anfangsannahme
 loop$: 
 str r1,[r0,#40]
 mov r2,#0x0F0000 //6 noch etwas schneller
@@ -204,7 +204,7 @@ ADD   R0,R1,#0X30 //15
 STMEA R12!,{R0}   //15 ( m' "7" )
 BL    EMIT        //15 ( m' )
 CMP   R1,#0
-BNE   load_hex_dump_1 (m')
+BNE   load_hex_dump_1 //(m')
 LDMEA R12!,{R0}// ( )
 STMEA R2!,{R0} //
 MOV   R0,#0X50

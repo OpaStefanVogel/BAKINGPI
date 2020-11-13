@@ -34,6 +34,9 @@ hexdump kernel.img -e '"%08.08_ax " 1/4 "%08x " "\n"' >/dev/ttyS0
 screen /dev/ttyS0 115200
 screen /dev/ttyS0 1200
 
+#zur Zeit
+gtkterm -s 1200
+
 
 
 #gpio im Terminal schalten:
@@ -44,4 +47,5 @@ ls #neu ein Verzeichnis gpio4
 sudo echo "out" > gpio4/direction
 sudo echo 1 > gpio4/value
 sudo echo 0 > gpio4/value
+
 
