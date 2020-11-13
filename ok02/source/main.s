@@ -14,6 +14,7 @@
 //14 KEY=0D,0A ignorieren und bei M Start des neuen Programms
 //15 zusätzlich R1=7,6,5,4,3,2,1,0,r ausgeben
 //16 add r3,r3,#0x0A mit r3=0 als Anfangsannahme
+//17 "N" als Neustart schon in loop2 und "M" als return aus load_hex_dump
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -163,6 +164,8 @@ cmp   r5,#0       //3
 strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
+CMP   R6,#0X4E       //17 if "N"...
+MOVEQ PC,#0X8000     //17 bei "N" Neustart
 cmp   r6,#0x4C      //11 wenn L...
 mov   r6,#0x4C
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
@@ -175,6 +178,7 @@ mov sp,#0x9000
 mov r12,#0x9000
 STMFD SP!,{R0-R7,LR}
 MOV   R2,#0X7000 //13//
+load_hex_dump_0:
 MOV   R1,#8
 MOV   R0,#0    // m=0
 STMEA R12!,{R0}// ( m )
@@ -196,7 +200,7 @@ LDMEA R12,{R0} // ( m c )
 CMP   R0,#0X10       //14
 BLT load_hex_dump_2  //14
 CMP   R0,#0X4D       //14 if "M"
-MOVEQ PC,#0X8000     //14
+B load_hex_dump_3    //17
 BL char_to_int // ( m n )
 BL mul_16_add  // ( 16*m+n )
 SUB   R1,R1,#1    //15
@@ -210,6 +214,9 @@ STMEA R2!,{R0} //
 MOV   R0,#0X50
 STMEA R12!,{R0}// ( "r" )
 BL    EMIT     // ( )
+B load_hex_dump_0
+load_hex_dump_3:
+LDMEA R12,{R0,R1} //17 ( )
 LDMFD SP!,{R0-R7,PC}
 
 
