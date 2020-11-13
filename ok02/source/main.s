@@ -151,6 +151,30 @@ char uart_recv ( void )
 mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
 mov r7,#0 //7 Anzahl der empfangenen Zeichen
+mov sp,#0x9000
+mov r12,#0x9000
+
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+MOV   R0,#0X48 
+STMEA R12!,{R0}// ( 'H' )
+BL    EMIT     // ( )
+MOV   R0,#0X41
+STMEA R12!,{R0}// ( 'A' )
+BL    EMIT     // ( )
+MOV   R0,#0X4C 
+STMEA R12!,{R0}// ( 'L' )
+BL    EMIT     // ( )
+MOV   R0,#0X4C 
+STMEA R12!,{R0}// ( 'L' )
+BL    EMIT     // ( )
+MOV   R0,#0X4F
+STMEA R12!,{R0}// ( 'O' )
+BL    EMIT     // ( )
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
 
 loop2$:  //2
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
@@ -174,8 +198,6 @@ b loop2$ //2 Ende Versuch 2
 
 
 load_hex_dump:
-mov sp,#0x9000
-mov r12,#0x9000
 STMFD SP!,{R0-R7,LR}
 MOV   R2,#0X7000 //13//
 load_hex_dump_0:
@@ -200,7 +222,7 @@ LDMEA R12,{R0} // ( m c )
 CMP   R0,#0X10       //14
 BLT load_hex_dump_2  //14
 CMP   R0,#0X4D       //14 if "M"
-B load_hex_dump_3    //17
+BEQ load_hex_dump_3    //17
 BL char_to_int // ( m n )
 BL mul_16_add  // ( 16*m+n )
 SUB   R1,R1,#1    //15
@@ -208,10 +230,10 @@ ADD   R0,R1,#0X30 //15
 STMEA R12!,{R0}   //15 ( m' "7" )
 BL    EMIT        //15 ( m' )
 CMP   R1,#0
-BNE   load_hex_dump_1 //(m')
+BNE   load_hex_dump_1//( m' )
 LDMEA R12!,{R0}// ( )
 STMEA R2!,{R0} //
-MOV   R0,#0X50
+MOV   R0,#0X73
 STMEA R12!,{R0}// ( "r" )
 BL    EMIT     // ( )
 B load_hex_dump_0
