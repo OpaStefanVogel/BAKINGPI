@@ -5,13 +5,13 @@ build/output.elf:     file format elf32-littlearm
 Disassembly of section .init:
 
 00008000 <_start>:
-    8000:	e59f02a0 	ldr	r0, [pc, #672]	; 82a8 <Daten>
-    8004:	e3a01001 	mov	r1, #1
-    8008:	e1a01301 	lsl	r1, r1, #6
-    800c:	e5801000 	str	r1, [r0]
-    8010:	e3a01001 	mov	r1, #1
-    8014:	e1a01101 	lsl	r1, r1, #2
-    8018:	e3a0300a 	mov	r3, #10
+    8000:	e3a0300a 	mov	r3, #10
+    8004:	e59f029c 	ldr	r0, [pc, #668]	; 82a8 <Daten>
+    8008:	e3a01001 	mov	r1, #1
+    800c:	e1a01301 	lsl	r1, r1, #6
+    8010:	e5801000 	str	r1, [r0]
+    8014:	e3a01001 	mov	r1, #1
+    8018:	e1a01101 	lsl	r1, r1, #2
 
 0000801c <loop$>:
     801c:	e5801028 	str	r1, [r0, #40]	; 0x28
@@ -101,7 +101,7 @@ Disassembly of section .init:
 
 00008154 <load_hex_dump>:
     8154:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
-    8158:	e3a02a07 	mov	r2, #28672	; 0x7000
+    8158:	e3a02902 	mov	r2, #32768	; 0x8000
 
 0000815c <load_hex_dump_0>:
     815c:	e3a01008 	mov	r1, #8

@@ -15,6 +15,7 @@
 //15 zusätzlich R1=7,6,5,4,3,2,1,0,r ausgeben
 //16 add r3,r3,#0x0A mit r3=0 als Anfangsannahme
 //17 "N" als Neustart schon in loop2 und "M" als return aus load_hex_dump
+//18 Blinkanzahl gleich bei Programmstart setzen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -41,6 +42,7 @@ _start:
 /* 
 * This command loads the physical address of the GPIO region into r0.0x20200000
 */
+mov r3,#0x0A //18 Blinkanzahl gleich bei Programmstart setzen
 ldr r0,=0x20200000
 
 /*
@@ -62,7 +64,6 @@ str r1,[r0,#0] //6 Funktion auswählen
 //6 GPIO2 paarmal schalten
 mov r1,#1
 lsl r1,#2 //6 Bitposition für  GPIO2
-mov r3,#0x0A //16 Anzahl Wiederholungen mit r3=0 als Anfangsannahme
 loop$: 
 str r1,[r0,#40]
 mov r2,#0x0F0000 //6 noch etwas schneller
@@ -199,7 +200,7 @@ b loop2$ //2 Ende Versuch 2
 
 load_hex_dump:
 STMFD SP!,{R0-R7,LR}
-MOV   R2,#0X7000 //13//
+MOV   R2,#0X8000 //13//18 direkt Programmstart überschreiben
 load_hex_dump_0:
 MOV   R1,#8
 MOV   R0,#0    // m=0
