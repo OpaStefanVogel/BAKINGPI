@@ -25,6 +25,7 @@ sudo cat /proc/iomem
 #fe200000-fe2000b3 : gpio@7e200000
 
 ###ttyS0 in Raspberyy Konfiguration erlauben. Dann
+stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 stty -F /dev/ttyS0 115200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 stty raw -echo opost quit ^C isig ixon -ixoff #hiernach ist es finster!!!
 cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0
@@ -36,6 +37,12 @@ screen /dev/ttyS0 1200
 
 #zur Zeit
 gtkterm -s 1200
+
+#zur Zeit mit cp:
+stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
+cp /dev/ttyS0 /dev/tty 
+cp /dev/tty /dev/ttyS0 #in extra terminal
+cat 7000.txt >/dev/ttyS0 #in einem dritten terminal
 
 
 

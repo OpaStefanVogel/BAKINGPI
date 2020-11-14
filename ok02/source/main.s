@@ -17,6 +17,7 @@
 //17 "N" als Neustart schon in loop2 und "M" als return aus load_hex_dump
 //18 Blinkanzahl gleich bei Programmstart setzen
 //19 neues Programm auf 0x7000 speichern und dort dann 03a0f902 mov pc,#0X8000
+//20 EMIT auch in loop2
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -192,9 +193,11 @@ streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 CMP   R6,#0X4E       //17 if "N"...
 MOVEQ PC,#0X7000     //17 bei "N" Neustart //19 jetzt ab 0X7000
+//str   r6,[r2,#0x40] //7 Zeichen zurückschicken //20 jetzt mit EMIT
+mov   r5,#0x4C
+STMEA R12!,{R5}// ( "r" )
+BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
-mov   r6,#0x4C
-str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
 b loop2$ //2 Ende Versuch 2
 
