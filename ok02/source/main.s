@@ -18,6 +18,7 @@
 //18 Blinkanzahl gleich bei Programmstart setzen
 //19 neues Programm auf 0x7000 speichern und dort dann 03a0f902 mov pc,#0X8000
 //20 EMIT auch in loop2
+//21 load_hex_dump nur noch mit Ausgabe "r"
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -210,30 +211,30 @@ MOV   R1,#8
 MOV   R0,#0    // m=0
 STMEA R12!,{R0}// ( m )
 load_hex_dump_1:
-MOV   R0,#0X0D 
-STMEA R12!,{R0}// ( m CR )
-BL    EMIT     // ( )
-MOV   R0,#0X0A 
-STMEA R12!,{R0}// ( m LF )
-BL    EMIT     // ( )
-MOV   R0,#0X50
-STMEA R12!,{R0}// ( m "P" )
-BL    EMIT     // ( )
+//21 MOV   R0,#0X0D 
+//21 STMEA R12!,{R0}// ( m CR )
+//21 BL    EMIT     // ( )
+//21 MOV   R0,#0X0A 
+//21 STMEA R12!,{R0}// ( m LF )
+//21 BL    EMIT     // ( )
+//21 MOV   R0,#0X50
+//21 STMEA R12!,{R0}// ( m "P" )
+//21 BL    EMIT     // ( )
 load_hex_dump_2:
 BL    KEY      // ( m c )
-BL    DUP      // ( m c c )
-BL    EMIT     // ( m c )
+//21 BL    DUP      // ( m c c )
+//21 BL    EMIT     // ( m c )
 LDMEA R12,{R0} // ( m c )
 CMP   R0,#0X10       //14
 BLT load_hex_dump_2  //14
 CMP   R0,#0X4D       //14 if "M"
-BEQ load_hex_dump_3    //17
+BEQ load_hex_dump_3  //17
 BL char_to_int // ( m n )
 BL mul_16_add  // ( 16*m+n )
 SUB   R1,R1,#1    //15
 ADD   R0,R1,#0X30 //15
-STMEA R12!,{R0}   //15 ( m' "7" )
-BL    EMIT        //15 ( m' )
+//21 STMEA R12!,{R0}   //15 ( m' "7" )
+//21 BL    EMIT        //15 ( m' )
 CMP   R1,#0
 BNE   load_hex_dump_1//( m' )
 LDMEA R12!,{R0}// ( )
