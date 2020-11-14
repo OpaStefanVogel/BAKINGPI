@@ -16,6 +16,7 @@
 //16 add r3,r3,#0x0A mit r3=0 als Anfangsannahme
 //17 "N" als Neustart schon in loop2 und "M" als return aus load_hex_dump
 //18 Blinkanzahl gleich bei Programmstart setzen
+//19 neues Programm auf 0x7000 speichern und dort dann 03a0f902 mov pc,#0X8000
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -190,7 +191,7 @@ strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 CMP   R6,#0X4E       //17 if "N"...
-MOVEQ PC,#0X8000     //17 bei "N" Neustart
+MOVEQ PC,#0X7000     //17 bei "N" Neustart //19 jetzt ab 0X7000
 cmp   r6,#0x4C      //11 wenn L...
 mov   r6,#0x4C
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
@@ -200,7 +201,7 @@ b loop2$ //2 Ende Versuch 2
 
 load_hex_dump:
 STMFD SP!,{R0-R7,LR}
-MOV   R2,#0X8000 //13//18 direkt Programmstart überschreiben
+MOV   R2,#0X7000 //13//18 direkt Programmstart überschreiben //19 jetzt ab 0X7000
 load_hex_dump_0:
 MOV   R1,#8
 MOV   R0,#0    // m=0
@@ -305,5 +306,11 @@ LDMEA R12!,{R0,R1}
 ADD   R0,R0,R1
 STMEA R12!,{R0}
 LDMFD SP!,{R0,R1,PC}
+
+ab7000:
+mov r3,#0X2A
+mov r1,#0X8000
+add r1,r1,#4
+mov pc,r1
 
 Daten:

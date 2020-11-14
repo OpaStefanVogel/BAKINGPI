@@ -6,7 +6,7 @@ Disassembly of section .init:
 
 00008000 <_start>:
     8000:	e3a0300a 	mov	r3, #10
-    8004:	e59f029c 	ldr	r0, [pc, #668]	; 82a8 <Daten>
+    8004:	e59f02ac 	ldr	r0, [pc, #684]	; 82b8 <Daten>
     8008:	e3a01001 	mov	r1, #1
     800c:	e1a01301 	lsl	r1, r1, #6
     8010:	e5801000 	str	r1, [r0]
@@ -37,7 +37,7 @@ Disassembly of section .init:
     805c:	e1a02782 	lsl	r2, r2, #15
     8060:	e1811002 	orr	r1, r1, r2
     8064:	e5801004 	str	r1, [r0, #4]
-    8068:	e59f223c 	ldr	r2, [pc, #572]	; 82ac <Daten+0x4>
+    8068:	e59f224c 	ldr	r2, [pc, #588]	; 82bc <Daten+0x4>
     806c:	e3a03001 	mov	r3, #1
     8070:	e5823004 	str	r3, [r2, #4]
     8074:	e3a03000 	mov	r3, #0
@@ -48,7 +48,7 @@ Disassembly of section .init:
     8088:	e582304c 	str	r3, [r2, #76]	; 0x4c
     808c:	e3a03000 	mov	r3, #0
     8090:	e5823050 	str	r3, [r2, #80]	; 0x50
-    8094:	e59f3214 	ldr	r3, [pc, #532]	; 82b0 <Daten+0x8>
+    8094:	e59f3224 	ldr	r3, [pc, #548]	; 82c0 <Daten+0x8>
     8098:	e5823068 	str	r3, [r2, #104]	; 0x68
     809c:	e3a03003 	mov	r3, #3
     80a0:	e5823060 	str	r3, [r2, #96]	; 0x60
@@ -92,7 +92,7 @@ Disassembly of section .init:
     8130:	0580101c 	streq	r1, [r0, #28]
     8134:	e5826040 	str	r6, [r2, #64]	; 0x40
     8138:	e356004e 	cmp	r6, #78	; 0x4e
-    813c:	03a0f902 	moveq	pc, #32768	; 0x8000
+    813c:	03a0fa07 	moveq	pc, #28672	; 0x7000
     8140:	e356004c 	cmp	r6, #76	; 0x4c
     8144:	e3a0604c 	mov	r6, #76	; 0x4c
     8148:	e5826040 	str	r6, [r2, #64]	; 0x40
@@ -101,7 +101,7 @@ Disassembly of section .init:
 
 00008154 <load_hex_dump>:
     8154:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
-    8158:	e3a02902 	mov	r2, #32768	; 0x8000
+    8158:	e3a02a07 	mov	r2, #28672	; 0x7000
 
 0000815c <load_hex_dump_0>:
     815c:	e3a01008 	mov	r1, #8
@@ -210,7 +210,13 @@ Disassembly of section .init:
     82a0:	e8ac0001 	stmia	ip!, {r0}
     82a4:	e8bd8003 	pop	{r0, r1, pc}
 
-000082a8 <Daten>:
-    82a8:	20200000 	.word	0x20200000
-    82ac:	20215000 	.word	0x20215000
-    82b0:	000065b8 	.word	0x000065b8
+000082a8 <ab7000>:
+    82a8:	e3a0302a 	mov	r3, #42	; 0x2a
+    82ac:	e3a01902 	mov	r1, #32768	; 0x8000
+    82b0:	e2811004 	add	r1, r1, #4
+    82b4:	e1a0f001 	mov	pc, r1
+
+000082b8 <Daten>:
+    82b8:	20200000 	.word	0x20200000
+    82bc:	20215000 	.word	0x20215000
+    82c0:	000065b8 	.word	0x000065b8
