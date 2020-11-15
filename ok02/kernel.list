@@ -6,7 +6,7 @@ Disassembly of section .init:
 
 00008000 <_start>:
     8000:	e3a0300a 	mov	r3, #10
-    8004:	e59f027c 	ldr	r0, [pc, #636]	; 8288 <Daten>
+    8004:	e59f02f8 	ldr	r0, [pc, #760]	; 8304 <Daten>
     8008:	e3a01001 	mov	r1, #1
     800c:	e1a01301 	lsl	r1, r1, #6
     8010:	e5801000 	str	r1, [r0]
@@ -37,7 +37,7 @@ Disassembly of section .init:
     805c:	e1a02782 	lsl	r2, r2, #15
     8060:	e1811002 	orr	r1, r1, r2
     8064:	e5801004 	str	r1, [r0, #4]
-    8068:	e59f221c 	ldr	r2, [pc, #540]	; 828c <Daten+0x4>
+    8068:	e59f2298 	ldr	r2, [pc, #664]	; 8308 <Daten+0x4>
     806c:	e3a03001 	mov	r3, #1
     8070:	e5823004 	str	r3, [r2, #4]
     8074:	e3a03000 	mov	r3, #0
@@ -48,7 +48,7 @@ Disassembly of section .init:
     8088:	e582304c 	str	r3, [r2, #76]	; 0x4c
     808c:	e3a03000 	mov	r3, #0
     8090:	e5823050 	str	r3, [r2, #80]	; 0x50
-    8094:	e59f31f4 	ldr	r3, [pc, #500]	; 8290 <Daten+0x8>
+    8094:	e59f3270 	ldr	r3, [pc, #624]	; 830c <Daten+0x8>
     8098:	e5823068 	str	r3, [r2, #104]	; 0x68
     809c:	e3a03003 	mov	r3, #3
     80a0:	e5823060 	str	r3, [r2, #96]	; 0x60
@@ -59,150 +59,181 @@ Disassembly of section .init:
     80b4:	e3a0ca09 	mov	ip, #36864	; 0x9000
     80b8:	e3a00020 	mov	r0, #32
     80bc:	e8ac0001 	stmia	ip!, {r0}
-    80c0:	eb00004c 	bl	81f8 <EMIT>
+    80c0:	eb00006b 	bl	8274 <EMIT>
     80c4:	e3a00048 	mov	r0, #72	; 0x48
     80c8:	e8ac0001 	stmia	ip!, {r0}
-    80cc:	eb000049 	bl	81f8 <EMIT>
+    80cc:	eb000068 	bl	8274 <EMIT>
     80d0:	e3a00041 	mov	r0, #65	; 0x41
     80d4:	e8ac0001 	stmia	ip!, {r0}
-    80d8:	eb000046 	bl	81f8 <EMIT>
+    80d8:	eb000065 	bl	8274 <EMIT>
     80dc:	e3a0004c 	mov	r0, #76	; 0x4c
     80e0:	e8ac0001 	stmia	ip!, {r0}
-    80e4:	eb000043 	bl	81f8 <EMIT>
+    80e4:	eb000062 	bl	8274 <EMIT>
     80e8:	e3a0004c 	mov	r0, #76	; 0x4c
     80ec:	e8ac0001 	stmia	ip!, {r0}
-    80f0:	eb000040 	bl	81f8 <EMIT>
-    80f4:	e3a0004f 	mov	r0, #79	; 0x4f
+    80f0:	eb00005f 	bl	8274 <EMIT>
+    80f4:	e3a00049 	mov	r0, #73	; 0x49
     80f8:	e8ac0001 	stmia	ip!, {r0}
-    80fc:	eb00003d 	bl	81f8 <EMIT>
-    8100:	e3a00020 	mov	r0, #32
+    80fc:	eb00005c 	bl	8274 <EMIT>
+    8100:	e3a0000d 	mov	r0, #13
     8104:	e8ac0001 	stmia	ip!, {r0}
-    8108:	eb00003a 	bl	81f8 <EMIT>
+    8108:	eb000059 	bl	8274 <EMIT>
+    810c:	e3a0000a 	mov	r0, #10
+    8110:	e8ac0001 	stmia	ip!, {r0}
+    8114:	eb000056 	bl	8274 <EMIT>
 
-0000810c <loop2$>:
-    810c:	e5925054 	ldr	r5, [r2, #84]	; 0x54
-    8110:	e2055001 	and	r5, r5, #1
-    8114:	e3550000 	cmp	r5, #0
-    8118:	0afffffb 	beq	810c <loop2$>
-    811c:	e5926040 	ldr	r6, [r2, #64]	; 0x40
-    8120:	e2877001 	add	r7, r7, #1
-    8124:	e2075001 	and	r5, r7, #1
-    8128:	e3550000 	cmp	r5, #0
-    812c:	15801028 	strne	r1, [r0, #40]	; 0x28
-    8130:	0580101c 	streq	r1, [r0, #28]
-    8134:	e5826040 	str	r6, [r2, #64]	; 0x40
-    8138:	e356004e 	cmp	r6, #78	; 0x4e
-    813c:	03a0fa07 	moveq	pc, #28672	; 0x7000
-    8140:	e3a0504c 	mov	r5, #76	; 0x4c
-    8144:	e8ac0020 	stmia	ip!, {r5}
-    8148:	eb00002a 	bl	81f8 <EMIT>
-    814c:	e356004c 	cmp	r6, #76	; 0x4c
-    8150:	0b000000 	bleq	8158 <load_hex_dump>
-    8154:	eaffffec 	b	810c <loop2$>
+00008118 <loop2$>:
+    8118:	e5925054 	ldr	r5, [r2, #84]	; 0x54
+    811c:	e2055001 	and	r5, r5, #1
+    8120:	e3550000 	cmp	r5, #0
+    8124:	0afffffb 	beq	8118 <loop2$>
+    8128:	e5926040 	ldr	r6, [r2, #64]	; 0x40
+    812c:	e2877001 	add	r7, r7, #1
+    8130:	e2075001 	and	r5, r7, #1
+    8134:	e3550000 	cmp	r5, #0
+    8138:	15801028 	strne	r1, [r0, #40]	; 0x28
+    813c:	0580101c 	streq	r1, [r0, #28]
+    8140:	e5826040 	str	r6, [r2, #64]	; 0x40
+    8144:	e1a04002 	mov	r4, r2
+    8148:	e356004e 	cmp	r6, #78	; 0x4e
+    814c:	03a0fa07 	moveq	pc, #28672	; 0x7000
+    8150:	e3560052 	cmp	r6, #82	; 0x52
+    8154:	03a0f902 	moveq	pc, #32768	; 0x8000
+    8158:	e3a0504c 	mov	r5, #76	; 0x4c
+    815c:	e8ac0020 	stmia	ip!, {r5}
+    8160:	eb000043 	bl	8274 <EMIT>
+    8164:	e356004c 	cmp	r6, #76	; 0x4c
+    8168:	03a02a07 	moveq	r2, #28672	; 0x7000
+    816c:	0b000004 	bleq	8184 <load_hex_dump>
+    8170:	e3560050 	cmp	r6, #80	; 0x50
+    8174:	03a02902 	moveq	r2, #32768	; 0x8000
+    8178:	0b000001 	bleq	8184 <load_hex_dump>
+    817c:	e1a02004 	mov	r2, r4
+    8180:	eaffffe4 	b	8118 <loop2$>
 
-00008158 <load_hex_dump>:
-    8158:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
-    815c:	e3a02a07 	mov	r2, #28672	; 0x7000
+00008184 <load_hex_dump>:
+    8184:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
 
-00008160 <load_hex_dump_0>:
-    8160:	e3a01008 	mov	r1, #8
-    8164:	e3a00000 	mov	r0, #0
-    8168:	e8ac0001 	stmia	ip!, {r0}
+00008188 <load_hex_dump_0>:
+    8188:	e3a01008 	mov	r1, #8
+    818c:	e3a00000 	mov	r0, #0
+    8190:	e8ac0001 	stmia	ip!, {r0}
 
-0000816c <load_hex_dump_1>:
-    816c:	eb00002c 	bl	8224 <KEY>
-    8170:	e91c0001 	ldmdb	ip, {r0}
-    8174:	e3500010 	cmp	r0, #16
-    8178:	bafffffb 	blt	816c <load_hex_dump_1>
-    817c:	e350004d 	cmp	r0, #77	; 0x4d
-    8180:	0a00000b 	beq	81b4 <load_hex_dump_3>
-    8184:	eb00000c 	bl	81bc <char_to_int>
-    8188:	eb000014 	bl	81e0 <mul_16_add>
-    818c:	e2411001 	sub	r1, r1, #1
-    8190:	e2810030 	add	r0, r1, #48	; 0x30
-    8194:	e3510000 	cmp	r1, #0
-    8198:	1afffff3 	bne	816c <load_hex_dump_1>
-    819c:	e93c0001 	ldmdb	ip!, {r0}
-    81a0:	e8a20001 	stmia	r2!, {r0}
-    81a4:	e3a00073 	mov	r0, #115	; 0x73
-    81a8:	e8ac0001 	stmia	ip!, {r0}
-    81ac:	eb000011 	bl	81f8 <EMIT>
-    81b0:	eaffffea 	b	8160 <load_hex_dump_0>
+00008194 <load_hex_dump_1>:
+    8194:	eb000041 	bl	82a0 <KEY>
+    8198:	e91c0001 	ldmdb	ip, {r0}
+    819c:	e3500010 	cmp	r0, #16
+    81a0:	bafffffb 	blt	8194 <load_hex_dump_1>
+    81a4:	e350004d 	cmp	r0, #77	; 0x4d
+    81a8:	0a00000b 	beq	81dc <load_hex_dump_3>
+    81ac:	eb000021 	bl	8238 <char_to_int>
+    81b0:	eb000029 	bl	825c <mul_16_add>
+    81b4:	e2411001 	sub	r1, r1, #1
+    81b8:	e2810030 	add	r0, r1, #48	; 0x30
+    81bc:	e3510000 	cmp	r1, #0
+    81c0:	1afffff3 	bne	8194 <load_hex_dump_1>
+    81c4:	e93c0001 	ldmdb	ip!, {r0}
+    81c8:	e8a20001 	stmia	r2!, {r0}
+    81cc:	e3a00073 	mov	r0, #115	; 0x73
+    81d0:	e8ac0001 	stmia	ip!, {r0}
+    81d4:	eb000026 	bl	8274 <EMIT>
+    81d8:	eaffffea 	b	8188 <load_hex_dump_0>
 
-000081b4 <load_hex_dump_3>:
-    81b4:	e91c0003 	ldmdb	ip, {r0, r1}
-    81b8:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
+000081dc <load_hex_dump_3>:
+    81dc:	e3a00020 	mov	r0, #32
+    81e0:	e8ac0001 	stmia	ip!, {r0}
+    81e4:	eb000022 	bl	8274 <EMIT>
+    81e8:	e3a00045 	mov	r0, #69	; 0x45
+    81ec:	e8ac0001 	stmia	ip!, {r0}
+    81f0:	eb00001f 	bl	8274 <EMIT>
+    81f4:	e3a0004e 	mov	r0, #78	; 0x4e
+    81f8:	e8ac0001 	stmia	ip!, {r0}
+    81fc:	eb00001c 	bl	8274 <EMIT>
+    8200:	e3a00044 	mov	r0, #68	; 0x44
+    8204:	e8ac0001 	stmia	ip!, {r0}
+    8208:	eb000019 	bl	8274 <EMIT>
+    820c:	e3a00045 	mov	r0, #69	; 0x45
+    8210:	e8ac0001 	stmia	ip!, {r0}
+    8214:	eb000016 	bl	8274 <EMIT>
+    8218:	e3a0000d 	mov	r0, #13
+    821c:	e8ac0001 	stmia	ip!, {r0}
+    8220:	eb000013 	bl	8274 <EMIT>
+    8224:	e3a0000a 	mov	r0, #10
+    8228:	e8ac0001 	stmia	ip!, {r0}
+    822c:	eb000010 	bl	8274 <EMIT>
+    8230:	e93c0003 	ldmdb	ip!, {r0, r1}
+    8234:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
 
-000081bc <char_to_int>:
-    81bc:	e92d4001 	push	{r0, lr}
-    81c0:	e93c0001 	ldmdb	ip!, {r0}
-    81c4:	e3500060 	cmp	r0, #96	; 0x60
-    81c8:	c2400020 	subgt	r0, r0, #32
-    81cc:	e3500040 	cmp	r0, #64	; 0x40
-    81d0:	c2400007 	subgt	r0, r0, #7
-    81d4:	e2400030 	sub	r0, r0, #48	; 0x30
-    81d8:	e8ac0001 	stmia	ip!, {r0}
-    81dc:	e8bd8001 	pop	{r0, pc}
+00008238 <char_to_int>:
+    8238:	e92d4001 	push	{r0, lr}
+    823c:	e93c0001 	ldmdb	ip!, {r0}
+    8240:	e3500060 	cmp	r0, #96	; 0x60
+    8244:	c2400020 	subgt	r0, r0, #32
+    8248:	e3500040 	cmp	r0, #64	; 0x40
+    824c:	c2400007 	subgt	r0, r0, #7
+    8250:	e2400030 	sub	r0, r0, #48	; 0x30
+    8254:	e8ac0001 	stmia	ip!, {r0}
+    8258:	e8bd8001 	pop	{r0, pc}
 
-000081e0 <mul_16_add>:
-    81e0:	e92d4003 	push	{r0, r1, lr}
-    81e4:	e93c0003 	ldmdb	ip!, {r0, r1}
-    81e8:	e1a00200 	lsl	r0, r0, #4
-    81ec:	e0800001 	add	r0, r0, r1
-    81f0:	e8ac0001 	stmia	ip!, {r0}
-    81f4:	e8bd8003 	pop	{r0, r1, pc}
+0000825c <mul_16_add>:
+    825c:	e92d4003 	push	{r0, r1, lr}
+    8260:	e93c0003 	ldmdb	ip!, {r0, r1}
+    8264:	e1a00200 	lsl	r0, r0, #4
+    8268:	e0800001 	add	r0, r0, r1
+    826c:	e8ac0001 	stmia	ip!, {r0}
+    8270:	e8bd8003 	pop	{r0, r1, pc}
 
-000081f8 <EMIT>:
-    81f8:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
-    81fc:	e93c0001 	ldmdb	ip!, {r0}
-    8200:	e3a08202 	mov	r8, #536870912	; 0x20000000
-    8204:	e2888602 	add	r8, r8, #2097152	; 0x200000
-    8208:	e2888a15 	add	r8, r8, #86016	; 0x15000
+00008274 <EMIT>:
+    8274:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
+    8278:	e93c0001 	ldmdb	ip!, {r0}
+    827c:	e3a08202 	mov	r8, #536870912	; 0x20000000
+    8280:	e2888602 	add	r8, r8, #2097152	; 0x200000
+    8284:	e2888a15 	add	r8, r8, #86016	; 0x15000
 
-0000820c <emitloop1$>:
-    820c:	e5985054 	ldr	r5, [r8, #84]	; 0x54
-    8210:	e2055020 	and	r5, r5, #32
-    8214:	e3550000 	cmp	r5, #0
-    8218:	0afffffb 	beq	820c <emitloop1$>
-    821c:	e5880040 	str	r0, [r8, #64]	; 0x40
-    8220:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
+00008288 <emitloop1$>:
+    8288:	e5985054 	ldr	r5, [r8, #84]	; 0x54
+    828c:	e2055020 	and	r5, r5, #32
+    8290:	e3550000 	cmp	r5, #0
+    8294:	0afffffb 	beq	8288 <emitloop1$>
+    8298:	e5880040 	str	r0, [r8, #64]	; 0x40
+    829c:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
 
-00008224 <KEY>:
-    8224:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
-    8228:	e3a08202 	mov	r8, #536870912	; 0x20000000
-    822c:	e2888602 	add	r8, r8, #2097152	; 0x200000
-    8230:	e2888a15 	add	r8, r8, #86016	; 0x15000
+000082a0 <KEY>:
+    82a0:	e92d40ff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, lr}
+    82a4:	e3a08202 	mov	r8, #536870912	; 0x20000000
+    82a8:	e2888602 	add	r8, r8, #2097152	; 0x200000
+    82ac:	e2888a15 	add	r8, r8, #86016	; 0x15000
 
-00008234 <keyloop1$>:
-    8234:	e5985054 	ldr	r5, [r8, #84]	; 0x54
-    8238:	e2055001 	and	r5, r5, #1
-    823c:	e3550000 	cmp	r5, #0
-    8240:	0afffffb 	beq	8234 <keyloop1$>
-    8244:	e5985040 	ldr	r5, [r8, #64]	; 0x40
-    8248:	e8ac0020 	stmia	ip!, {r5}
-    824c:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
+000082b0 <keyloop1$>:
+    82b0:	e5985054 	ldr	r5, [r8, #84]	; 0x54
+    82b4:	e2055001 	and	r5, r5, #1
+    82b8:	e3550000 	cmp	r5, #0
+    82bc:	0afffffb 	beq	82b0 <keyloop1$>
+    82c0:	e5985040 	ldr	r5, [r8, #64]	; 0x40
+    82c4:	e8ac0020 	stmia	ip!, {r5}
+    82c8:	e8bd80ff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, pc}
 
-00008250 <DUP>:
-    8250:	e92d4001 	push	{r0, lr}
-    8254:	e93c0001 	ldmdb	ip!, {r0}
-    8258:	e8ac0001 	stmia	ip!, {r0}
-    825c:	e8ac0001 	stmia	ip!, {r0}
-    8260:	e8bd8001 	pop	{r0, pc}
+000082cc <DUP>:
+    82cc:	e92d4001 	push	{r0, lr}
+    82d0:	e93c0001 	ldmdb	ip!, {r0}
+    82d4:	e8ac0001 	stmia	ip!, {r0}
+    82d8:	e8ac0001 	stmia	ip!, {r0}
+    82dc:	e8bd8001 	pop	{r0, pc}
 
-00008264 <ADD>:
-    8264:	e92d4003 	push	{r0, r1, lr}
-    8268:	e93c0003 	ldmdb	ip!, {r0, r1}
-    826c:	e0800001 	add	r0, r0, r1
-    8270:	e8ac0001 	stmia	ip!, {r0}
-    8274:	e8bd8003 	pop	{r0, r1, pc}
+000082e0 <ADD>:
+    82e0:	e92d4003 	push	{r0, r1, lr}
+    82e4:	e93c0003 	ldmdb	ip!, {r0, r1}
+    82e8:	e0800001 	add	r0, r0, r1
+    82ec:	e8ac0001 	stmia	ip!, {r0}
+    82f0:	e8bd8003 	pop	{r0, r1, pc}
 
-00008278 <ab7000>:
-    8278:	e3a0302a 	mov	r3, #42	; 0x2a
-    827c:	e3a01902 	mov	r1, #32768	; 0x8000
-    8280:	e2811004 	add	r1, r1, #4
-    8284:	e1a0f001 	mov	pc, r1
+000082f4 <ab7000>:
+    82f4:	e3a0302a 	mov	r3, #42	; 0x2a
+    82f8:	e3a01902 	mov	r1, #32768	; 0x8000
+    82fc:	e2811004 	add	r1, r1, #4
+    8300:	e1a0f001 	mov	pc, r1
 
-00008288 <Daten>:
-    8288:	20200000 	.word	0x20200000
-    828c:	20215000 	.word	0x20215000
-    8290:	000065b8 	.word	0x000065b8
+00008304 <Daten>:
+    8304:	20200000 	.word	0x20200000
+    8308:	20215000 	.word	0x20215000
+    830c:	000065b8 	.word	0x000065b8
