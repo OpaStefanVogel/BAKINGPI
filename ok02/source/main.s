@@ -19,6 +19,7 @@
 //19 neues Programm auf 0x7000 speichern und dort dann 03a0f902 mov pc,#0X8000
 //20 EMIT auch in loop2
 //21 load_hex_dump nur noch mit Ausgabe "r"
+//22 L=speichern, N=starten auf #0x7000, P=speichern, R=starten auf #0x8000, M=speichern zuende
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -45,7 +46,7 @@ _start:
 /* 
 * This command loads the physical address of the GPIO region into r0.0x20200000
 */
-mov r3,#0x0A //18 Blinkanzahl gleich bei Programmstart setzen
+mov r3,#0x2A //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
 ldr r0,=0x20200000
 
 /*
@@ -173,8 +174,8 @@ BL    EMIT     // ( )
 MOV   R0,#0X4C 
 STMEA R12!,{R0}// ( 'L' )
 BL    EMIT     // ( )
-MOV   R0,#0X4F
-STMEA R12!,{R0}// ( 'O' )
+MOV   R0,#0X49 //22
+STMEA R12!,{R0}//22 ( 'I' )
 BL    EMIT     // ( )
 MOV   R0,#0X20 
 STMEA R12!,{R0}// ( ' ' )
@@ -194,18 +195,23 @@ streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 CMP   R6,#0X4E       //17 if "N"...
 MOVEQ PC,#0X7000     //17 bei "N" Neustart //19 jetzt ab 0X7000
+CMP   R6,#0X52       //22 if "R"...
+MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 //str   r6,[r2,#0x40] //7 Zeichen zurückschicken //20 jetzt mit EMIT
 mov   r5,#0x4C
 STMEA R12!,{R5}// ( "r" )
 BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
+MOVEQ R2,#0X7000    //22//13//18 direkt Programmstart überschreiben //19 jetzt ab 0X7000
 bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
+cmp   r6,#0x4C      //22 wenn P...
+MOVEQ R2,#0X8000    //22 bei P ab 0X8000
+bleq  load_hex_dump //22 wenn P hex dump laden
 b loop2$ //2 Ende Versuch 2
 
 
 load_hex_dump:
 STMFD SP!,{R0-R7,LR}
-MOV   R2,#0X7000 //13//18 direkt Programmstart überschreiben //19 jetzt ab 0X7000
 load_hex_dump_0:
 MOV   R1,#8
 MOV   R0,#0    // m=0
