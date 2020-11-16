@@ -42,8 +42,20 @@ gtkterm -s 1200
 stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 cp /dev/ttyS0 /dev/tty 
 cp /dev/tty /dev/ttyS0 #in extra terminal
-cat 7000.txt >/dev/ttyS0 #in einem dritten terminal
+cat T7000.txt >/dev/ttyS0 #in einem dritten terminal
 
+#-------------------------------------------------
+#zur Zeit mit cp:
+make
+hexdump kernel.img -e '1/4 "%08x" "\n"' >T7000.txt
+#dann in T7000.txt am Anfang ein L und am Ende ein M einfügen. Zwischendurch * ist doppelter Inhalt, ersetzten!
+stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
+stty raw
+cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0
+#dort Taste R, dann (T700.txt beginnt schon mit L)
+cat T7000.txt >/dev/ttyS0
+#dann Taste N, dann (T800.txt beginnt schon mit P)
+cat T8000.txt >/dev/ttyS0
 
 
 #gpio im Terminal schalten:

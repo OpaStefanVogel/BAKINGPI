@@ -21,6 +21,7 @@
 //21 load_hex_dump nur noch mit Ausgabe "r"
 //22 L=speichern, N=starten auf #0x7000, P=speichern, R=starten auf #0x8000, M=speichern zuende
 //23 r2 aufheben
+//24 Blinkdauer auch gleich am Anfang einstellen, auch Leer- und Sonderzeichen im Hexdump überlesen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -48,6 +49,7 @@ _start:
 * This command loads the physical address of the GPIO region into r0.0x20200000
 */
 mov r3,#0x0A //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
+mov r4,#0x0F0000 //24 Blinkdauer auch
 ldr r0,=0x20200000
 
 /*
@@ -71,13 +73,13 @@ mov r1,#1
 lsl r1,#2 //6 Bitposition für  GPIO2
 loop$: 
 str r1,[r0,#40]
-mov r2,#0x0F0000 //6 noch etwas schneller
+mov r2,r4 //24
 wait1$:
 	sub r2,#1
 	cmp r2,#0
 	bne wait1$
 str r1,[r0,#28]
-mov r2,#0x0F0000 //6 noch etwas schneller
+mov r2,r4 //24
 wait2$:
 	sub r2,#1
 	cmp r2,#0
@@ -175,8 +177,8 @@ BL    EMIT     // ( )
 MOV   R0,#0X4C 
 STMEA R12!,{R0}// ( 'L' )
 BL    EMIT     // ( )
-MOV   R0,#0X49 //22
-STMEA R12!,{R0}//22 ( 'I' )
+MOV   R0,#0X4F //22
+STMEA R12!,{R0}//22 ( 'O' )
 BL    EMIT     // ( )
 MOV   R0,#0X0D 
 STMEA R12!,{R0}// ( ' ' )
@@ -237,7 +239,7 @@ BL    KEY      // ( m c )
 //21 BL    DUP      // ( m c c )
 //21 BL    EMIT     // ( m c )
 LDMEA R12,{R0} // ( m c )
-CMP   R0,#0X10       //14
+CMP   R0,#0X30       //14//23
 BLT load_hex_dump_2  //14
 CMP   R0,#0X4D       //14 if "M"
 BEQ load_hex_dump_3  //17
