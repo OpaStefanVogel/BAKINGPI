@@ -22,6 +22,7 @@
 //22 L=speichern, N=starten auf #0x7000, P=speichern, R=starten auf #0x8000, M=speichern zuende
 //23 r2 aufheben
 //24 Blinkdauer auch gleich am Anfang einstellen, auch Leer- und Sonderzeichen im Hexdump überlesen
+//25 zurück auf 115200 baud
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -128,8 +129,8 @@ mov r3,#3         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
-ldr r3,=#26040 //#270 für 115200, #26040 für 1200
-str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to 115200"
+ldr r3,=#270      //#270 für 115200, #26040 für 1200
+str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to r3"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
 
