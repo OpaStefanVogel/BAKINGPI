@@ -27,7 +27,7 @@ sudo cat /proc/iomem
 #-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
 ###ttyS0 in Raspberyy Konfiguration erlauben. Dann
 make
-hexdump kernel.img -e '1/4 "%08x" "\n"' >T7000.txt
+hexdump kernel.img -v -e '1/4 "%08x" "\n"' >T7000.txt
 #dann in T7000.txt am Anfang ein L und am Ende ein M einfügen. 
 #Zwischendurch * ist doppelter Inhalt, ersetzten!
 #und noch HALLI statt HALLO und Blinkzahl und -dauer verstellen
