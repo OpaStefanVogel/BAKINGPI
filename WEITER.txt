@@ -31,6 +31,7 @@ hexdump kernel.img -e '1/4 "%08x" "\n"' >T7000.txt
 #dann in T7000.txt am Anfang ein L und am Ende ein M einfügen. 
 #Zwischendurch * ist doppelter Inhalt, ersetzten!
 #und noch HALLI statt HALLO und Blinkzahl und -dauer verstellen
+nano T7000.txt
 #ein extra lxterminal mit stty und cp laut BAKINGPI_starten.txt
 #dort Taste R, dann (T700.txt beginnt schon mit L)
 cat T7000.txt >/dev/ttyS0
