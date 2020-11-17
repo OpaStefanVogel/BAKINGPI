@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=lxterminal -e "ls;git pull;gitk --all &pcmanfm .&mousepad source/main.s&mousepad ../WEITER.txt&bash"
+Exec=lxterminal -e "../BAKINGPI_starten.txt&bash"
 Type=Application
 Path=/home/pi/Desktop/CLONE/BAKINGPI/ok02
 Terminal=false

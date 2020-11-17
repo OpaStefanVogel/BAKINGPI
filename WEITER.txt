@@ -24,36 +24,14 @@ sudo gdb empty
 sudo cat /proc/iomem  
 #fe200000-fe2000b3 : gpio@7e200000
 
+#-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!
 ###ttyS0 in Raspberyy Konfiguration erlauben. Dann
-stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
-stty -F /dev/ttyS0 115200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
-stty raw -echo opost quit ^C isig ixon -ixoff #hiernach ist es finster!!!
-cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0
-hexdump kernel.img -e '"%08.08_ax " 1/4 "%08x " "\n"' >/dev/ttyS0
-
-#Terminal über ttyS0
-screen /dev/ttyS0 115200
-screen /dev/ttyS0 1200
-
-#zur Zeit
-gtkterm -s 1200
-
-#zur Zeit mit cp:
-stty -F /dev/ttyS0 1200 cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
-cp /dev/ttyS0 /dev/tty 
-cp /dev/tty /dev/ttyS0 #in extra terminal
-cat T7000.txt >/dev/ttyS0 #in einem dritten terminal
-cat T.txt >/dev/ttyS0 und dann N und R gehen
-#-------------------------------------------------
-#zur Zeit mit cp:
 make
 hexdump kernel.img -e '1/4 "%08x" "\n"' >T7000.txt
 #dann in T7000.txt am Anfang ein L und am Ende ein M einfügen. 
 #Zwischendurch * ist doppelter Inhalt, ersetzten!
 #und noch HALLI statt HALLO und Blinkzahl und -dauer verstellen
-stty -F /dev/ttyS0 115200 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
-stty raw
-cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0
+#ein extra lxterminal mit stty und cp laut BAKINGPI_starten.txt
 #dort Taste R, dann (T700.txt beginnt schon mit L)
 cat T7000.txt >/dev/ttyS0
 #dann Taste N, dann (T800.txt beginnt schon mit P)
