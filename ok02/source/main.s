@@ -23,6 +23,7 @@
 //23 r2 aufheben
 //24 Blinkdauer auch gleich am Anfang einstellen, auch Leer- und Sonderzeichen im Hexdump überlesen
 //25 zurück auf 115200 baud
+//26 ohne ldr r2,=..., und mit BL FFStart
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -51,8 +52,8 @@ _start:
 */
 mov r3,#0x0A //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
 mov r4,#0x0F0000 //24 Blinkdauer auch
-ldr r0,=0x20200000
-
+mov r0,   #0x20000000 //26
+add r0,r0,#0x00200000 //26
 /*
 * Our register use is as follows:
 * r0=0x20200000	the address of the GPIO region.
@@ -102,7 +103,10 @@ str r1,[r0,#4] //6 und Funktion auswählen
 //6 hierher kommt noch Pull up für GPIO14 und GPIO15
 
 //6 UART1 Adressen:
-ldr r2,=0x20215000 //AUXIRQ
+//26 ldr r2,0x20215000 //AUXIRQ
+mov r2,   #0x20000000 //26
+add r2,r2,#0x00200000 //26
+add r2,r2,#0x00015000 //26
 /*6
 #define AUX_ENABLES     (PBASE+0x00215004)
 #define AUX_MU_IO_REG   (PBASE+0x00215040)
@@ -129,7 +133,9 @@ mov r3,#3         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
-ldr r3,=#270      //#270 für 115200, #26040 für 1200
+//ldr r3,=#270      //#270 für 115200, #26040 für 1200
+mov r3,   #0x100 //26 #270=#0x10e
+add r3,r3,#0x00e //26
 str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to r3"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
@@ -189,10 +195,12 @@ STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
 
 loop2$:  //2
+BL FFStart //26
+loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
 cmp   r5,#0         //7
-beq loop2$          //7 zurück wenn keine Daten da
+beq loop2a$          //7 zurück wenn keine Daten da
 ldr   r6,[r2,#0x40] //7 Zeichen lesen
 add   r7,r7,#1    //7 ist ein Zeichen mehr
 and   r5,r7,#1    //7 Bit0 der Anzahl
@@ -353,4 +361,22 @@ mov r1,#0X8000
 add r1,r1,#4
 mov pc,r1
 
+FFDecode: //26 zu BL FFStart
+STMFD SP!,{R0-R7,LR}
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+MOV   R0,#0X46 
+STMEA R12!,{R0}// ( 'F' )
+BL    EMIT     // ( )
+MOV   R0,#0X4F //
+STMEA R12!,{R0}// ( 'O' )
+BL    EMIT     // ( )
+LDMFD SP!,{R0-R7,PC}
+FFStart:
+STMFD SP!,{R0-R7,LR}
+BL FFDecode
+LDMFD SP!,{R0-R7,PC}
+FFCode:
+.word 0x12345670
 Daten:
