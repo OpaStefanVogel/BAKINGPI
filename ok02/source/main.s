@@ -25,6 +25,7 @@
 //25 zurück auf 115200 baud
 //26 ohne ldr r2,=..., und mit BL FFStart
 //27 sp=C000, L=4000, RAM0000 und RAM3000
+//28 RAMB0000 nach 0000 verschieben, RAMB3000 nach 3000
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -359,15 +360,29 @@ ADD   R0,R0,R1
 STMEA R12!,{R0}
 LDMFD SP!,{R0,R1,PC}
 
-ab4000:
-mov r3,#0X2A
-mov r1,#0X8000
-add r1,r1,#4
-mov pc,r1
+MOVE: //28 ( von nach bytes --> )
+STMFD SP!,{R0-R3,LR}
+LDMEA R12!,{R0,R1,R2}
+MOVE1:
+LDR   R3,[R0]
+STR   R3,[R1]
+ADD   R0,#4
+ADD   R1,#4
+SUB   R2,#4
+CMP   R2,#0
+BNE   MOVE1
+LDMFD SP!,{R0-R3,PC}
 
 FFDecode: //26 zu BL FFStart
 STMFD SP!,{R0-R7,LR}
-MOV   R0,#0X20 
+ADD   R0,LR,#4 //28 RAMB0000 nach 0000 verschieben
+STMEA R12!,{R0}//28 ( ramb0000 )
+MOV   R0,#0
+STMEA R12!,{R0}//28 ( ramb0000 0 )
+MOV   R0,#0X3000
+STMEA R12!,{R0}//28 ( ramb0000 0 3000 )
+BL    MOVE     //28 ( )
+MOV   R0,#0X30
 STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
 MOV   R0,#0X46 
@@ -1458,8 +1473,14 @@ RAM0000:
   .word 0
 
 RAM3000Decode: //26 zu BL FFStart
-STMFD SP!,{R0-R7,LR}
-LDMFD SP!,{R0-R7,PC}
+STMFD SP!,{R0-R3,LR}
+ADD   R0,LR,#4 //28 RAMB03000 nach 3000 verschieben
+STMEA R12!,{R0}//28 ( ramb3000 )
+MOV   R0,#0X3000
+STMEA R12!,{R0}//28 ( ramb3000 3000 )
+MOV   R0,#0X1000
+STMEA R12!,{R0}//28 ( ramb3000 3000 1000 )
+LDMFD SP!,{R0-R3,PC}
 RAM3000Start:
 STMFD SP!,{R0-R7,LR}
 BL RAM3000Decode
