@@ -30,6 +30,7 @@
 //30 STEP4 Axxx
 //31 STEPA A003
 //32 STEP0123 und SPDOT
+//33 DUP
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -443,7 +444,7 @@ LDMFD SP!,{R0-R3,PC}
 
 
 STEP: //29 ( --> )
-STMFD SP!,{R0-R3,LR}
+STMFD SP!,{R0-R7,LR}
 BL    CR
 LSR   R0,R11,#1
 STMEA R12!,{R0}// ( PC )
@@ -473,16 +474,30 @@ CMP   R1,#0X03
 LDMEQFD R10!,{R11}
 B     STEPEND
 
+//0B 412 MLIT MCODE SWAP
+//0B 502 MLIT MCODE OVER
+//0B 501 MLIT MCODE DUP
+//0B 434 MLIT MCODE ROT
+//0B 300 MLIT MCODE DROP
+//0B 43C MLIT MCODE 2SWAP
+//0B 60C MLIT MCODE 2OVER
+//0B 603 MLIT MCODE 2DUP
+//0B 200 MLIT MCODE 2DROP
 STEPB:
 CMP   R1,#0XB000
 BNE   STEP0123
+AND   R1,R0,#0X00FF
+CMP   R1,#0X01
+LDMEQEA R12,{R0}  //33 ( a b )
+STMEQEA R12!,{R0} //33 ( a b b )
+B     STEPEND
 
 STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
 BL    SPDOT
-LDMFD SP!,{R0-R3,PC}
+LDMFD SP!,{R0-R7,PC}
 
 FFDecode: //26 zu BL FFStart
 STMFD SP!,{R0-R7,LR}
@@ -1583,7 +1598,7 @@ RAM0000:
   .word 0
   .word 0
 
-RAM3000Decode: //26 zu BL FFStart
+RAM3000Decode: //26 zu BL RAM3000Start
 STMFD SP!,{R0-R3,LR}
 ADD   R0,LR,#4 //28 RAMB03000 nach 3000 verschieben
 STMEA R12!,{R0}//28 ( ramb3000 )
@@ -1591,6 +1606,7 @@ MOV   R0,#0X3000
 STMEA R12!,{R0}//28 ( ramb3000 3000 )
 MOV   R0,#0X1000
 STMEA R12!,{R0}//28 ( ramb3000 3000 1000 )
+BL    MOVE     //28 ( )
 LDMFD SP!,{R0-R3,PC}
 RAM3000Start:
 STMFD SP!,{R0-R7,LR}
