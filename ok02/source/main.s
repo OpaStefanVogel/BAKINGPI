@@ -26,6 +26,7 @@
 //26 ohne ldr r2,=..., und mit BL FFStart
 //27 sp=C000, L=4000, RAM0000 und RAM3000
 //28 RAMB0000 nach 0000 verschieben, RAMB3000 nach 3000
+//29 S für einen Step mit CR MDOT MDOT und PC=PC+2
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -201,6 +202,7 @@ loop2$:  //2
 //BL loop2a$ //27
 BL RAM3000Start //27 eb0004bd
 BL FFStart //26
+MOV R11,#0 //29 R11=PC, R12=SP
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -218,6 +220,8 @@ CMP   R6,#0X4E       //17 if "N"...
 MOVEQ PC,#0X4000     //17 bei "N" Neustart //27 jetzt ab 0X4000
 CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
+CMP   R6,#0X53       //29 if "S"... dann "STEP"
+BLEQ  STEP           //29 ( )
 //str   r6,[r2,#0x40] //7 Zeichen zurückschicken //20 jetzt mit EMIT
 mov   r5,#0x4C
 STMEA R12!,{R5}// ( "L" )
@@ -229,7 +233,7 @@ cmp   r6,#0x50      //22 wenn P...
 MOVEQ R2,#0X8000    //22 bei P ab 0X8000
 bleq  load_hex_dump //22 wenn P hex dump laden
 mov   r2,r4         //23 r2 wieder zurück
-b loop2$ //2 Ende Versuch 2
+b loop2a$ //2 Ende Versuch 2
 
 
 load_hex_dump:
@@ -319,15 +323,16 @@ LDMFD SP!,{R0,R1,PC}
 EMIT: //11// ( c --> )
 STMFD SP!,{R0-R7,LR}
 LDMEA R12!,{R0}
-MOV   R8,#0X20000000     //12 PBASE
-ADD   R8,R8,#0X200000    //12 GPIO_
-ADD   R8,R8,#0X15000     //12 AUXIRQ
+AND   R0,R0,#0XFF
+MOV   R7,#0X20000000     //12 PBASE
+ADD   R7,R7,#0X200000    //12 GPIO_
+ADD   R7,R7,#0X15000     //12 AUXIRQ
 emitloop1$:
-ldr   r5,[r8,#0x54]
+ldr   r5,[r7,#0x54]
 and   r5,r5,#0x20
 cmp   r5,#0
 beq   emitloop1$
-str   r0,[r8,#0x40]
+str   r0,[r7,#0x40]
 //STMEA R12!,{}
 LDMFD SP!,{R0-R7,PC}
 
@@ -371,6 +376,65 @@ ADD   R1,#4
 SUB   R2,#4
 CMP   R2,#0
 BNE   MOVE1
+LDMFD SP!,{R0-R3,PC}
+
+CR: //29 ( --> )
+STMFD SP!,{R0,LR}
+MOV   R0,#0X0D 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+MOV   R0,#0X0A 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+LDMFD SP!,{R0,PC}
+
+MDOT: //29 ( w -->  <hex>)
+STMFD SP!,{R0-R3,LR}
+LDMEA R12!,{R0}
+LSR   R1,R0,#0X0C
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X08
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X04
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X00
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+LDMFD SP!,{R0-R3,PC}
+
+DIGIT: //29 ( b --> c )
+STMFD SP!,{R0,LR}
+LDMEA R12!,{R0}
+AND   R0,R0,#0X0F
+CMP   R0,#0X0A
+ADDGE R0,R0,#7
+ADD   R0,R0,#0X30
+STMEA R12!,{R0}
+LDMFD SP!,{R0,PC}
+
+
+
+
+
+STEP: //29 ( --> )
+STMFD SP!,{R0-R3,LR}
+BL    CR
+STMEA R12!,{R11}// ( PC )
+BL    MDOT
+LDR   R0,[R11]
+ADD   R11,R11,#2
+STMEA R12!,{R0}// ( [PC] )
+BL    MDOT
 LDMFD SP!,{R0-R3,PC}
 
 FFDecode: //26 zu BL FFStart
