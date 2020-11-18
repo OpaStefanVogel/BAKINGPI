@@ -28,6 +28,7 @@
 //28 RAMB0000 nach 0000 verschieben, RAMB3000 nach 3000
 //29 S für einen Step mit CR MDOT MDOT und PC=PC+2
 //30 STEP4 Axxx
+//31 STEPA A003
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -54,8 +55,8 @@ _start:
 /* 
 * This command loads the physical address of the GPIO region into r0.0x20200000
 */
-mov r3,#0x0A //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
-mov r4,#0x0F0000 //24 Blinkdauer auch
+mov r3,#0x03 //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
+mov r4,#0x070000 //24 Blinkdauer auch
 mov r0,   #0x20000000 //26
 add r0,r0,#0x00200000 //26
 /*
@@ -450,6 +451,18 @@ B     STEPEND
 
 STEP5:
 CMP   R1,#0X5000
+
+STEPA:
+CMP   R1,#0XA000
+BNE   STEPB
+AND   R1,R0,#0X00FF
+CMP   R1,#0X03
+LDMEQFD R10!,{R11}
+B     STEPEND
+
+STEPB:
+CMP   R1,#0XB000
+BNE   STEP0123
 
 STEP0123:
 
