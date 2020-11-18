@@ -27,6 +27,7 @@
 //27 sp=C000, L=4000, RAM0000 und RAM3000
 //28 RAMB0000 nach 0000 verschieben, RAMB3000 nach 3000
 //29 S für einen Step mit CR MDOT MDOT und PC=PC+2
+//30 STEP4 Axxx
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -203,6 +204,7 @@ loop2$:  //2
 BL RAM3000Start //27 eb0004bd
 BL FFStart //26
 MOV R11,#0 //29 R11=PC, R12=SP
+MOV R10,#0X3000 //30 R10=RP, R11=PC, R12=SP
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -429,12 +431,29 @@ LDMFD SP!,{R0,PC}
 STEP: //29 ( --> )
 STMFD SP!,{R0-R3,LR}
 BL    CR
-STMEA R12!,{R11}// ( PC )
+LSR   R0,R11,#1
+STMEA R12!,{R0}// ( PC )
 BL    MDOT
-LDR   R0,[R11]
-ADD   R11,R11,#2
+LDRH  R0,[R11]
 STMEA R12!,{R0}// ( [PC] )
 BL    MDOT
+ADD   R11,R11,#2
+AND   R1,R0,#0XF000 //30
+
+STEP4: //30 4xxx
+CMP   R1,#0X4000
+BNE   STEP5
+STMFD R10!,{R11}
+SUB   R11,R0,#0X4000
+ADD   R11,R11,R11
+B     STEPEND
+
+STEP5:
+CMP   R1,#0X5000
+
+STEP0123:
+
+STEPEND:
 LDMFD SP!,{R0-R3,PC}
 
 FFDecode: //26 zu BL FFStart
