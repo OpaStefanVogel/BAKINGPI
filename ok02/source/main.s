@@ -29,6 +29,7 @@
 //29 S für einen Step mit CR MDOT MDOT und PC=PC+2
 //30 STEP4 Axxx
 //31 STEPA A003
+//32 STEP0123 und SPDOT
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -172,7 +173,7 @@ mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
 mov r7,#0 //7 Anzahl der empfangenen Zeichen
 mov sp,#0xC000  //27
-mov r12,#0xC000 //27
+mov r12,#0xC000 //27 C000 wird auch nochmal in //32 verwendet
 
 MOV   R0,#0X20 
 STMEA R12!,{R0}// ( ' ' )
@@ -425,8 +426,20 @@ ADD   R0,R0,#0X30
 STMEA R12!,{R0}
 LDMFD SP!,{R0,PC}
 
-
-
+SPDOT: //32 ( -->  <hex> <hex> <hex>...)
+STMFD SP!,{R0-R3,LR}
+MOV   R2,R12
+MOV   R1,#0XC000 //RP0
+SPDOT1:
+CMP   R1,R2
+BEQ   SPDOT9
+LDR   R0,[R1]
+STMEA R12!,{R0}
+BL    MDOT
+ADD   R1,R1,#4
+B     SPDOT1
+SPDOT9:
+LDMFD SP!,{R0-R3,PC}
 
 
 STEP: //29 ( --> )
@@ -465,8 +478,10 @@ CMP   R1,#0XB000
 BNE   STEP0123
 
 STEP0123:
+STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
+BL    SPDOT
 LDMFD SP!,{R0-R3,PC}
 
 FFDecode: //26 zu BL FFStart
