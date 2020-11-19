@@ -32,6 +32,7 @@
 //32 STEP0123 und SPDOT
 //33 DUP
 //34 9xxx EMITCODE FETCH STORE bis Ausgabe "F"
+//35 A007, ADD, 9xxx mit LDRH, B200,
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -466,18 +467,27 @@ B     STEPEND
 
 STEP5:
 CMP   R1,#0X5000
-BNE   STEP9
+BNE   STEP8
 STMFD R10!,{R11}
 SUB   R11,R0,#0X4000
 ADD   R11,R11,R11
 B     STEPEND
 
+STEP8: //30 8xxx
+CMP   R1,#0X8000
+BNE   STEP9
+SUBEQ R0,R0,#0X9000
+ADDEQ R0,R0,R0
+ADDEQ R11,R11,R0
+B     STEPEND
+
 STEP9: //30 4xxx
 CMP   R1,#0X9000
 BNE   STEPA
-LDMEA R12!,{R2}
+LDRH  R2,[R12,#-4]!
 CMP   R2,#0
 SUBEQ R0,R0,#0X9000
+ADDEQ R0,R0,R0
 ADDEQ R11,R11,R0
 B     STEPEND
 
@@ -505,6 +515,11 @@ BLT   STORE9
 ADD   R11,R0,R0
 B     STEPEND
 STORE9:
+CMP   R1,#0X07    //35 ADD
+LDMEQEA R12!,{R0,R1} //35 ( a b --> )
+ADDEQ   R0,R0,R1
+STMEQEA R12!,{R0} //35 ( --> a+b )
+BEQ   STEPEND
 B     STEPEND
 
 
@@ -524,18 +539,29 @@ AND   R1,R0,#0X00FF
 CMP   R1,#0X01 
 LDMEQEA R12,{R0}  //33 ( a b )
 STMEQEA R12!,{R0} //33 ( a b b )
-BEQ     STEPEND
+BEQ   STEPEND
 CMP   R1,#0X12    //34 SWAP
 LDMEQEA R12!,{R0,R1}  //34 ( )
 STMEQEA R12!,{R1}     //34 ( b )
 STMEQEA R12!,{R0}     //34 ( b a )
-BEQ     STEPEND
+BEQ   STEPEND
+CMP   R1,#0X00    //35 SWAP
+BNE   STEPEND
+AND   R1,R0,#0XF00
+CMP   R1,#0X300
+LDMEA R12!,{R0}   //35 ( a b -- a )
+LDMNEEA R12!,{R0} //35 ( a -- )
+B     STEPEND
+
 B     STEPEND
 
 STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
 BL    SPDOT
 LDMFD SP!,{R0-R7,PC}
 
