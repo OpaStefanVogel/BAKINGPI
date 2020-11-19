@@ -32,7 +32,8 @@
 //32 STEP0123 und SPDOT
 //33 DUP
 //34 9xxx EMITCODE FETCH STORE bis Ausgabe "F"
-//35 A007, ADD, 9xxx mit LDRH, B200,
+//35 A007, ADD, 9xxx mit LDRH, B200, geht bis vor 036D CRDP @ 
+//36 Fxxx und LDRH wieder als LDMEA
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -484,7 +485,8 @@ B     STEPEND
 STEP9: //30 4xxx
 CMP   R1,#0X9000
 BNE   STEPA
-LDRH  R2,[R12,#-4]!
+LDMEA R12!,{R2}
+//LDRH  R2,[R12,#-4]!
 CMP   R2,#0
 SUBEQ R0,R0,#0X9000
 ADDEQ R0,R0,R0
@@ -525,7 +527,7 @@ B     STEPEND
 
 STEPB:
 CMP   R1,#0XB000
-BNE   STEP0123
+BNE   STEPF
 AND   R1,R0,#0X00FF
 //0B 412 MLIT MCODE SWAP
 //0B 502 MLIT MCODE OVER
@@ -553,7 +555,16 @@ LDMEA R12!,{R0}   //35 ( a b -- a )
 LDMNEEA R12!,{R0} //35 ( a -- )
 B     STEPEND
 
+STEPF:
+CMP   R1,#0XC000
+BLT   STEP0123
+MOV   R1,#0
+SUB   R1,R1,#1
+LSL   R1,R1,#16
+ADD   R0,R0,R1
+STMEA R12!,{R0} //32 ( --> n )
 B     STEPEND
+
 
 STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
