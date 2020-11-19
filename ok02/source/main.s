@@ -35,6 +35,7 @@
 //35 A007, ADD, 9xxx mit LDRH, B200, geht bis vor 036D CRDP @ 
 //36 Fxxx und LDRH wieder als LDMEA
 //37 RAMB2F00
+//38 R8 als Zähler, A000 MINUS, A00D 0= A00B NOT A00E OR A008 AND, bis vor QUIT
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -213,6 +214,7 @@ BL FFStart //26
 BL RAM2F00Start //37
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X3000 //30 R10=RP, R11=PC, R12=SP
+MOV R8,#0X0     //38 Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -347,7 +349,7 @@ str   r0,[r7,#0x40]
 LDMFD SP!,{R0-R7,PC}
 
 KEY: //11// ( --> c)
-STMFD SP!,{R0-R7,LR}
+STMFD SP!,{R0-R8,LR}
 //LDMEA R12!,{R0}
 MOV   R8,#0X20000000     //12 PBASE
 ADD   R8,R8,#0X200000    //12 GPIO_
@@ -359,7 +361,7 @@ cmp   r5,#0
 beq   keyloop1$
 ldr   r5,[r8,#0x40]
 STMEA R12!,{R5}
-LDMFD SP!,{R0-R7,PC}
+LDMFD SP!,{R0-R8,PC}
 
 DUP: //12// ( n --> n n )
 STMFD SP!,{R0,LR}
@@ -451,6 +453,9 @@ LDMFD SP!,{R0-R3,PC}
 STEP: //29 ( --> )
 STMFD SP!,{R0-R7,LR}
 BL    CR
+ADD   R8,R8,#1
+STMEA R12!,{R8}// ( PC )
+BL    MDOT
 LSR   R0,R11,#1
 STMEA R12!,{R0}// ( PC )
 BL    MDOT
@@ -530,6 +535,36 @@ LDMEQEA R12!,{R0,R1} //35 ( a b --> )
 ADDEQ   R0,R0,R1
 STMEQEA R12!,{R0} //35 ( --> a+b )
 BEQ   STEPEND
+CMP   R1,#0X00    //38 MINUS
+LDMEQEA R12!,{R0} // ( a --> )
+SUBEQ   R0,R1,R0
+STMEQEA R12!,{R0} // ( --> -a )
+BEQ   STEPEND
+CMP   R1,#0X0D    //38 0=
+BNE   NULL9
+LDMEA R12!,{R0} // ( a --> )
+CMP   R0,#0
+MVNEQ R0,#0
+MOVNE R0,#0
+STMEA R12!,{R0} // ( --> 0= )
+B     STEPEND
+NULL9:
+CMP   R1,#0X0B    //38 NOT
+LDMEQEA R12!,{R0} // ( a --> )
+MVN   R0,R0
+STMEQEA R12!,{R0} // ( --> not(a) )
+BEQ   STEPEND
+CMP   R1,#0X0E    //38 OR
+LDMEQEA R12!,{R0,R1} //( a b --> )
+ORREQ   R0,R0,R1
+STMEQEA R12!,{R0} // ( --> a_or_b )
+BEQ   STEPEND
+CMP   R1,#0X08    //38 AND
+LDMEQEA R12!,{R0,R1} // ( a b --> )
+ANDEQ   R0,R0,R1
+STMEQEA R12!,{R0} // ( --> a_and_b )
+BEQ   STEPEND
+
 B     STEPEND
 
 
