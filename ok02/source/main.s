@@ -503,10 +503,16 @@ CMP   R1,#0X03 // RETURN
 LDMEQFD R10!,{R11}
 BEQ   STEPEND
 CMP   R1,#0X0A    //34 FETCH
-LDMEQEA R12!,{R2} //34 ( adr --> )
-LDREQB R3,[R2]
-STMEQEA R12!,{R3} //34 ( --> n )
-BEQ   STEPEND
+BNE   FETCH9
+LDMEA R12!,{R2} //34 ( adr --> )
+CMP   R2,#0X3000
+LDRGEB  R3,[R2]
+STMGEEA R12!,{R3} //34 ( --> n )
+ADDLT   R2,R2,R2
+LDRLTH  R3,[R2]
+STMLTEA R12!,{R3} //34 ( --> n )
+B     STEPEND
+FETCH9:
 CMP   R1,#0X05    //34 EMITCODE
 BLEQ  EMIT        //34 ( c -->  <char> )
 BEQ   STEPEND
