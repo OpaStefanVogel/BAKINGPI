@@ -24,7 +24,7 @@
 //24 Blinkdauer auch gleich am Anfang einstellen, auch Leer- und Sonderzeichen im Hexdump überlesen
 //25 zurück auf 115200 baud
 //26 ohne ldr r2,=..., und mit BL FFStart
-//27 sp=C000, L=4000, RAM0000 und RAM3000
+//27 sp=E000, L=4000, RAM0000 und RAM3000
 //28 RAMB0000 nach 0000 verschieben, RAMB3000 nach 3000
 //29 S für einen Step mit CR MDOT MDOT und PC=PC+2
 //30 STEP4 Axxx
@@ -36,6 +36,7 @@
 //36 Fxxx und LDRH wieder als LDMEA
 //37 RAMB2F00
 //38 R8 als Zähler, A000 MINUS, A00D 0= A00B NOT A00E OR A008 AND, bis vor QUIT
+//39 r13=C000, R10=RP=C000, alle Bxxx jetzt drin
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -178,7 +179,7 @@ char uart_recv ( void )
 mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
 mov r7,#0 //7 Anzahl der empfangenen Zeichen
-mov sp,#0xC000  //27
+mov r13,#0xE000  //27
 mov r12,#0xC000 //27 C000 wird auch nochmal in //32 verwendet
 
 MOV   R0,#0X20 
@@ -213,7 +214,7 @@ BL RAM3000Start //27 eb0004bd
 BL FFStart //26
 BL RAM2F00Start //37
 MOV R11,#0 //29 R11=PC, R12=SP
-MOV R10,#0X3000 //30 R10=RP, R11=PC, R12=SP
+MOV R10,#0XC000 //30 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
@@ -527,7 +528,12 @@ LDMEA R12!,{R0,R1} //34 ( n adr --> )
 CMP   R1,#0X2800
 LDRLT R0,[R1]
 BLT   STORE9
-ADD   R11,R0,R0
+AND   R1,R1,#0XFF
+CMP   R1,#3
+ADDEQ R11,R0,R0
+BEQ   STEPEND
+CMP   R1,#2
+LSLEQ R10,R0,#2
 B     STEPEND
 STORE9:
 CMP   R1,#0X07    //35 ADD
@@ -572,30 +578,53 @@ STEPB:
 CMP   R1,#0XB000
 BNE   STEPF
 AND   R1,R0,#0X00FF
-//0B 412 MLIT MCODE SWAP
-//0B 502 MLIT MCODE OVER
-//0B 501 MLIT MCODE DUP
-//0B 434 MLIT MCODE ROT
-//0B 300 MLIT MCODE DROP
-//0B 43C MLIT MCODE 2SWAP
-//0B 60C MLIT MCODE 2OVER
-//0B 603 MLIT MCODE 2DUP
-//0B 200 MLIT MCODE 2DROP
-CMP   R1,#0X01 
-LDMEQEA R12,{R0}  //33 ( a b )
-STMEQEA R12!,{R0} //33 ( a b b )
-BEQ   STEPEND
-CMP   R1,#0X12    //34 SWAP
+// 0B 412 MLIT MCODE SWAP
+CMP   R1,#0X12        //34 ( a b ) SWAP
 LDMEQEA R12!,{R0,R1}  //34 ( )
 STMEQEA R12!,{R1}     //34 ( b )
 STMEQEA R12!,{R0}     //34 ( b a )
 BEQ   STEPEND
-CMP   R1,#0X00    //35 SWAP
-BNE   STEPEND
+// 0B 502 MLIT MCODE OVER
+CMP   R1,#0X02       //39 ( a b ) OVER
+LDMEQEA R12,{R0,R1}  //39 ( a b )
+STMEQEA R12!,{R0}    //39 ( a b a )
+BEQ   STEPEND
+// 0B 501 MLIT MCODE DUP
+CMP   R1,#0X01    //33 ( a ) DUP
+LDMEQEA R12,{R0}  //33 ( a )
+STMEQEA R12!,{R0} //33 ( a a )
+BEQ   STEPEND
+// 0B 434 MLIT MCODE ROT
+CMP   R1,#0X34           //39 ( a b c ) ROT
+LDMEQEA R12!,{R0,R1,R2}  //39 ( )
+STMEQEA R12!,{R1,R2}     //39 ( b c )
+STMEQEA R12!,{R0}        //39 ( b c a )
+BEQ   STEPEND
+// 0B 300 MLIT MCODE DROP //siehe 2DROP
+// 0B 43C MLIT MCODE 2SWAP
+CMP   R1,#0X3C              //39 ( a b c d ) 2SWAP
+LDMEQEA R12!,{R0,R1,R2,R3}  //39 ( )
+STMEQEA R12!,{R2,R3}        //39 ( c d )
+STMEQEA R12!,{R0,R1}        //39 ( c d a b)
+BEQ   STEPEND
+// 0B 60C MLIT MCODE 2OVER
+CMP   R1,#0X0C              //39 ( a b c d ) 2OVER
+LDMEQEA R12,{R0,R1,R2,R3}   //39 ( a b c d )
+STMEQEA R12!,{R0,R1}        //39 ( a b c d a b )
+BEQ   STEPEND
+// 0B 603 MLIT MCODE 2DUP
+CMP   R1,#0X03              //39 ( a b ) 2DUP
+LDMEQEA R12,{R0,R1}         //39 ( a b )
+STMEQEA R12!,{R0,R1}        //39 ( a b a b )
+BEQ   STEPEND
+// 0B 200 MLIT MCODE 2DROP
+CMP   R1,#0X00    //35 ( a b ) 2DROP und DROP
+BNE   DROP9
 AND   R1,R0,#0XF00
 CMP   R1,#0X300
-LDMEA R12!,{R0}   //35 ( a b -- a )
-LDMNEEA R12!,{R0} //35 ( a -- )
+LDMEA R12!,{R0}   //35 ( a )
+LDMNEEA R12!,{R0} //35 ( )
+DROP9:
 B     STEPEND
 
 STEPF:
