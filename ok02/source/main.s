@@ -38,6 +38,7 @@
 //38 R8 als Zähler, A000 MINUS, A00D 0= A00B NOT A00E OR A008 AND, bis vor QUIT
 //39 r13=C000, R10=RP=C000, alle Bxxx jetzt drin
 //40 A009 ab adr=2C00 bis 2FFF nach 5800...
+//41 8xxx und 9xxx neu mit CMP R0,#0800
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -486,9 +487,13 @@ B     STEPEND
 STEP8: //30 8xxx
 CMP   R1,#0X8000
 BNE   STEP9
-SUBEQ R0,R0,#0X9000
-ADDEQ R0,R0,R0
-ADDEQ R11,R11,R0
+SUB   R0,R0,#0X8000
+CMP   R0,#0X0800
+MVNGE R1,#0
+LSLGE R1,#12
+ADDGE R0,R0,R1
+ADD   R0,R0,R0
+ADD   R11,R11,R0
 B     STEPEND
 
 STEP9: //30 4xxx
@@ -497,9 +502,14 @@ BNE   STEPA
 LDMEA R12!,{R2}
 //LDRH  R2,[R12,#-4]!
 CMP   R2,#0
-SUBEQ R0,R0,#0X9000
-ADDEQ R0,R0,R0
-ADDEQ R11,R11,R0
+BNE   STEPEND
+SUB   R0,R0,#0X9000
+CMP   R0,#0X0800
+MVNGE R1,#0
+LSLGE R1,#12
+ADDGE R0,R0,R1
+ADD   R0,R0,R0
+ADD   R11,R11,R0
 B     STEPEND
 
 //0A 000 MLIT MCODE MINUS
