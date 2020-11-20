@@ -42,6 +42,7 @@
 //42 R9 = Breakpoint Schrittzähler
 //43 RAM3C00Start und 0LT
 //44 2802 @ 2802 ! 3000 @ 3000 !
+//45 RP=R10=6000 statt C000
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -220,7 +221,7 @@ BL RAM2F00Start //37
 BL RAM3000Start //27 eb0004bd
 BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
-MOV R10,#0XC000 //30//44 R10=RP, R11=PC, R12=SP
+MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
 MOV R9,#0X660   //42//43 Breakpoint Schrittzähler
 loop2a$:
@@ -469,7 +470,9 @@ AND   R1,R0,#0XF000 //30
 STEP4: //30 4xxx
 CMP   R1,#0X4000
 BNE   STEP5
-STMFD R10!,{R11}
+//STMFD R10!,{R11}
+LSR   R2,R11,#1
+STRH  R2,[R10,#-2]! //45
 SUB   R11,R0,#0X4000
 ADD   R11,R11,R11
 B     STEPEND
@@ -477,7 +480,9 @@ B     STEPEND
 STEP5:
 CMP   R1,#0X5000
 BNE   STEP8
-STMFD R10!,{R11}
+//STMFD R10!,{R11}
+LSR   R2,R11,#1
+STRH  R2,[R10,#-2]! //45
 SUB   R11,R0,#0X4000
 ADD   R11,R11,R11
 B     STEPEND
@@ -593,7 +598,7 @@ CMP   R1,#3
 LSLEQ R11,R0,#1
 BEQ   STEPEND
 CMP   R1,#2
-LSLEQ R10,R0,#2
+LSLEQ R10,R0,#1 //45
 B     STEPEND
 STORE2:
 CMP   R1,#0X3000 //43 STRB 3000 fehlt noch
@@ -622,16 +627,19 @@ FETCH2: //44
 AND   R1,R1,#0XFF
 CMP   R1,#3
 LSREQ R0,R11,#1
+STMEQEA R12!,{R0} //44 ( --> n )
 BEQ   STEPEND
 CMP   R1,#2
-LSREQ R0,R10,#2
-STMEA R12!,{R0} //44 ( --> n )
+LSREQ R0,R10,#1
+STMEQEA R12!,{R0} //44 ( --> n )
 B     STEPEND
 FETCH9:
 
 //( 0A 003 MLIT MCODE RETURN )
 CMP   R1,#0X03 // RETURN
-LDMEQFD R10!,{R11}
+//LDMEQFD R10!,{R11}
+LDREQH  R2,[R10],#2 //44
+LSLEQ R11,R2,#1
 BEQ   STEPEND
 
 B     STEPEND
