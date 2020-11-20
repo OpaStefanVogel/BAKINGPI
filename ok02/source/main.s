@@ -36,9 +36,10 @@
 //36 Fxxx und LDRH wieder als LDMEA
 //37 RAMB2F00
 //38 R8 als Zähler, A000 MINUS, A00D 0= A00B NOT A00E OR A008 AND, bis vor QUIT
-//39 r13=C000, R10=RP=C000, alle Bxxx jetzt drin
+//39 r13=C000, R10=RP=R12=SP=C000, alle Bxxx jetzt drin
 //40 A009 ab adr=2C00 bis 2FFF nach 5800...
 //41 8xxx und 9xxx neu mit CMP R0,#0800
+//42 R9 = Breakpoint Schrittzähler
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -218,6 +219,7 @@ BL RAM2F00Start //37
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0XC000 //30 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
+MOV R9,#0X0     //42 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -456,7 +458,6 @@ LDMFD SP!,{R0-R3,PC}
 STEP: //29 ( --> )
 STMFD SP!,{R0-R7,LR}
 BL    CR
-ADD   R8,R8,#1
 STMEA R12!,{R8}// ( PC )
 BL    MDOT
 LSR   R0,R11,#1
@@ -465,6 +466,9 @@ BL    MDOT
 LDRH  R0,[R11]
 STMEA R12!,{R0}// ( [PC] )
 BL    MDOT
+STEPR:
+LDRH  R0,[R11]
+ADD   R8,R8,#1
 ADD   R11,R11,#2
 AND   R1,R0,#0XF000 //30
 
@@ -672,6 +676,8 @@ STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
+CMP   R8,R9    //42
+BLT   STEPR    //42
 MOV   R0,#0X20 
 STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
