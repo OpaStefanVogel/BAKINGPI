@@ -219,7 +219,7 @@ BL RAM2F00Start //37
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0XC000 //30 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X0     //42 Breakpoint Schrittzähler
+MOV R9,#0X1F0   //42 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -457,15 +457,6 @@ LDMFD SP!,{R0-R3,PC}
 
 STEP: //29 ( --> )
 STMFD SP!,{R0-R7,LR}
-BL    CR
-STMEA R12!,{R8}// ( PC )
-BL    MDOT
-LSR   R0,R11,#1
-STMEA R12!,{R0}// ( PC )
-BL    MDOT
-LDRH  R0,[R11]
-STMEA R12!,{R0}// ( [PC] )
-BL    MDOT
 STEPR:
 LDRH  R0,[R11]
 ADD   R8,R8,#1
@@ -682,6 +673,15 @@ MOV   R0,#0X20
 STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
 BL    SPDOT
+BL    CR
+STMEA R12!,{R8}// ( PC )
+BL    MDOT
+LSR   R0,R11,#1
+STMEA R12!,{R0}// ( PC )
+BL    MDOT
+LDRH  R0,[R11]
+STMEA R12!,{R0}// ( [PC] )
+BL    MDOT
 LDMFD SP!,{R0-R7,PC}
 
 FFDecode: //26 zu BL FFStart
