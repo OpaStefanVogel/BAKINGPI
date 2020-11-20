@@ -44,6 +44,7 @@
 //44 2802 @ 2802 ! 3000 @ 3000 !
 //45 RP=R10=6000 statt C000
 //46 3xxx ! mit R0 und 3000 @ mit adr=R1
+//47 LFA=07B3
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -224,7 +225,7 @@ BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X790   //42//43 Breakpoint Schrittzähler
+MOV R9,#0X940   //42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -2126,7 +2127,7 @@ RAM2F00:
   .word 0x3B0C3B00 //2F0A CONSTANT IN1    2F0B CONSTANT IN2
   .word 0x3B453B12 //2F0C CONSTANT IN3    2F0D CONSTANT IN4
   .word 0x1B5D0000 //2F0E CONSTANT ERRORNR 0 ERRORNR ! 2F0F CONSTANT DP
-  .word 0x1B220000 //2F10 CONSTANT STAT 0 STAT !       2F11 CONSTANT LFA
+  .word 0x07B30000 //2F10 CONSTANT STAT 0 STAT !       2F11 CONSTANT LFA
   .word 0x3AF43000 //2F12 CONSTANT BANF   2F13 CONSTANT BZEIG
   .word 0x00200020 //2F14 CONSTANT DPMERK 2F15 CONSTANT CSP
   .word 0x2D000000 //2F16 CONSTANT DUBIT  2F17 CONSTANT LOCALADRESSE
