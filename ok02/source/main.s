@@ -43,6 +43,7 @@
 //43 RAM3C00Start und 0LT
 //44 2802 @ 2802 ! 3000 @ 3000 !
 //45 RP=R10=6000 statt C000
+//46 3xxx ! mit R0 und 3000 @ mit adr=R1
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -223,7 +224,7 @@ BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X660   //42//43 Breakpoint Schrittzähler
+MOV R9,#0X790   //42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -601,8 +602,8 @@ CMP   R1,#2
 LSLEQ R10,R0,#1 //45
 B     STEPEND
 STORE2:
-CMP   R1,#0X3000 //43 STRB 3000 fehlt noch
-STRGEB  R3,[R1]
+CMP   R1,#0X3000 //43
+STRGEB  R0,[R1]
 BGE     STEPEND
 ADD   R1,R1,R1
 STRH  R0,[R1]
@@ -616,7 +617,7 @@ LDMEA R12!,{R1} //34 ( adr --> )
 AND   R2,R1,#0XFF00
 CMP   R2,#0X2800
 BEQ   FETCH2
-CMP   R2,#0X3000
+CMP   R1,#0X3000
 LDRGEB  R3,[R1]
 STMGEEA R12!,{R3} //34 ( --> n )
 ADDLT   R1,R1,R1
