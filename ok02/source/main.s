@@ -40,6 +40,7 @@
 //40 A009 ab adr=2C00 bis 2FFF nach 5800...
 //41 8xxx und 9xxx neu mit CMP R0,#0800
 //42 R9 = Breakpoint Schrittzähler
+//43 RAM3C00Start und 0LT
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -213,13 +214,14 @@ BL    EMIT     // ( )
 loop2$:  //2
 //BL loop2a$ //27
 //BL loop2a$ //27
-BL RAM3000Start //27 eb0004bd
 BL FFStart //26
 BL RAM2F00Start //37
+BL RAM3000Start //27 eb0004bd
+BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0XC000 //30 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X1F0   //42 Breakpoint Schrittzähler
+MOV R9,#0X660   //42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -507,40 +509,78 @@ ADD   R0,R0,R0
 ADD   R11,R11,R0
 B     STEPEND
 
-//0A 000 MLIT MCODE MINUS
-//0A 001 MLIT MCODE U+
-//0A 002 MLIT MCODE U*
-//0A 00D MLIT MCODE 0=
-//0A 00F MLIT MCODE 0LT
-//0A 005 MLIT MCODE EMITCODE
-//0A 00B MLIT MCODE NOT
-//0A 008 MLIT MCODE AND
-//0A 00E MLIT MCODE OR
-//0A 007 MLIT MCODE M+
-//0A 009 MLIT MCODE !
-//0A 00A MLIT MCODE @
 STEPA:
 CMP   R1,#0XA000
 BNE   STEPB
 AND   R1,R0,#0X00FF
-CMP   R1,#0X03 // RETURN
-LDMEQFD R10!,{R11}
+
+//0A 000 MLIT MCODE MINUS
+CMP   R1,#0X00    //38 MINUS
+LDMEQEA R12!,{R0} // ( a --> )
+SUBEQ   R0,R1,R0
+STMEQEA R12!,{R0} // ( --> -a )
 BEQ   STEPEND
-CMP   R1,#0X0A    //34 FETCH
-BNE   FETCH9
-LDMEA R12!,{R2} //34 ( adr --> )
-CMP   R2,#0X3000
-LDRGEB  R3,[R2]
-STMGEEA R12!,{R3} //34 ( --> n )
-ADDLT   R2,R2,R2
-LDRLTH  R3,[R2]
-STMLTEA R12!,{R3} //34 ( --> n )
+
+//0A 001 MLIT MCODE U+
+
+//0A 002 MLIT MCODE U*
+
+//0A 00D MLIT MCODE 0=
+CMP   R1,#0X0D    //38 0=
+BNE   NULL9
+LDMEA R12!,{R0} // ( a --> )
+CMP   R0,#0
+MVNEQ R0,#0
+MOVNE R0,#0
+STMEA R12!,{R0} // ( --> 0= )
 B     STEPEND
-FETCH9:
+NULL9:
+
+//0A 00F MLIT MCODE 0LT
+CMP   R1,#0X0F    //42 0LT
+BNE   LT9
+LDMEA R12!,{R0} // ( a --> )
+CMP   R0,#0
+MVNLT R0,#0
+MOVGE R0,#0
+STMEA R12!,{R0} // ( --> 0LT )
+B     STEPEND
+LT9:
+
+//0A 005 MLIT MCODE EMITCODE
 CMP   R1,#0X05    //34 EMITCODE
 BLEQ  EMIT        //34 ( c -->  <char> )
 BEQ   STEPEND
 
+//0A 00B MLIT MCODE NOT
+CMP   R1,#0X0B    //38 NOT
+LDMEQEA R12!,{R0} // ( a --> )
+MVN   R0,R0
+STMEQEA R12!,{R0} // ( --> not(a) )
+BEQ   STEPEND
+
+//0A 008 MLIT MCODE AND
+CMP   R1,#0X08    //38 AND
+LDMEQEA R12!,{R0,R1} // ( a b --> )
+ANDEQ   R0,R0,R1
+STMEQEA R12!,{R0} // ( --> a_and_b )
+BEQ   STEPEND
+
+//0A 00E MLIT MCODE OR
+CMP   R1,#0X0E    //38 OR
+LDMEQEA R12!,{R0,R1} //( a b --> )
+ORREQ   R0,R0,R1
+STMEQEA R12!,{R0} // ( --> a_or_b )
+BEQ   STEPEND
+
+//0A 007 MLIT MCODE M+
+CMP   R1,#0X07    //35 ADD
+LDMEQEA R12!,{R0,R1} //35 ( a b --> )
+ADDEQ   R0,R0,R1
+STMEQEA R12!,{R0} //35 ( --> a+b )
+BEQ   STEPEND
+
+//0A 009 MLIT MCODE !
 CMP   R1,#0X09    //34 STORE
 BNE   STORE9
 LDMEA R12!,{R0,R1} //34 ( n adr --> )
@@ -561,39 +601,22 @@ STRH  R0,[R1]
 B     STEPEND
 STORE9:
 
-CMP   R1,#0X07    //35 ADD
-LDMEQEA R12!,{R0,R1} //35 ( a b --> )
-ADDEQ   R0,R0,R1
-STMEQEA R12!,{R0} //35 ( --> a+b )
-BEQ   STEPEND
-CMP   R1,#0X00    //38 MINUS
-LDMEQEA R12!,{R0} // ( a --> )
-SUBEQ   R0,R1,R0
-STMEQEA R12!,{R0} // ( --> -a )
-BEQ   STEPEND
-CMP   R1,#0X0D    //38 0=
-BNE   NULL9
-LDMEA R12!,{R0} // ( a --> )
-CMP   R0,#0
-MVNEQ R0,#0
-MOVNE R0,#0
-STMEA R12!,{R0} // ( --> 0= )
+//0A 00A MLIT MCODE @
+CMP   R1,#0X0A    //34 FETCH
+BNE   FETCH9
+LDMEA R12!,{R2} //34 ( adr --> )
+CMP   R2,#0X3000
+LDRGEB  R3,[R2]
+STMGEEA R12!,{R3} //34 ( --> n )
+ADDLT   R2,R2,R2
+LDRLTH  R3,[R2]
+STMLTEA R12!,{R3} //34 ( --> n )
 B     STEPEND
-NULL9:
-CMP   R1,#0X0B    //38 NOT
-LDMEQEA R12!,{R0} // ( a --> )
-MVN   R0,R0
-STMEQEA R12!,{R0} // ( --> not(a) )
-BEQ   STEPEND
-CMP   R1,#0X0E    //38 OR
-LDMEQEA R12!,{R0,R1} //( a b --> )
-ORREQ   R0,R0,R1
-STMEQEA R12!,{R0} // ( --> a_or_b )
-BEQ   STEPEND
-CMP   R1,#0X08    //38 AND
-LDMEQEA R12!,{R0,R1} // ( a b --> )
-ANDEQ   R0,R0,R1
-STMEQEA R12!,{R0} // ( --> a_and_b )
+FETCH9:
+
+//( 0A 003 MLIT MCODE RETURN )
+CMP   R1,#0X03 // RETURN
+LDMEQFD R10!,{R11}
 BEQ   STEPEND
 
 B     STEPEND
@@ -2034,7 +2057,27 @@ RAM3000:
   .word 0x442F202D //3A4
   .word 0x5A504D55 //3A8
   .word 0x4152203E //3AC
-  
+
+RAM3C00Decode: //43 zu BL RAM3000Start
+STMFD SP!,{R0-R3,LR}
+ADD   R0,LR,#4 //28 RAMB03C00 nach 3C00 verschieben
+STMEA R12!,{R0}//28 ( ramb3C00 )
+MOV   R0,#0X3C00
+STMEA R12!,{R0}//28 ( ramb3C00 3C00 )
+MOV   R0,#0X40
+STMEA R12!,{R0}//28 ( ramb3C00 3C00 40 )
+BL    MOVE     //28 ( )
+LDMFD SP!,{R0-R3,PC}
+RAM3C00Start:
+STMFD SP!,{R0-R7,LR}
+BL RAM3C00Decode
+LDMFD SP!,{R0-R7,PC}
+RAM3C00:
+  .word 0x52415453 //3C00
+  .word 0x00000D54 //3C04
+  .word 0x00000000 //3C08
+  .word 0x00000000 //3C0C
+
 RAM2F00Decode: //37 zu BL RAM2F00Start
 STMFD SP!,{R0-R3,LR}
 ADD   R0,LR,#4 //37 RAMB2F00 nach 2F00 verschieben
@@ -2051,8 +2094,8 @@ BL RAM2F00Decode
 LDMFD SP!,{R0-R7,PC}
 RAM2F00:
   .word 0x00000000 //2F00 CONSTANT XBIT   //2F01 CONSTANT SMUDGEBIT
-  .word 0x3E973000 //2F02 CONSTANT RP0 3000 RP0 ! //2F03 CONSTANT IRAMADR
-  .word 0x00003E97 //2F04 CONSTANT JRAMADR        //2F05 CONSTANT XOFF
+  .word 0x3C063000 //2F02 CONSTANT RP0 3000 RP0 ! //2F03 CONSTANT IRAMADR
+  .word 0x00003C00 //2F04 CONSTANT JRAMADR        //2F05 CONSTANT XOFF
   .word 0x1B5D3AF4 //2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !  2F07 CONSTANT CRDP DP @ 8 M- CRDP !
 
   .word 0x3B000010 //2F08 CONSTANT BASE   2F09 CONSTANT TIB
