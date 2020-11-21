@@ -48,6 +48,7 @@
 //48 in @ vorläufig LSL 16 LSR 16
 //49 einmal TIB @ 100 EXPECT FIND EXECUTE durch
 //50 U* für DP @ M.
+//51 2800 @ über Speicherplatz 8, Taste # für Break
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -378,6 +379,17 @@ ldr   r5,[r8,#0x40]
 STMEA R12!,{R5}
 LDMFD SP!,{R0-R8,PC}
 
+KEYFLAG: //51// ( --> flag )
+STMFD SP!,{R0-R8,LR}
+//LDMEA R12!,{R0}
+MOV   R8,#0X20000000     //12 PBASE
+ADD   R8,R8,#0X200000    //12 GPIO_
+ADD   R8,R8,#0X15000     //12 AUXIRQ
+ldr   r5,[r8,#0x54]
+and   r5,r5,#1
+STMEA R12!,{R5}
+LDMFD SP!,{R0-R8,PC}
+
 DUP: //12// ( n --> n n )
 STMFD SP!,{R0,LR}
 LDMEA R12!,{R0}
@@ -616,6 +628,8 @@ LSLEQ R11,R0,#1
 BEQ   STEPEND
 CMP   R1,#2
 LSLEQ R10,R0,#1 //45
+BEQ   STEPEND
+CMP   R1,#0
 B     STEPEND
 STORE2:
 CMP   R1,#0X3000 //43
@@ -652,6 +666,11 @@ BEQ   STEPEND
 CMP   R1,#2
 LSREQ R0,R10,#1
 STMEQEA R12!,{R0} //44 ( --> n )
+BEQ   STEPEND
+CMP   R1,#0       //51
+MOV   R1,#8
+LDRB  R0,[R1]
+STMEQEA R12!,{R0} //51 ( --> c )
 B     STEPEND
 FETCH9:
 
@@ -733,6 +752,26 @@ STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
+//MOV   R9,R8
+BL    KEYFLAG   //51 ( flag )
+//BL    DUP
+//BL    MDOT
+LDMEA R12!,{R0} //51 ( )
+CMP   R0,#0
+BEQ   STEPEND0
+BL    KEY
+LDMEA R12!,{R0} //51 ( c )
+CMP   R0,#0X23
+MOVEQ R9,R8
+BEQ   STEPEND0
+MOV   R1,#8
+STRB  R0,[R1]
+MOV   R0,#0X4400
+ADD   R0,R0,#0X7D
+AND   R1,R0,#0XF000
+B     STEP4
+STEPEND0:
+
 CMP   R8,R9    //42
 BLT   STEPR    //42
 //MOV   R0,#0X20 //48 Fehlersuch
