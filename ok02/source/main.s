@@ -47,6 +47,7 @@
 //47 LFA=07B3
 //48 in @ vorläufig LSL 16 LSR 16
 //49 einmal TIB @ 100 EXPECT FIND EXECUTE durch
+//50 U* für DP @ M.
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -227,8 +228,8 @@ BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X1600  //42//43 Breakpoint Schrittzähler
-ADD R9,R9,#0X79 //42//43 Breakpoint Schrittzähler
+MOV R9,#0XF60000  //42//43 Breakpoint Schrittzähler
+ADD R9,R9,#0X660 //42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -535,6 +536,17 @@ BEQ   STEPEND
 //0A 001 MLIT MCODE U+
 
 //0A 002 MLIT MCODE U*
+CMP   R1,#0X02    //50 U*
+BNE   UMUL9
+LDMEA R12!,{R0,R1,R2} // ( c b a --> (a*b+c)h (a*b+c)l )
+MLA   R3,R2,R1,R0
+LSR   R4,R3,#16
+STMEA R12!,{R4} // ( --> (a*b+c)h )
+LSL   R3,R3,#16
+LSR   R3,R3,#16
+STMEA R12!,{R3} // ( --> (a*b+c)h (a*b+c)l )
+BEQ   STEPEND
+UMUL9:
 
 //0A 00D MLIT MCODE 0=
 CMP   R1,#0X0D    //38 0=
@@ -2113,10 +2125,10 @@ STMFD SP!,{R0-R7,LR}
 BL RAM3C00Decode
 LDMFD SP!,{R0-R7,PC}
 RAM3C00:
-  .word 0x52415453 //3C00
-  .word 0x00000D54 //3C04
-  .word 0x00000000 //3C08
-  .word 0x00000000 //3C0C
+  .word 0x52415453 //3C00 "START\n\n\nDP @ M.\n"
+  .word 0x0D0D0D54 //3C04
+  .word 0x40205044 //3C08
+  .word 0x0D2E4D20 //3C0C
 
 RAM2F00Decode: //37 zu BL RAM2F00Start
 STMFD SP!,{R0-R3,LR}
@@ -2134,7 +2146,7 @@ BL RAM2F00Decode
 LDMFD SP!,{R0-R7,PC}
 RAM2F00:
   .word 0x00000000 //2F00 CONSTANT XBIT   //2F01 CONSTANT SMUDGEBIT
-  .word 0x3C063000 //2F02 CONSTANT RP0 3000 RP0 ! //2F03 CONSTANT IRAMADR
+  .word 0x3C103000 //2F02 CONSTANT RP0 3000 RP0 ! //2F03 CONSTANT IRAMADR
   .word 0x00003C00 //2F04 CONSTANT JRAMADR        //2F05 CONSTANT XOFF
   .word 0x1B5D3AF4 //2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !  2F07 CONSTANT CRDP DP @ 8 M- CRDP !
 
