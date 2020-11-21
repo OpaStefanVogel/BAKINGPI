@@ -45,6 +45,7 @@
 //45 RP=R10=6000 statt C000
 //46 3xxx ! mit R0 und 3000 @ mit adr=R1
 //47 LFA=07B3
+//48 in @ vorläufig LSL 16 LSR 16
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -615,15 +616,18 @@ STORE9:
 CMP   R1,#0X0A    //34 FETCH
 BNE   FETCH9
 LDMEA R12!,{R1} //34 ( adr --> )
+LSL   R1,R1,#16 //48
+LSR   R1,R1,#16 //48
 AND   R2,R1,#0XFF00
 CMP   R2,#0X2800
 BEQ   FETCH2
 CMP   R1,#0X3000
 LDRGEB  R3,[R1]
 STMGEEA R12!,{R3} //34 ( --> n )
-ADDLT   R1,R1,R1
-LDRLTH  R3,[R1]
-STMLTEA R12!,{R3} //34 ( --> n )
+BGE     STEPEND
+ADD   R1,R1,R1
+LDRH  R3,[R1]
+STMEA R12!,{R3} //34 ( --> n )
 B     STEPEND
 FETCH2: //44
 AND   R1,R1,#0XFF
@@ -717,6 +721,15 @@ STMEA R12!,{R0} //32 ( --> n )
 STEPEND:
 CMP   R8,R9    //42
 BLT   STEPR    //42
+//MOV   R0,#0X20 //48 Fehlersuch
+//STMEA R12!,{R0}// ( ' ' )
+//BL    EMIT     // ( )
+//MOV   R0,#0X0700
+//ADD   R1,R0,#0X00A7
+//ADD   R1,R1,R1
+//LDRH  R3,[R1]
+//STMEA R12!,{R3} // ( --> n )
+//BL    MDOT     // ( )
 MOV   R0,#0X20 
 STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
