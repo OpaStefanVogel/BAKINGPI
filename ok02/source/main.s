@@ -54,6 +54,7 @@
 //54 Tasten L und N zeigen auf Adresse E000
 //55 2801 @ und 2801 ! damit SP? funktioniert in ;
 //56 R9=0 und mit "#" anhalten und auch fortsetzen
+//57 77 88 1FFF FFFC 2! 1FFF FFFC 2@ M. M.
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -602,7 +603,7 @@ BEQ   STEPEND
 //0A 00B MLIT MCODE NOT
 CMP   R1,#0X0B    //38 NOT
 LDMEQEA R12!,{R0} // ( a --> )
-MVN   R0,R0
+MVNEQ   R0,R0
 STMEQEA R12!,{R0} // ( --> not(a) )
 BEQ   STEPEND
 
@@ -696,6 +697,38 @@ LDRB  R0,[R1]
 STMEQEA R12!,{R0} //51 ( --> c )
 B     STEPEND
 FETCH9:
+
+//0A 029 MLIT MCODE 2!
+CMP   R1,#0X29    //57 STORE2
+BNE   STORE29
+LDMEA R12!,{R0-R3} //57 ( a b adrh adrl --> )
+LSL   R4,R2,#16
+LSL   R3,R3,#16
+LSR   R3,R3,#16
+ADD   R4,R4,R3
+LSL   R5,R0,#16
+LSL   R1,R1,#16
+LSR   R1,R1,#16
+ADD   R5,R5,R1
+STR   R5,[R4]
+B     STEPEND
+STORE29:
+
+//0A 02A MLIT MCODE 2@
+CMP   R1,#0X2A    //34 FETCH2
+BNE   FETCH29
+LDMEA R12!,{R2,R3} //57 ( adrh adrl --> )
+LSL   R4,R2,#16
+LSL   R3,R3,#16
+LSR   R3,R3,#16
+ADD   R4,R4,R3
+LDR   R5,[R4]
+LSR   R0,R5,#16
+LSL   R1,R5,#16
+LSR   R1,R1,#16
+STMEA R12!,{R0,R1} //57 ( a b --> )
+B     STEPEND
+FETCH29:
 
 //( 0A 003 MLIT MCODE RETURN )
 CMP   R1,#0X03 // RETURN
