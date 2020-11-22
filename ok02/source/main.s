@@ -50,6 +50,7 @@
 //50 U* für DP @ M.
 //51 2800 @ über Speicherplatz 8, Taste # für Break
 //52 in @ Vorzeichenbits auffüllen
+//53 0 FFFF 10 U* muss FFF0 000F sein, dann geht HERE 0 0 DUMPZ richtig
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -552,11 +553,15 @@ BEQ   STEPEND
 CMP   R1,#0X02    //50 U*
 BNE   UMUL9
 LDMEA R12!,{R0,R1,R2} // ( c b a --> (a*b+c)h (a*b+c)l )
+MOV   R4,#0X10000
+SUB   R4,R4,#1
+AND   R0,R0,R4
+AND   R1,R1,R4
+AND   R2,R2,R4
 MLA   R3,R2,R1,R0
-LSR   R4,R3,#16
-STMEA R12!,{R4} // ( --> (a*b+c)h )
-LSL   R3,R3,#16
-LSR   R3,R3,#16
+LSR   R2,R3,#16
+STMEA R12!,{R2} // ( --> (a*b+c)h )
+AND   R3,R3,R4
 STMEA R12!,{R3} // ( --> (a*b+c)h (a*b+c)l )
 BEQ   STEPEND
 UMUL9:
@@ -2197,9 +2202,9 @@ RAM2F00:
   .word 0x3B000010 //2F08 CONSTANT BASE   2F09 CONSTANT TIB
   .word 0x3B0C3B00 //2F0A CONSTANT IN1    2F0B CONSTANT IN2
   .word 0x3B453B12 //2F0C CONSTANT IN3    2F0D CONSTANT IN4
-  .word 0x1B5D0000 //2F0E CONSTANT ERRORNR 0 ERRORNR ! 2F0F CONSTANT DP
-  .word 0x07B30000 //2F10 CONSTANT STAT 0 STAT !       2F11 CONSTANT LFA
-  .word 0x3AF43000 //2F12 CONSTANT BANF   2F13 CONSTANT BZEIG
+  .word 0x083A0000 //2F0E CONSTANT ERRORNR 0 ERRORNR ! 2F0F CONSTANT DP
+  .word 0x07DD0000 //2F10 CONSTANT STAT 0 STAT !       2F11 CONSTANT LFA
+  .word 0x33AE3000 //2F12 CONSTANT BANF   2F13 CONSTANT BZEIG
   .word 0x00200020 //2F14 CONSTANT DPMERK 2F15 CONSTANT CSP
   .word 0x2D000000 //2F16 CONSTANT DUBIT  2F17 CONSTANT LOCALADRESSE
   
