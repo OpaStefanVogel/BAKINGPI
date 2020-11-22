@@ -51,6 +51,7 @@
 //51 2800 @ über Speicherplatz 8, Taste # für Break
 //52 in @ Vorzeichenbits auffüllen
 //53 0 FFFF 10 U* muss FFF0 000F sein, dann geht HERE 0 0 DUMPZ richtig
+//54 Tasten L unde N zeigen auf Adresse E000
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -247,7 +248,7 @@ streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 mov   r4,r2          //23 r2 aufheben
 CMP   R6,#0X4E       //17 if "N"...
-MOVEQ PC,#0X4000     //17 bei "N" Neustart //27 jetzt ab 0X4000
+MOVEQ PC,#0XE000     //17 bei "N" Neustart //27 jetzt ab 0X4000
 CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 CMP   R6,#0X53       //29 if "S"... dann "STEP"
@@ -257,7 +258,7 @@ mov   r5,#0x4C
 STMEA R12!,{R5}// ( "L" )
 BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
-MOVEQ R2,#0X4000    //22//13//18 direkt Programmstart überschreiben //27 jetzt ab 0X4000
+MOVEQ R2,#0XE000    //22//13//18 direkt Programmstart überschreiben //27 jetzt ab 0X4000
 bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
 cmp   r6,#0x50      //22 wenn P...
 MOVEQ R2,#0X8000    //22 bei P ab 0X8000
