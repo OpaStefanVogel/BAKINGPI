@@ -51,7 +51,8 @@
 //51 2800 @ über Speicherplatz 8, Taste # für Break
 //52 in @ Vorzeichenbits auffüllen
 //53 0 FFFF 10 U* muss FFF0 000F sein, dann geht HERE 0 0 DUMPZ richtig
-//54 Tasten L unde N zeigen auf Adresse E000
+//54 Tasten L und N zeigen auf Adresse E000
+//55 2801 @ und 2801 ! damit SP? funktioniert in ;
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -636,6 +637,9 @@ BEQ   STEPEND
 CMP   R1,#2
 LSLEQ R10,R0,#1 //45
 BEQ   STEPEND
+CMP   R1,#1
+LSLEQ R12,R0,#2 //55
+BEQ   STEPEND
 CMP   R1,#0
 B     STEPEND
 STORE2:
@@ -677,6 +681,10 @@ BEQ   STEPEND
 CMP   R1,#2
 LSREQ R0,R10,#1
 STMEQEA R12!,{R0} //44 ( --> n )
+BEQ   STEPEND
+CMP   R1,#1
+LSREQ R0,R12,#2
+STMEQEA R12!,{R0} //55 ( --> n )
 BEQ   STEPEND
 CMP   R1,#0       //51
 MOV   R1,#8
