@@ -53,6 +53,7 @@
 //53 0 FFFF 10 U* muss FFF0 000F sein, dann geht HERE 0 0 DUMPZ richtig
 //54 Tasten L und N zeigen auf Adresse E000
 //55 2801 @ und 2801 ! damit SP? funktioniert in ;
+//56 R9=0 und mit "#" anhalten und auch fortsetzen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -233,8 +234,8 @@ BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X6000000  //42//43 Breakpoint Schrittzähler
-ADD R9,R9,#0X660 //42//43 Breakpoint Schrittzähler
+MOV R9,#0X000000  //56//42//43 Breakpoint Schrittzähler
+ADD R9,R9,#0X0  //56//42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -254,6 +255,9 @@ CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 CMP   R6,#0X53       //29 if "S"... dann "STEP"
 BLEQ  STEP           //29 ( )
+CMP   R6,#0X23       //56 if "#"... dann fortsetzen
+MOVEQ R9,#0          //56 ( )
+BLEQ  STEP           //56 ( )
 //str   r6,[r2,#0x40] //7 Zeichen zurückschicken //20 jetzt mit EMIT
 mov   r5,#0x4C
 STMEA R12!,{R5}// ( "L" )
@@ -781,17 +785,17 @@ BEQ   STEPEND0
 BL    KEY
 LDMEA R12!,{R0} //51 ( c )
 CMP   R0,#0X23
-MOVEQ R9,R8
+MOVEQ R9,#1     //56 vorher MOVEQ R9,R8
 BEQ   STEPEND0
 MOV   R1,#8
 STRB  R0,[R1]
-MOV   R0,#0X4400
-ADD   R0,R0,#0X7D
+MOV   R0,#0X4000
+ADD   R0,R0,#0X12
 AND   R1,R0,#0XF000
 B     STEP4
 STEPEND0:
 
-CMP   R8,R9    //42
+CMP   R9,#1    //56 vorher CMP   R8,R9    //42
 BLT   STEPR    //42
 //MOV   R0,#0X20 //48 Fehlersuch
 //STMEA R12!,{R0}// ( ' ' )
