@@ -49,6 +49,7 @@
 //49 einmal TIB @ 100 EXPECT FIND EXECUTE durch
 //50 U* für DP @ M.
 //51 2800 @ über Speicherplatz 8, Taste # für Break
+//52 in @ Vorzeichenbits auffüllen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -229,7 +230,7 @@ BL RAM3C00Start //43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0XF60000  //42//43 Breakpoint Schrittzähler
+MOV R9,#0X6000000  //42//43 Breakpoint Schrittzähler
 ADD R9,R9,#0X660 //42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
@@ -655,6 +656,10 @@ STMGEEA R12!,{R3} //34 ( --> n )
 BGE     STEPEND
 ADD   R1,R1,R1
 LDRH  R3,[R1]
+AND   R1,R3,#0X8000  //52 Vorzeichenbits
+CMP   R1,#0
+ADDNE R3,#0XFF0000
+ADDNE R3,#0XFF000000
 STMEA R12!,{R3} //34 ( --> n )
 B     STEPEND
 FETCH2: //44
