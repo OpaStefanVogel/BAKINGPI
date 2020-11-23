@@ -4,6 +4,7 @@ gitk --all &
 pcmanfm . &
 mousepad source/main.s &
 mousepad ../WEITER.txt &
-stty -F /dev/ttyS0 115200 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
+#stty -F /dev/ttyS0 115200 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
+stty -F /dev/ttyS0 9600 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 lxterminal -e "stty raw -echo opost quit ^C isig ixon -ixoff; cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0" &
 bash

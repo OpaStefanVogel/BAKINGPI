@@ -56,6 +56,7 @@
 //56 R9=0 und mit "#" anhalten und auch fortsetzen
 //57 77 88 1FFF FFFC 2! 1FFF FFFC 2@ M. M.
 //58 GPIOBASE R0 nochmal neu setzen
+//59 auf 9600 baud zurück und 40 Puffer, dann geht INIT.xml durch
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -165,9 +166,9 @@ mov r3,#3         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
-//ldr r3,=#270      //#270 für 115200, #26040 für 1200
-mov r3,   #0x100 //26 #270=#0x10e
-add r3,r3,#0x00e //26
+//ldr r3,=#270      //#270 für 115200, #26040 für 1200, 
+mov r3,   #0xCB0 //59//26 #270=#0x10e für 115200, 0xCB7 für 9600
+add r3,r3,#0x007 //26
 str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to r3"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
@@ -850,10 +851,10 @@ BL    SPDOT
 BL    CR
 STMEA R12!,{R8}// ( nr )
 BL    MDOT
-//STMEA R12!,{R13}//58 ( rp )
-//BL    MDOT
-//STMEA R12!,{R10}//58 ( RP )
-//BL    MDOT
+STMEA R12!,{R13}//58 ( rp )
+BL    MDOT
+STMEA R12!,{R10}//58 ( RP )
+BL    MDOT
 LSR   R0,R11,#1
 STMEA R12!,{R0}// ( PC )
 BL    MDOT
@@ -1474,7 +1475,7 @@ RAM0000:
   .word 0x2F04A00A //492
   .word 0x4294A00A //494
   .word 0xA00803FF //496
-  .word 0x42A90080 //498
+  .word 0x42A90040 //498  //59 80 in 40
   .word 0x2F059009 //49A
   .word 0xA00DA00A //49C
   .word 0xFFFF9005 //49E
