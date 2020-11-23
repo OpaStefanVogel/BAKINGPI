@@ -60,6 +60,7 @@
 //60 STEPVECTOR
 //61 STEPAVECTOR
 //62 KEYCODE liest ab 0#010000
+//63 Ersatzcode A004
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -628,8 +629,33 @@ STMEA R12!,{R0} // ( --> -a )
 B     STEPEND
 
 STEPA001:
+
 STEPA004:
+//0A 004 MLIT MCODE KX: //63// ( --> c flag )
+MOV   R2,#0X04
+LDR   R0,[R2]
+MOV   R2,#0X0C
+LDR   R1,[R2]
+CMP   R0,R1
+BEQ   KEYCODE28
+ADD   R1,R1,#0X10000 //62
+LDRB  R0,[R1]
+ADD   R1,R1,#1
+SUB   R1,R1,#0X10000 //62
+STR   R1,[R2]
+STMEA R12!,{R0}
+MOV   R0,#0
+SUB   R0,R0,#1
+STMEA R12!,{R0}
+B     STEPEND
+KEYCODE28:
+MOV   R0,#0
+STMEA R12!,{R0}
+STMEA R12!,{R0}
+B     STEPEND
+
 STEPA006:
+
 STEPA00C:
 //0A 001 MLIT MCODE U+
 B     STEPEND
@@ -895,6 +921,7 @@ STRB  R0,[R1]
 ADD   R1,R1,#1
 SUB   R1,R1,#0X10000 //62
 STR   R1,[R2]
+B     STEPEND0       //63
 //B     STEP4
 MOV   R0,#0X4000
 ADD   R0,R0,#0X12
@@ -1350,7 +1377,7 @@ RAM0000:
   .word 0xA003A009 //30C
   .word 0x31F9FFF9 //30E
   .word 0x47810003 //310
-  .word 0x44AC8000 //312
+  .word 0xA0048000 //312 //63 44AC A004
   .word 0x9002A00B //314
   .word 0x8FFAB300 //316
   .word 0xFFF5A003 //318
