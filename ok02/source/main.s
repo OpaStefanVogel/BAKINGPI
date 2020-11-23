@@ -58,6 +58,7 @@
 //58 GPIOBASE R0 nochmal neu setzen
 //59 auf 9600 baud zurück und 40 Puffer, dann geht INIT.xml durch
 //60 STEPVECTOR
+//61 STEPAVECTOR
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -564,19 +565,76 @@ B     STEPEND
 
 STEPA:
 AND   R1,R0,#0X00FF
+LSL   R2,R1,#2
+MOV   R3,PC
+ADD   PC,R3,R2
 
+STEPAVECTOR:
+B     STEPA000
+B     STEPA001
+B     STEPA002
+B     STEPA003
+B     STEPA004
+B     STEPA005
+B     STEPA006
+B     STEPA007
+B     STEPA008
+B     STEPA009
+B     STEPA00A
+B     STEPA00B
+B     STEPA00C
+B     STEPA00D
+B     STEPA00E
+B     STEPA00F
+B     STEPA000
+B     STEPA001
+B     STEPA002
+B     STEPA003
+B     STEPA004
+B     STEPA005
+B     STEPA006
+B     STEPA007
+B     STEPA008
+B     STEPA009
+B     STEPA00A
+B     STEPA00B
+B     STEPA00C
+B     STEPA00D
+B     STEPA00E
+B     STEPA00F
+B     STEPA000
+B     STEPA001
+B     STEPA002
+B     STEPA003
+B     STEPA004
+B     STEPA005
+B     STEPA006
+B     STEPA007
+B     STEPA008
+B     STEPA029
+B     STEPA02A
+B     STEPA00B
+B     STEPA00C
+B     STEPA00D
+B     STEPA00E
+B     STEPA00F
+
+STEPA000:
 //0A 000 MLIT MCODE MINUS
-CMP   R1,#0X00    //38 MINUS
-LDMEQEA R12!,{R0} // ( a --> )
-SUBEQ   R0,R1,R0
-STMEQEA R12!,{R0} // ( --> -a )
-BEQ   STEPEND
+LDMEA R12!,{R0} // ( a --> )
+SUB   R0,R1,R0
+STMEA R12!,{R0} // ( --> -a )
+B     STEPEND
 
+STEPA001:
+STEPA004:
+STEPA006:
+STEPA00C:
 //0A 001 MLIT MCODE U+
+B     STEPEND
 
+STEPA002:
 //0A 002 MLIT MCODE U*
-CMP   R1,#0X02    //50 U*
-BNE   UMUL9
 LDMEA R12!,{R0,R1,R2} // ( c b a --> (a*b+c)h (a*b+c)l )
 MOV   R4,#0X10000
 SUB   R4,R4,#1
@@ -588,67 +646,61 @@ LSR   R2,R3,#16
 STMEA R12!,{R2} // ( --> (a*b+c)h )
 AND   R3,R3,R4
 STMEA R12!,{R3} // ( --> (a*b+c)h (a*b+c)l )
-BEQ   STEPEND
-UMUL9:
+B     STEPEND
 
+STEPA00D:
 //0A 00D MLIT MCODE 0=
-CMP   R1,#0X0D    //38 0=
-BNE   NULL9
 LDMEA R12!,{R0} // ( a --> )
 CMP   R0,#0
 MVNEQ R0,#0
 MOVNE R0,#0
 STMEA R12!,{R0} // ( --> 0= )
 B     STEPEND
-NULL9:
 
+STEPA00F:
 //0A 00F MLIT MCODE 0LT
-CMP   R1,#0X0F    //42 0LT
-BNE   LT9
 LDMEA R12!,{R0} // ( a --> )
 CMP   R0,#0
 MVNLT R0,#0
 MOVGE R0,#0
 STMEA R12!,{R0} // ( --> 0LT )
 B     STEPEND
-LT9:
 
+STEPA005:
 //0A 005 MLIT MCODE EMITCODE
-CMP   R1,#0X05    //34 EMITCODE
-BLEQ  EMIT        //34 ( c -->  <char> )
-BEQ   STEPEND
+BL    EMIT        //34 ( c -->  <char> )
+B     STEPEND
 
+STEPA00B:
 //0A 00B MLIT MCODE NOT
-CMP   R1,#0X0B    //38 NOT
-LDMEQEA R12!,{R0} // ( a --> )
-MVNEQ   R0,R0
-STMEQEA R12!,{R0} // ( --> not(a) )
-BEQ   STEPEND
+LDMEA R12!,{R0} // ( a --> )
+MVN   R0,R0
+STMEA R12!,{R0} // ( --> not(a) )
+B     STEPEND
 
+STEPA008:
 //0A 008 MLIT MCODE AND
-CMP   R1,#0X08    //38 AND
-LDMEQEA R12!,{R0,R1} // ( a b --> )
-ANDEQ   R0,R0,R1
-STMEQEA R12!,{R0} // ( --> a_and_b )
-BEQ   STEPEND
+LDMEA R12!,{R0,R1} // ( a b --> )
+AND   R0,R0,R1
+STMEA R12!,{R0} // ( --> a_and_b )
+B     STEPEND
 
+STEPA00E:
 //0A 00E MLIT MCODE OR
-CMP   R1,#0X0E    //38 OR
-LDMEQEA R12!,{R0,R1} //( a b --> )
-ORREQ   R0,R0,R1
-STMEQEA R12!,{R0} // ( --> a_or_b )
-BEQ   STEPEND
+LDMEA R12!,{R0,R1} //( a b --> )
+ORR   R0,R0,R1
+STMEA R12!,{R0} // ( --> a_or_b )
+B     STEPEND
 
+STEPA007:
 //0A 007 MLIT MCODE M+
-CMP   R1,#0X07    //35 ADD
-LDMEQEA R12!,{R0,R1} //35 ( a b --> )
-ADDEQ   R0,R0,R1
-STMEQEA R12!,{R0} //35 ( --> a+b )
-BEQ   STEPEND
+LDMEA R12!,{R0,R1} //35 ( a b --> )
+ADD   R0,R0,R1
+STMEA R12!,{R0} //35 ( --> a+b )
+B     STEPEND
 
+STEPA009:
 //0A 009 MLIT MCODE !
-CMP   R1,#0X09    //34 STORE
-BNE   STORE9
 LDMEA R12!,{R0,R1} //34 ( n adr --> )
 AND   R2,R1,#0XFF00
 CMP   R2,#0X2800
@@ -672,11 +724,9 @@ BGE     STEPEND
 ADD   R1,R1,R1
 STRH  R0,[R1]
 B     STEPEND
-STORE9:
 
+STEPA00A:
 //0A 00A MLIT MCODE @
-CMP   R1,#0X0A    //34 FETCH
-BNE   FETCH9
 LDMEA R12!,{R1} //34 ( adr --> )
 LSL   R1,R1,#16 //48
 LSR   R1,R1,#16 //48
@@ -714,11 +764,9 @@ MOV   R1,#8
 LDRB  R0,[R1]
 STMEQEA R12!,{R0} //51 ( --> c )
 B     STEPEND
-FETCH9:
 
+STEPA029:
 //0A 029 MLIT MCODE 2!
-CMP   R1,#0X29    //57 STORE2
-BNE   STORE29
 LDMEA R12!,{R0-R3} //57 ( a b adrh adrl --> )
 LSL   R4,R2,#16
 LSL   R3,R3,#16
@@ -730,11 +778,9 @@ LSR   R1,R1,#16
 ADD   R5,R5,R1
 STR   R5,[R4]
 B     STEPEND
-STORE29:
 
+STEPA02A:
 //0A 02A MLIT MCODE 2@
-CMP   R1,#0X2A    //34 FETCH2
-BNE   FETCH29
 LDMEA R12!,{R2,R3} //57 ( adrh adrl --> )
 LSL   R4,R2,#16
 LSL   R3,R3,#16
@@ -746,14 +792,12 @@ LSL   R1,R5,#16
 LSR   R1,R1,#16
 STMEA R12!,{R0,R1} //57 ( a b --> )
 B     STEPEND
-FETCH29:
 
+STEPA003:
 //( 0A 003 MLIT MCODE RETURN )
-CMP   R1,#0X03 // RETURN
-//LDMEQFD R10!,{R11}
-LDREQH  R2,[R10],#2 //44
-LSLEQ R11,R2,#1
-BEQ   STEPEND
+LDRH  R2,[R10],#2 //44
+LSL R11,R2,#1
+B     STEPEND
 
 B     STEPEND
 
@@ -1485,7 +1529,7 @@ RAM0000:
   .word 0x2F04A00A //492
   .word 0x4294A00A //494
   .word 0xA00803FF //496
-  .word 0x42A90020 //498  //59 80 in 40
+  .word 0x42A90080 //498  //59 80 in 40
   .word 0x2F059009 //49A
   .word 0xA00DA00A //49C
   .word 0xFFFF9005 //49E
@@ -1506,7 +1550,7 @@ RAM0000:
   .word 0x2F04A00A //4BC
   .word 0x4294A00A //4BE
   .word 0xA00803FF //4C0
-  .word 0x42A20010 //4C2 //59 20 in 10
+  .word 0x42A20020 //4C2 //59 20 in 10
   .word 0x2F059008 //4C4
   .word 0x9005A00A //4C6
   .word 0x2F050000 //4C8
