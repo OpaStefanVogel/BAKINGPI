@@ -60,7 +60,8 @@
 //60 STEPVECTOR
 //61 STEPAVECTOR
 //62 KEYCODE liest ab 0#010000
-//63 Ersatzcode A004
+//63 Ersatzcode A004 anstelle von 44AC KEYCODE2
+//64 wieder vor auf 115200 baud
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -172,8 +173,8 @@ str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
 mov r3,#0
 str r3,[r2,#0x50] //6 put32(AUX_MU_MCR_REG,0);   "Set RTS line to be always high"
 //ldr r3,=#270      //#270 für 115200, #26040 für 1200, 
-mov r3,   #0xCB0 //59//26 #270=#0x10e für 115200, 0xCB7 für 9600
-add r3,r3,#0x007 //26
+mov r3,   #0x100 //59//26 #270=#0x10e für 115200, 0xCB7 für 9600
+add r3,r3,#0x00e //26
 str r3,[r2,#0x68] //6 put32(AUX_MU_BAUD_REG,270); "Set baud rate to r3"
 mov r3,#3
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,3);   "Finally, enable transmitter and receiver"
@@ -921,7 +922,7 @@ STRB  R0,[R1]
 ADD   R1,R1,#1
 SUB   R1,R1,#0X10000 //62
 STR   R1,[R2]
-B     STEPEND0       //63
+B     STEPEND        //63
 //B     STEP4
 MOV   R0,#0X4000
 ADD   R0,R0,#0X12
