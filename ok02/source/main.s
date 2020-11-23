@@ -55,6 +55,7 @@
 //55 2801 @ und 2801 ! damit SP? funktioniert in ;
 //56 R9=0 und mit "#" anhalten und auch fortsetzen
 //57 77 88 1FFF FFFC 2! 1FFF FFFC 2@ M. M.
+//58 GPIOBASE R0 nochmal neu setzen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -83,7 +84,7 @@ _start:
 */
 mov r3,#0x03 //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
 mov r4,#0x070000 //24 Blinkdauer auch
-mov r0,   #0x20000000 //26
+mov r0,   #0x20000000 //26//58 nochmal in loop2a
 add r0,r0,#0x00200000 //26
 /*
 * Our register use is as follows:
@@ -246,6 +247,8 @@ ldr   r6,[r2,#0x40] //7 Zeichen lesen
 add   r7,r7,#1    //7 ist ein Zeichen mehr
 and   r5,r7,#1    //7 Bit0 der Anzahl
 cmp   r5,#0       //3
+mov r0,   #0x20000000 //58
+add r0,r0,#0x00200000 //58
 strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
@@ -825,6 +828,7 @@ STRB  R0,[R1]
 MOV   R0,#0X4000
 ADD   R0,R0,#0X12
 AND   R1,R0,#0XF000
+//B   STEPEND0
 B     STEP4
 STEPEND0:
 
@@ -844,8 +848,12 @@ STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
 BL    SPDOT
 BL    CR
-STMEA R12!,{R8}// ( PC )
+STMEA R12!,{R8}// ( nr )
 BL    MDOT
+//STMEA R12!,{R13}//58 ( rp )
+//BL    MDOT
+//STMEA R12!,{R10}//58 ( RP )
+//BL    MDOT
 LSR   R0,R11,#1
 STMEA R12!,{R0}// ( PC )
 BL    MDOT
