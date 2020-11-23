@@ -57,6 +57,7 @@
 //57 77 88 1FFF FFFC 2! 1FFF FFFC 2@ M. M.
 //58 GPIOBASE R0 nochmal neu setzen
 //59 auf 9600 baud zurück und 40 Puffer, dann geht INIT.xml durch
+//60 STEPVECTOR
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -83,6 +84,7 @@ _start:
 /* 
 * This command loads the physical address of the GPIO region into r0.0x20200000
 */
+//60 ldr r3,#loop2$
 mov r3,#0x03 //18 Blinkanzahl #0x0A gleich bei Programmstart setzen //22 #0x2A
 mov r4,#0x070000 //24 Blinkdauer auch
 mov r0,   #0x20000000 //26//58 nochmal in loop2a
@@ -238,7 +240,7 @@ MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
 MOV R9,#0X000000  //56//42//43 Breakpoint Schrittzähler
-ADD R9,R9,#0X0  //56//42//43 Breakpoint Schrittzähler
+ADD R9,R9,#0X000  //56//42//43 Breakpoint Schrittzähler
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -497,11 +499,29 @@ LDRH  R0,[R11]
 ADD   R8,R8,#1
 ADD   R11,R11,#2
 AND   R1,R0,#0XF000 //30
+LSR   R2,R1,#10
+MOV   R3,PC
+ADD   PC,R3,R2
+
+STEPVECTOR:
+B     STEP0123
+B     STEP0123
+B     STEP0123
+B     STEP0123
+B     STEP4
+B     STEP5
+B     STEP6
+B     STEP7
+B     STEP8
+B     STEP9
+B     STEPA
+B     STEPB
+B     STEPF
+B     STEPF
+B     STEPF
+B     STEPF
 
 STEP4: //30 4xxx
-CMP   R1,#0X4000
-BNE   STEP5
-//STMFD R10!,{R11}
 LSR   R2,R11,#1
 STRH  R2,[R10,#-2]! //45
 SUB   R11,R0,#0X4000
@@ -509,18 +529,16 @@ ADD   R11,R11,R11
 B     STEPEND
 
 STEP5:
-CMP   R1,#0X5000
-BNE   STEP8
-//STMFD R10!,{R11}
 LSR   R2,R11,#1
 STRH  R2,[R10,#-2]! //45
 SUB   R11,R0,#0X4000
 ADD   R11,R11,R11
 B     STEPEND
 
+STEP6:
+STEP7:
+
 STEP8: //30 8xxx
-CMP   R1,#0X8000
-BNE   STEP9
 SUB   R0,R0,#0X8000
 CMP   R0,#0X0800
 MVNGE R1,#0
@@ -531,8 +549,6 @@ ADD   R11,R11,R0
 B     STEPEND
 
 STEP9: //30 4xxx
-CMP   R1,#0X9000
-BNE   STEPA
 LDMEA R12!,{R2}
 //LDRH  R2,[R12,#-4]!
 CMP   R2,#0
@@ -547,8 +563,6 @@ ADD   R11,R11,R0
 B     STEPEND
 
 STEPA:
-CMP   R1,#0XA000
-BNE   STEPB
 AND   R1,R0,#0X00FF
 
 //0A 000 MLIT MCODE MINUS
@@ -745,8 +759,6 @@ B     STEPEND
 
 
 STEPB:
-CMP   R1,#0XB000
-BNE   STEPF
 AND   R1,R0,#0X00FF
 // 0B 412 MLIT MCODE SWAP
 CMP   R1,#0X12        //34 ( a b ) SWAP
@@ -798,8 +810,6 @@ DROP9:
 B     STEPEND
 
 STEPF:
-CMP   R1,#0XC000
-BLT   STEP0123
 MOV   R1,#0
 SUB   R1,R1,#1
 LSL   R1,R1,#16
@@ -1475,7 +1485,7 @@ RAM0000:
   .word 0x2F04A00A //492
   .word 0x4294A00A //494
   .word 0xA00803FF //496
-  .word 0x42A90040 //498  //59 80 in 40
+  .word 0x42A90020 //498  //59 80 in 40
   .word 0x2F059009 //49A
   .word 0xA00DA00A //49C
   .word 0xFFFF9005 //49E
@@ -1496,7 +1506,7 @@ RAM0000:
   .word 0x2F04A00A //4BC
   .word 0x4294A00A //4BE
   .word 0xA00803FF //4C0
-  .word 0x42A20020 //4C2
+  .word 0x42A20010 //4C2 //59 20 in 10
   .word 0x2F059008 //4C4
   .word 0x9005A00A //4C6
   .word 0x2F050000 //4C8
