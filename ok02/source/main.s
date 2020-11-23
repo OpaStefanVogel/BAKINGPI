@@ -59,6 +59,7 @@
 //59 auf 9600 baud zurück und 40 Puffer, dann geht INIT.xml durch
 //60 STEPVECTOR
 //61 STEPAVECTOR
+//62 KEYCODE liest ab 0#010000
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -760,8 +761,15 @@ LSREQ R0,R12,#2
 STMEQEA R12!,{R0} //55 ( --> n )
 BEQ   STEPEND
 CMP   R1,#0       //51
-MOV   R1,#8
+//MOV   R1,#8
+//LDRB  R0,[R1]
+MOV   R2,#0X0C
+LDR   R1,[R2]
+ADD   R1,R1,#0X10000 //62
 LDRB  R0,[R1]
+ADD   R1,R1,#1
+SUB   R1,R1,#0X10000 //62
+STR   R1,[R2]
 STMEQEA R12!,{R0} //51 ( --> c )
 B     STEPEND
 
@@ -880,6 +888,14 @@ MOVEQ R9,#1     //56 vorher MOVEQ R9,R8
 BEQ   STEPEND0
 MOV   R1,#8
 STRB  R0,[R1]
+MOV   R2,#4
+LDR   R1,[R2]
+ADD   R1,R1,#0X10000 //62
+STRB  R0,[R1]
+ADD   R1,R1,#1
+SUB   R1,R1,#0X10000 //62
+STR   R1,[R2]
+//B     STEP4
 MOV   R0,#0X4000
 ADD   R0,R0,#0X12
 AND   R1,R0,#0XF000
