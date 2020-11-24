@@ -1,0 +1,16 @@
+( : LIT, ( a --> ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
+( LIT, reparieren:    muss 0C sein
+0C ' LIT, 2 M+ ! ( macht aus der 04 ein 0C
+
+0A 029 MLIT MCODE 2!
+0A 02A MLIT MCODE 2@
+
+: BAUD! ( bd -- ) 0 SWAP 2021 3000 2068 M+ 2! ;
+: BAUD? ( -- bd )2021 3000 2068 M+ 2@ M. DROP ;
+
+
+: DUMP ( addr n --> )
+  BEGIN SWAP ( CR DUP M. ) DUP @ M. 1+ SWAP 1- DUP 0= UNTIL 2DROP ;
+
+: T 1 2809 ! 77 88 99 M* M+ M. 0 2809 ! ; 
+
