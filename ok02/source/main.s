@@ -62,6 +62,7 @@
 //62 KEYCODE liest ab 0#010000
 //63 Ersatzcode A004 anstelle von 44AC KEYCODE2
 //64 wieder vor auf 115200 baud
+//65 Keyspeicher ab 10000000, RAM3000 auf 6000, RAM3C00 raus
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -239,7 +240,7 @@ loop2$:  //2
 BL FFStart //26
 BL RAM2F00Start //37
 BL RAM3000Start //27 eb0004bd
-BL RAM3C00Start //43 52415453
+//BL RAM3C00Start //65//43 52415453
 MOV R11,#0 //29 R11=PC, R12=SP
 MOV R10,#0X6000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
@@ -639,10 +640,10 @@ MOV   R2,#0X0C
 LDR   R1,[R2]
 CMP   R0,R1
 BEQ   KEYCODE28
-ADD   R1,R1,#0X10000 //62
+ADD   R1,R1,#0X10000000 //65//62
 LDRB  R0,[R1]
 ADD   R1,R1,#1
-SUB   R1,R1,#0X10000 //62
+SUB   R1,R1,#0X10000000 //65//62
 STR   R1,[R2]
 STMEA R12!,{R0}
 MOV   R0,#0
@@ -747,6 +748,7 @@ CMP   R1,#0
 B     STEPEND
 STORE2:
 CMP   R1,#0X3000 //43
+ADDGE R1,#0X3000 //65
 STRGEB  R0,[R1]
 BGE     STEPEND
 ADD   R1,R1,R1
@@ -762,6 +764,7 @@ AND   R2,R1,#0XFF00
 CMP   R2,#0X2800
 BEQ   FETCH2
 CMP   R1,#0X3000
+ADDGE R1,#0X3000  //65
 LDRGEB  R3,[R1]
 STMGEEA R12!,{R3} //34 ( --> n )
 BGE     STEPEND
@@ -792,10 +795,10 @@ CMP   R1,#0       //51
 //LDRB  R0,[R1]
 MOV   R2,#0X0C
 LDR   R1,[R2]
-ADD   R1,R1,#0X10000 //62
+ADD   R1,R1,#0X10000000 //65//62
 LDRB  R0,[R1]
 ADD   R1,R1,#1
-SUB   R1,R1,#0X10000 //62
+SUB   R1,R1,#0X10000000 //65//62
 STR   R1,[R2]
 STMEQEA R12!,{R0} //51 ( --> c )
 B     STEPEND
@@ -917,10 +920,10 @@ MOV   R1,#8
 STRB  R0,[R1]
 MOV   R2,#4
 LDR   R1,[R2]
-ADD   R1,R1,#0X10000 //62
+ADD   R1,R1,#0X10000000 //65//62
 STRB  R0,[R1]
 ADD   R1,R1,#1
-SUB   R1,R1,#0X10000 //62
+SUB   R1,R1,#0X10000000 //65//62
 STR   R1,[R2]
 B     STEPEND        //63
 //B     STEP4
@@ -2064,10 +2067,10 @@ RAM3000Decode: //26 zu BL RAM3000Start
 STMFD SP!,{R0-R3,LR}
 ADD   R0,LR,#4 //28 RAMB03000 nach 3000 verschieben
 STMEA R12!,{R0}//28 ( ramb3000 )
-MOV   R0,#0X3000
-STMEA R12!,{R0}//28 ( ramb3000 3000 )
+MOV   R0,#0X6000 //65
+STMEA R12!,{R0}//28 ( ramb3000 6000 )
 MOV   R0,#0X1000
-STMEA R12!,{R0}//28 ( ramb3000 3000 1000 )
+STMEA R12!,{R0}//28 ( ramb3000 6000 1000 )
 BL    MOVE     //28 ( )
 LDMFD SP!,{R0-R3,PC}
 RAM3000Start:
@@ -2311,26 +2314,6 @@ RAM3000:
   .word 0x442F202D //3A4
   .word 0x5A504D55 //3A8
   .word 0x4152203E //3AC
-
-RAM3C00Decode: //43 zu BL RAM3000Start
-STMFD SP!,{R0-R3,LR}
-ADD   R0,LR,#4 //28 RAMB03C00 nach 3C00 verschieben
-STMEA R12!,{R0}//28 ( ramb3C00 )
-MOV   R0,#0X3C00
-STMEA R12!,{R0}//28 ( ramb3C00 3C00 )
-MOV   R0,#0X40
-STMEA R12!,{R0}//28 ( ramb3C00 3C00 40 )
-BL    MOVE     //28 ( )
-LDMFD SP!,{R0-R3,PC}
-RAM3C00Start:
-STMFD SP!,{R0-R7,LR}
-BL RAM3C00Decode
-LDMFD SP!,{R0-R7,PC}
-RAM3C00:
-  .word 0x52415453 //3C00 "START\n\n\nDP @ M.\n"
-  .word 0x0D0D0D54 //3C04
-  .word 0x40205044 //3C08
-  .word 0x0D2E4D20 //3C0C
 
 RAM2F00Decode: //37 zu BL RAM2F00Start
 STMFD SP!,{R0-R3,LR}
