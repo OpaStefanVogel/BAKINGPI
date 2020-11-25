@@ -64,6 +64,7 @@
 //64 wieder vor auf 115200 baud
 //65 Keyspeicher ab 10000000, RAM3000 auf 6000, RAM3C00 raus
 //66 RAMB0000 auf 10000, RAM3000 auf 16000
+//67 Start ohne Taste "S", Break mit ^B
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -210,30 +211,9 @@ mov r7,#0 //7 Anzahl der empfangenen Zeichen
 mov r13,#0xE000  //27
 mov r12,#0xC000 //27 C000 wird auch nochmal in //32 verwendet
 
-MOV   R0,#0X20 
-STMEA R12!,{R0}// ( ' ' )
-BL    EMIT     // ( )
-MOV   R0,#0X48 
-STMEA R12!,{R0}// ( 'H' )
-BL    EMIT     // ( )
-MOV   R0,#0X41
-STMEA R12!,{R0}// ( 'A' )
-BL    EMIT     // ( )
-MOV   R0,#0X4C 
-STMEA R12!,{R0}// ( 'L' )
-BL    EMIT     // ( )
-MOV   R0,#0X4C 
-STMEA R12!,{R0}// ( 'L' )
-BL    EMIT     // ( )
-MOV   R0,#0X4F //22
-STMEA R12!,{R0}//22 ( 'O' )
-BL    EMIT     // ( )
-MOV   R0,#0X0D 
-STMEA R12!,{R0}// ( ' ' )
-BL    EMIT     // ( )
-MOV   R0,#0X0A 
-STMEA R12!,{R0}// ( ' ' )
-BL    EMIT     // ( )
+//MOV   R0,#0X20 
+//STMEA R12!,{R0}// ( ' ' )
+//BL    EMIT     // ( )
 
 loop2$:  //2
 //BL loop2a$ //27
@@ -247,6 +227,10 @@ MOV R10,#0X16000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
 MOV R9,#0X000000  //56//42//43 Breakpoint Schrittzähler
 ADD R9,R9,#0X000  //56//42//43 Breakpoint Schrittzähler
+MOV R6,#0X53
+mov   r4,r2          //23 r2 aufheben
+B   loop2b$
+
 loop2a$:
 ldr   r5,[r2,#0x54] //6 abfragen, ob Daten da
 and   r5,r5,#1      //6 Bit0
@@ -261,9 +245,9 @@ add r0,r0,#0x00200000 //58
 strne r1,[r0,#40] //3 in GPIO2 ausgeben, LED an 3,3V 
 streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
-mov   r4,r2          //23 r2 aufheben
+loop2b$:
 CMP   R6,#0X4E       //17 if "N"...
-MOVEQ PC,#0XE000     //17 bei "N" Neustart //27 jetzt ab 0X4000
+MOVEQ PC,#0XE000     //17 bei "N" Neustart //27 jetzt ab 0XE000
 CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 CMP   R6,#0X53       //29 if "S"... dann "STEP"
@@ -930,7 +914,7 @@ CMP   R0,#0
 BEQ   STEPEND0
 BL    KEY
 LDMEA R12!,{R0} //51 ( c )
-CMP   R0,#0X23
+CMP   R0,#0X02
 MOVEQ R9,#1     //56 vorher MOVEQ R9,R8
 BEQ   STEPEND0
 //MOV   R1,#8
@@ -993,15 +977,6 @@ STMEA R12!,{R0}//28 ( ramb0000 10000 )
 MOV   R0,#0X3000
 STMEA R12!,{R0}//28 ( ramb0000 10000 3000 )
 BL    MOVE     //28 ( )
-MOV   R0,#0X30
-STMEA R12!,{R0}// ( ' ' )
-BL    EMIT     // ( )
-MOV   R0,#0X46 
-STMEA R12!,{R0}// ( 'F' )
-BL    EMIT     // ( )
-MOV   R0,#0X4F //
-STMEA R12!,{R0}// ( 'O' )
-BL    EMIT     // ( )
 LDMFD SP!,{R0-R7,PC}
 FFStart:
 STMFD SP!,{R0-R7,LR}

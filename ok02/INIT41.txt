@@ -1,6 +1,6 @@
-( : LIT, ( a --> ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
-( LIT, reparieren:    muss 0C sein
-0C ' LIT, 2 M+ ! ( macht aus der 04 ein 0C
+( : LIT, ( a --> ... DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
+( LIT, reparieren:   muss da 0C sein
+0C ' LIT, 2 M+ ! ( macht aus der 04 ein 0C )
 
 0A 029 MLIT MCODE 2!
 0A 02A MLIT MCODE 2@
@@ -13,4 +13,11 @@
   BEGIN SWAP ( CR DUP M. ) DUP @ M. 1+ SWAP 1- DUP 0= UNTIL 2DROP ;
 
 : T 1 2809 ! 77 88 99 M* M+ M. 0 2809 ! ; 
+
+: PIN4HIGH 0 4 2020 0028 2! ;
+: PIN4LOW  0 4 2020 001C 2! ;
+
+PIN4HIGH
+PIN4LOW
+
 
