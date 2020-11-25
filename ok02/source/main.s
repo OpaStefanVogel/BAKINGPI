@@ -65,6 +65,7 @@
 //65 Keyspeicher ab 10000000, RAM3000 auf 6000, RAM3C00 raus
 //66 RAMB0000 auf 10000, RAM3000 auf 16000
 //67 Start ohne Taste "S", Break mit ^B
+//68 FIQ Versuch 1
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -169,7 +170,7 @@ mov r3,#1
 str r3,[r2,#0x04] //6 put32(AUX_ENABLES,1);    "Enable mini uart"
 mov r3,#0
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,0); "Disable flow control and TX and RX"
-mov r3,#0
+mov r3,#2 //68 2 statt 0
 str r3,[r2,#0x44] //6 put32(AUX_MU_IER_REG,0);  "Disable receive and transmit interrupts"
 mov r3,#3         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
@@ -222,6 +223,7 @@ BL FFStart //26
 BL RAM2F00Start //37
 BL RAM3000Start //27 eb0004bd
 //BL RAM3C00Start //65//43 52415453
+BL RAM0000Start //68
 MOV R11,#0X10000 //66//29 R11=PC, R12=SP
 MOV R10,#0X16000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
@@ -967,6 +969,36 @@ LDRH  R0,[R11]
 STMEA R12!,{R0}// ( [PC] )
 BL    MDOT
 LDMFD SP!,{R0-R7,PC}
+
+RAM0000Decode: //43 zu BL RAM0000Start
+STMFD SP!,{R0-R3,LR}
+ADD   R0,LR,#4 //28 RAMB03C00 nach 3C00 verschieben
+STMEA R12!,{R0}//28 ( ramb0000 )
+MOV   R0,#0X00
+STMEA R12!,{R0}//28 ( ramb0000 0 )
+MOV   R0,#0X40
+STMEA R12!,{R0}//28 ( ramb3C00 0 40 )
+BL    MOVE     //28 ( )
+LDMFD SP!,{R0-R3,PC}
+RAM0000Start:
+STMFD SP!,{R0-R7,LR}
+BL RAM0000Decode
+LDMFD SP!,{R0-R7,PC}
+B     FIQ //0X00
+B     FIQ //0X04
+B     FIQ //0X08
+B     FIQ //0X0C
+B     FIQ //0X10
+B     FIQ //0X14
+B     FIQ //0X18
+FIQ:      //0X1C
+MOV   R8,#0X10000
+ADD   R8,#8
+LDR   R9,[R8]
+ADD   R9,R9,#1
+STR   R9,[R8]
+SUBS  PC,R14,#4
+
 
 FFDecode: //26 zu BL FFStart
 STMFD SP!,{R0-R7,LR}
@@ -2339,5 +2371,4 @@ RAM2F00:
   .word 0x33AE3000 //2F12 CONSTANT BANF   2F13 CONSTANT BZEIG
   .word 0x00200020 //2F14 CONSTANT DPMERK 2F15 CONSTANT CSP
   .word 0x2D000000 //2F16 CONSTANT DUBIT  2F17 CONSTANT LOCALADRESSE
-  
 Daten:
