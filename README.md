@@ -1,6 +1,6 @@
 Das ist mein [bare metal](https://www.raspberrypi.org/forums/viewforum.php?f=72&sid=0828289b3d1e532207d78b72567f63c6) Versuch für meinen ausrangierten [Raspberry Pi 1 Mod. B](https://de.wikipedia.org/wiki/Raspberry_Pi#Raspberry_Pi) .
 
-- Im Verzeichnis `BAKINGPI/ok02/` mit `make'` die Datei `kernel.img` erzeugen und diese ins `/boot/`-Verzeichnis vom Raspberry Pi B kopieren.
+- Im Verzeichnis `BAKINGPI/ok02/` mit `make` die Datei `kernel.img` erzeugen und diese ins `/boot/`-Verzeichnis vom Raspberry Pi B kopieren.
 
 - eine [serielle Verbindung](https://elinux.org/RPi_Serial_Connection) herstellen.
 
