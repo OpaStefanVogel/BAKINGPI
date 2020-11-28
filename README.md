@@ -12,6 +12,6 @@ Wenn alles gut geht, sollte eine Simulation von diesem [Forth-Interpreter](http:
 
 Bisherige Schritte waren:
 1. blinkende LED aus https://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/ok02.html
-2. serielle Verbindung aus ...
-3. eine Möglichkeit, kernel.img über die serielle Verbindung zum Raspberry Pi B zu bringen
+2. serielle Verbindung aus https://github.com/s-matyukevich/raspberry-pi-os/blob/master/docs/lesson02/rpi-os.md
+3. daß man kernel.img mit `hexdump` über die serielle Verbindung zum Raspberry Pi B schicken kann
 4. den Forth-Interpreter irgendwie zum Laufen bringen
