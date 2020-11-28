@@ -11,7 +11,7 @@ Wenn alles gut geht, sollte eine Simulation von diesem [Forth-Interpreter](http:
 `77 88 M* M. <Enter> 3F38 ok`
 
 Bisherige Schritte waren:
-1. ok02 blinkende LED aus ...
+1. blinkende LED aus https://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/ok02.html
 2. serielle Verbindung aus ...
 3. eine Möglichkeit, kernel.img über die serielle Verbindung zum Raspberry Pi B zu bringen
 4. den Forth-Interpreter irgendwie zum Laufen bringen
