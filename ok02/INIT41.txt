@@ -6,7 +6,7 @@
 0A 02A MLIT MCODE 2@
 
 : BAUD! ( bd -- ) 0 SWAP 2021 3000 2068 M+ 2! ;
-: BAUD? ( -- bd )2021 3000 2068 M+ 2@ M. DROP ;
+: BAUD? ( -- bd ) 2021 3000 2068 M+ 2@ M. DROP ;
 
 
 : DUMP ( addr n --> )
@@ -28,4 +28,7 @@ PIN3HIGH
 0 10 DUMP
 0 10 DUMP
 
-
+0A 001 MLIT MCODE FIQ
+FIQ
+0 10 DUMP
+0 10 DUMP

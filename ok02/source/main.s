@@ -66,6 +66,7 @@
 //66 RAMB0000 auf 10000, RAM3000 auf 16000
 //67 Start ohne Taste "S", Break mit ^B
 //68 FIQ Versuch 1
+//69 enable FIQ in CPSR
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -622,6 +623,11 @@ STMEA R12!,{R0} // ( --> -a )
 B     STEPEND
 
 STEPA001:
+//0A 001 MLIT MCODE FIQ
+    mrs r0,cpsr       //69 Enable FIQ https://github.com/dwelch67/raspberrypi/blinker08
+    bic r0,r0,#0x40   //69
+    msr cpsr_c,r0     //69
+B     STEPEND
 
 STEPA004:
 //0A 004 MLIT MCODE KX: //63// ( --> c flag )
