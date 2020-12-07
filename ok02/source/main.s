@@ -67,6 +67,7 @@
 //67 Start ohne Taste "S", Break mit ^B
 //68 FIQ Versuch 1
 //69 enable FIQ in CPSR
+//70 FIQ mit KEY speichern
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -224,7 +225,7 @@ BL FFStart //26
 BL RAM2F00Start //37
 BL RAM3000Start //27 eb0004bd
 //BL RAM3C00Start //65//43 52415453
-BL RAM0000Start //68
+BL RQ0000Start //68
 MOV R11,#0X10000 //66//29 R11=PC, R12=SP
 MOV R10,#0X16000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
@@ -976,19 +977,19 @@ STMEA R12!,{R0}// ( [PC] )
 BL    MDOT
 LDMFD SP!,{R0-R7,PC}
 
-RAM0000Decode: //43 zu BL RAM0000Start
+RQ0000Decode: //70//43 zu BL RQ0000Start
 STMFD SP!,{R0-R3,LR}
 ADD   R0,LR,#4 //28 RAMB03C00 nach 3C00 verschieben
 STMEA R12!,{R0}//28 ( ramb0000 )
 MOV   R0,#0X00
 STMEA R12!,{R0}//28 ( ramb0000 0 )
-MOV   R0,#0X40
-STMEA R12!,{R0}//28 ( ramb3C00 0 40 )
+MOV   R0,#0X80 //70
+STMEA R12!,{R0}//28 ( ramb3C00 0 80 )
 BL    MOVE     //28 ( )
 LDMFD SP!,{R0-R3,PC}
-RAM0000Start:
+RQ0000Start:
 STMFD SP!,{R0-R7,LR}
-BL RAM0000Decode
+BL RQ0000Decode
 LDMFD SP!,{R0-R7,PC}
 B     FIQ //0X00
 B     FIQ //0X04
@@ -998,10 +999,21 @@ B     FIQ //0X10
 B     FIQ //0X14
 B     FIQ //0X18
 FIQ:      //0X1C
+//BL    KEY
+MOV   R8,#0X20000000     //70 PBASE
+ADD   R8,R8,#0X200000    //70 GPIO_
+ADD   R8,R8,#0X15000     //70 AUX_IRQ
+LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+//CMP   R10,#0X02
+//MOVEQ R9,#1
+//BEQ   STEPEND0
 MOV   R8,#0X10000
-ADD   R8,R8,#8
+ADD   R8,R8,#4
 LDR   R9,[R8]
+ADD   R9,R9,#0X10000000
+STRB  R10,[R9]
 ADD   R9,R9,#1
+SUB   R9,R9,#0X10000000
 STR   R9,[R8]
 SUBS  PC,R14,#4
 
