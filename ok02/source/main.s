@@ -999,7 +999,7 @@ B     FIQ //0X14
 B     FIQ //0X18
 FIQ:      //0X1C
 MOV   R8,#0X10000
-ADD   R8,#8
+ADD   R8,R8,#8
 LDR   R9,[R8]
 ADD   R9,R9,#1
 STR   R9,[R8]
