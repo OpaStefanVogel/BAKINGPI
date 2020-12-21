@@ -32,3 +32,28 @@ PIN3HIGH
 FIQ
 0 10 DUMP
 0 10 DUMP
+
+( Free running counter Page 196
+003E 0220 2000 B408 2!
+( 003E 0020 2000 B408 2!
+2000 B420 2@ M. M.
+2000 B420 2@ M. M.
+2000 B420 2@ M. M.
+
+
+
+( The ARM Timer Page 196
+003E 00A2 2000 B408 2!
+0FFF FFFF 2000 B400 2!
+( 003E 0020 2000 B408 2!
+2000 B404 2@ M. M. ( timer value
+2000 B404 2@ M. M.
+2000 B404 2@ M. M.
+( )
+0 0 2000 B40C 2! ( clear IRQ-flag
+2000 B404 2@ M. M. 0 10 DUMP ( timer value
+2000 B410 2@ M. M. ( read IRQ-flag
+2000 B414 2@ M. M. ( read masked IRQ-flag
+( )
+0 80 2000 B20C 2! 2000 B20C 2@ M. M.
+

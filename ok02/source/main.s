@@ -998,7 +998,15 @@ B     FIQ //0X0C
 B     FIQ //0X10
 B     FIQ //0X14
 B     FIQ //0X18
-FIQ:      //0X1C
+B     FIQ //0X1C
+FIQ:      //0X20
+SUBS  PC,R14,#4
+MOV   R8,#0X10000
+ADD   R8,R8,#10
+LDR   R9,[R8]
+ADD   R9,R9,#1
+STR   R9,[R8]
+SUBS  PC,R14,#4
 //BL    KEY
 MOV   R8,#0X20000000     //70 PBASE
 ADD   R8,R8,#0X200000    //70 GPIO_
