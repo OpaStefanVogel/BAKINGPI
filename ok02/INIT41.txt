@@ -12,7 +12,7 @@
 : DUMP ( addr n --> )
   BEGIN SWAP ( CR DUP M. ) DUP @ M. 1+ SWAP 1- DUP 0= UNTIL 2DROP ;
 
-0 8 DUMP
+0 10 DUMP
 
 
 : T 1 2809 ! 77 88 99 M* M+ M. 0 2809 ! ; 
@@ -52,8 +52,8 @@ FIQ
 ( )
 0 0 2000 B40C 2! ( clear IRQ-flag
 2000 B404 2@ M. M. 0 10 DUMP ( timer value
-2000 B410 2@ M. M. ( read IRQ-flag
+2000 B410 2@ M. M. ( read        IRQ-flag
 2000 B414 2@ M. M. ( read masked IRQ-flag
 ( )
-0 80 2000 B20C 2! 2000 B20C 2@ M. M.
+0 C0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ erlauben mit 80 und source ARM Timer einstellen mit 40
 

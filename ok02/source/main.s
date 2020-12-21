@@ -68,6 +68,8 @@
 //68 FIQ Versuch 1
 //69 enable FIQ in CPSR
 //70 FIQ mit KEY speichern
+//71 FIQ ARM Timer geht
+//72 .. Platz machen ab FIQ
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -1000,7 +1002,11 @@ B     FIQ //0X14
 B     FIQ //0X18
 B     FIQ //0X1C
 FIQ:      //0X20
-SUBS  PC,R14,#4
+MOV   R8,#0X20000000 //71 ARM Timer IRQ clear
+ADD   R8,R8, #0XB400
+ADD   R8,R8,   #0X0C
+MOV   R9,#0
+STR   R9,[R8]
 MOV   R8,#0X10000
 ADD   R8,R8,#10
 LDR   R9,[R8]
@@ -1015,15 +1021,16 @@ LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
 //CMP   R10,#0X02
 //MOVEQ R9,#1
 //BEQ   STEPEND0
-MOV   R8,#0X10000
-ADD   R8,R8,#4
-LDR   R9,[R8]
-ADD   R9,R9,#0X10000000
-STRB  R10,[R9]
-ADD   R9,R9,#1
-SUB   R9,R9,#0X10000000
-STR   R9,[R8]
-SUBS  PC,R14,#4
+
+//MOV   R8,#0X10000
+//ADD   R8,R8,#4
+//LDR   R9,[R8]
+//ADD   R9,R9,#0X10000000
+//STRB  R10,[R9]
+//ADD   R9,R9,#1
+//SUB   R9,R9,#0X10000000
+//STR   R9,[R8]
+//SUBS  PC,R14,#4
 
 
 FFDecode: //26 zu BL FFStart
