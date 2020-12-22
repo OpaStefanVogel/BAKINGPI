@@ -28,8 +28,9 @@ PIN3HIGH
 0 10 DUMP
 0 10 DUMP
 
-0A 001 MLIT MCODE FIQ
-FIQ
+0A 00C MLIT MCODE FIQ
+00 FIQ M. ( 01D3 )
+40 FIQ M. ( 0193 kann aber nicht rückgängig gemacht werden )
 0 10 DUMP
 0 10 DUMP
 
@@ -44,7 +45,7 @@ FIQ
 
 ( The ARM Timer Page 196
 003E 00A2 2000 B408 2!
-0FFF FFFF 2000 B400 2!
+00FF FFFF 2000 B400 2!
 ( 003E 0020 2000 B408 2!
 2000 B404 2@ M. M. ( timer value
 2000 B404 2@ M. M.
@@ -57,3 +58,5 @@ FIQ
 ( )
 0 C0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ erlauben mit 80 und source ARM Timer einstellen mit 40
 
+( also 1. ARM Timer aktivieren, 2. Loadvalue einstellen, 3. FIQ auf source ARM Timer, 4. FIQ in den Flags )
+  

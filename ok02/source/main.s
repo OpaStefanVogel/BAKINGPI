@@ -69,7 +69,8 @@
 //69 enable FIQ in CPSR
 //70 FIQ mit KEY speichern
 //71 FIQ ARM Timer geht
-//72 .. Platz machen ab FIQ
+//72 FIQ geht nur ein und nicht wieder aus, 04 00C MLIT MCODE FIQ
+//73 .. Platz machen ab FIQ
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -625,11 +626,13 @@ SUB   R0,R1,R0
 STMEA R12!,{R0} // ( --> -a )
 B     STEPEND
 
-STEPA001:
-//0A 001 MLIT MCODE FIQ
+STEPA00C:
+//0A 00C MLIT MCODE FIQ
+LDMEA R12!,{R1} // ( bic --> )
     mrs r0,cpsr       //69 Enable FIQ https://github.com/dwelch67/raspberrypi/blinker08
-    bic r0,r0,#0x40   //69
+    bic r0,r0,R1      //72//69
     msr cpsr_c,r0     //69
+STMEA R12!,{R0} // ( --> cpsr_neu )
 B     STEPEND
 
 STEPA004:
@@ -659,7 +662,7 @@ B     STEPEND
 
 STEPA006:
 
-STEPA00C:
+STEPA001:
 //0A 001 MLIT MCODE U+
 B     STEPEND
 
@@ -1008,7 +1011,7 @@ ADD   R8,R8,   #0X0C
 MOV   R9,#0
 STR   R9,[R8]
 MOV   R8,#0X10000
-ADD   R8,R8,#10
+ADD   R8,R8,#0X10
 LDR   R9,[R8]
 ADD   R9,R9,#1
 STR   R9,[R8]
