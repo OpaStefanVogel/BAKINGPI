@@ -41,17 +41,15 @@ PIN3HIGH
 2000 B420 2@ M. M.
 2000 B420 2@ M. M.
 
-
-
-( The ARM Timer Page 196
-003E 00A2 2000 B408 2!
+( zusätzlich ARM Timer Page 196
+003E 02A2 2000 B408 2!
 00FF FFFF 2000 B400 2!
-( 003E 0020 2000 B408 2!
+( 003E 0020 2000 B408 2! ( Timer aus
 2000 B404 2@ M. M. ( timer value
 2000 B404 2@ M. M.
 2000 B404 2@ M. M.
 ( )
-0 0 2000 B40C 2! ( clear IRQ-flag
+( 0 0 2000 B40C 2! ( clear IRQ-flag
 2000 B404 2@ M. M. 0 10 DUMP ( timer value
 2000 B410 2@ M. M. ( read        IRQ-flag
 2000 B414 2@ M. M. ( read masked IRQ-flag

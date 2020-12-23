@@ -71,7 +71,7 @@
 //71 FIQ ARM Timer geht
 //72 FIQ geht nur ein und nicht wieder aus, 04 00C MLIT MCODE FIQ
 //73 L und N ab 4000 statt vorher E000, Stapelfehler in load_hex_dump
-//.. Platz machen ab FIQ
+//74 Platz machen ab FIQ und Ausgabe FIQ auf LED GPIO2
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -264,7 +264,7 @@ CMP   R6,#0X23       //56 if "#"... dann fortsetzen
 MOVEQ R9,#0          //56 ( )
 BLEQ  STEP           //56 ( )
 //str   r6,[r2,#0x40] //7 Zeichen zurückschicken //20 jetzt mit EMIT
-mov   r5,#0x4C
+mov   r5,#0x4B
 STMEA R12!,{R5}// ( "L" )
 BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
@@ -1017,6 +1017,13 @@ ADD   R8,R8,#0X10
 LDR   R9,[R8]
 ADD   R9,R9,#1
 STR   R9,[R8]
+MOV   R8,#0X20000000 //74 GPIO
+ADD   R8,R8,#0X200000
+MOV   R11,#4 //Bitposition für GPIO2
+AND   R10,R9,#1
+CMP   R10,#1
+STREQ R11,[R8,#40]
+STRNE R11,[R8,#28]
 SUBS  PC,R14,#4
 //BL    KEY
 MOV   R8,#0X20000000     //70 PBASE
@@ -1027,15 +1034,15 @@ LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
 //MOVEQ R9,#1
 //BEQ   STEPEND0
 
-//MOV   R8,#0X10000
-//ADD   R8,R8,#4
-//LDR   R9,[R8]
-//ADD   R9,R9,#0X10000000
-//STRB  R10,[R9]
-//ADD   R9,R9,#1
-//SUB   R9,R9,#0X10000000
-//STR   R9,[R8]
-//SUBS  PC,R14,#4
+MOV   R8,#0X10000
+ADD   R8,R8,#4
+LDR   R9,[R8]
+ADD   R9,R9,#0X10000000
+STRB  R10,[R9]
+ADD   R9,R9,#1
+SUB   R9,R9,#0X10000000
+STR   R9,[R8]
+SUBS  PC,R14,#4
 
 
 FFDecode: //26 zu BL FFStart
