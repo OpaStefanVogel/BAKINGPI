@@ -70,7 +70,8 @@
 //70 FIQ mit KEY speichern
 //71 FIQ ARM Timer geht
 //72 FIQ geht nur ein und nicht wieder aus, 04 00C MLIT MCODE FIQ
-//73 .. Platz machen ab FIQ
+//73 L und N ab 4000 statt vorher E000, Stapelfehler in load_hex_dump
+//.. Platz machen ab FIQ
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -254,7 +255,7 @@ streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 loop2b$:
 CMP   R6,#0X4E       //17 if "N"...
-MOVEQ PC,#0XE000     //17 bei "N" Neustart //27 jetzt ab 0XE000
+MOVEQ PC,#0X4000     //17 bei "N" Neustart //27 jetzt ab 0XE000 //73 4000
 CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 CMP   R6,#0X53       //29 if "S"... dann "STEP"
@@ -267,7 +268,7 @@ mov   r5,#0x4C
 STMEA R12!,{R5}// ( "L" )
 BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
-MOVEQ R2,#0XE000    //22//13//18 direkt Programmstart überschreiben //27 jetzt ab 0X4000
+MOVEQ R2,#0X4000    //22//13//18 direkt Programmstart überschreiben //27//73 jetzt ab 0X4000
 bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
 cmp   r6,#0x50      //22 wenn P...
 MOVEQ R2,#0X8000    //22 bei P ab 0X8000
@@ -296,11 +297,12 @@ load_hex_dump_2:
 BL    KEY      // ( m c )
 //21 BL    DUP      // ( m c c )
 //21 BL    EMIT     // ( m c )
-LDMEA R12,{R0} // ( m c )
+LDMEA R12!,{R0} // ( m )
 CMP   R0,#0X30       //14//23
 BLT load_hex_dump_2  //14
 CMP   R0,#0X4D       //14 if "M"
 BEQ load_hex_dump_3  //17
+STMEA R12!,{R0} // ( m c )
 BL char_to_int // ( m n )
 BL mul_16_add  // ( 16*m+n )
 SUB   R1,R1,#1    //15
