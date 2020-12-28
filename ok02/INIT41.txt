@@ -23,14 +23,14 @@
 PIN3LOW
 PIN3HIGH
 
-0 9D 2000 B20C 2! 2000 B20C 2@ M. M.
+0 9D 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=AUX
 0 10 DUMP
 0 10 DUMP
 0 10 DUMP
 
 0A 00C MLIT MCODE FIQ
 00 FIQ M. ( 01D3 )
-40 FIQ M. ( 0193 kann aber nicht rückgängig gemacht werden )
+40 FIQ M. CR 0 10 DUMP CR 0 10 DUMP CR 0 10 DUMP CR ( 0193 kann aber nicht rückgängig gemacht werden )
 0 10 DUMP
 0 10 DUMP
 
@@ -57,4 +57,17 @@ PIN3HIGH
 0 C0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ erlauben mit 80 und source ARM Timer einstellen mit 40
 
 ( also 1. ARM Timer aktivieren, 2. Loadvalue einstellen, 3. FIQ auf source ARM Timer, 4. FIQ in den Flags )
-  
+
+
+: TEST 0 7 2021 05 048 MLIT 2! 2021 05 048 MLIT 2@ M. M. ;
+TEST
+0 2 2021 5044 2! 
+2021 5048 2@ M. M. 2021 5048 2@ M. M.
+
+: TEST2 10 BEGIN 
+  ( 0 2 2021 05 044 MLIT 2! 
+  2021 05 048 MLIT 2@ M. M.
+  CR DUP M. -1 M+ DUP 0= UNTIL ;
+TEST2
+0 5 2021 5044 2! 
+ 

@@ -72,6 +72,7 @@
 //72 FIQ geht nur ein und nicht wieder aus, 04 00C MLIT MCODE FIQ
 //73 L und N ab 4000 statt vorher E000, Stapelfehler in load_hex_dump
 //74 Platz machen ab FIQ und Ausgabe FIQ auf LED GPIO2
+//75 FIQ mit UART
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -176,7 +177,7 @@ mov r3,#1
 str r3,[r2,#0x04] //6 put32(AUX_ENABLES,1);    "Enable mini uart"
 mov r3,#0
 str r3,[r2,#0x60] //6 put32(AUX_MU_CNTL_REG,0); "Disable flow control and TX and RX"
-mov r3,#2 //68 2 statt 0
+mov r3,#5 //75 5 statt 2 laut dwelch67 uart04 //68 2 statt 0
 str r3,[r2,#0x44] //6 put32(AUX_MU_IER_REG,0);  "Disable receive and transmit interrupts"
 mov r3,#3         //6 3 ist nicht ok
 str r3,[r2,#0x4C] //6 put32(AUX_MU_LCR_REG,3);  "Enable 8 bit mode"
@@ -1007,24 +1008,91 @@ B     FIQ //0X14
 B     FIQ //0X18
 B     FIQ //0X1C
 FIQ:      //0X20
-MOV   R8,#0X20000000 //71 ARM Timer IRQ clear
-ADD   R8,R8, #0XB400
-ADD   R8,R8,   #0X0C
+//MOV   R8,#0X20000000 //71 ARM Timer IRQ clear
+//ADD   R8,R8, #0XB400
+//ADD   R8,R8,   #0X0C
+//MOV   R9,#0
+//STR   R9,[R8]
+//MOV   R8,#0X10000
+//ADD   R8,R8,#0X10
+//LDR   R9,[R8]
+//ADD   R9,R9,#1
+//STR   R9,[R8]
+
+//MOV   R8,#0X20000000 //74 GPIO
+//ADD   R8,R8,#0X200000
+//MOV   R11,#4 //Bitposition für GPIO2
+//AND   R10,R9,#1
+//CMP   R10,#1
+//STREQ R11,[R8,#40]
+//STRNE R11,[R8,#28]
+
+MOV   R8,   #0X20000000  //75 PBASE
+ADD   R8,R8,#0X0000B200  //75 ARM timer
 MOV   R9,#0
-STR   R9,[R8]
-MOV   R8,#0X10000
-ADD   R8,R8,#0X10
-LDR   R9,[R8]
-ADD   R9,R9,#1
-STR   R9,[R8]
-MOV   R8,#0X20000000 //74 GPIO
-ADD   R8,R8,#0X200000
-MOV   R11,#4 //Bitposition für GPIO2
-AND   R10,R9,#1
-CMP   R10,#1
-STREQ R11,[R8,#40]
-STRNE R11,[R8,#28]
+STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer
+MOV   R8,#0X20000000     //70 PBASE
+ADD   R8,R8,#0X210000    //70 GPIO_
+ADD   R8,R8,#0X5000     //70 AUX_IRQ
+MOV   R9,#0
+STR   R9,[R8,#0x44]    //  "Disable receive and transmit interrupts"
+LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+//ADD   R10,R10,#1   // ein ADD mehr und FIQ macht Endlosausgabe
+
 SUBS  PC,R14,#4
+
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+ADD   R10,R10,#1
+STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+
+SUBS  PC,R14,#4
+
+SUB   R10,R10,#3
+//CMP   R10,#0X02
+//MOVEQ R9,#1
+//BEQ   STEPEND0
+
+MOV   R8,#0X10000
+ADD   R8,R8,#4
+LDR   R9,[R8]
+ADD   R9,R9,#0X10000000 //65//62
+STRB  R10,[R9]
+ADD   R9,R9,#1
+SUB   R9,R9,#0X10000000 //65//62
+STR   R9,[R8]
+
+MOV   R8,#0X20000000     //70 PBASE
+ADD   R8,R8,#0X210000    //70 GPIO_
+ADD   R8,R8,#0X5000     //70 AUX_IRQ
+UART5048:
+LDR   R10,[R8,#0x48]     //70 AUX_MU_II_REG
+AND   R10,R10,#1
+CMP   R10,#0
+BEQ   UART5048
+
+SUBS  PC,R14,#4
+
+
 //BL    KEY
 MOV   R8,#0X20000000     //70 PBASE
 ADD   R8,R8,#0X200000    //70 GPIO_
