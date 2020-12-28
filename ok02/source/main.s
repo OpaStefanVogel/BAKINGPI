@@ -1038,40 +1038,7 @@ MOV   R9,#0
 STR   R9,[R8,#0x44]    //  "Disable receive and transmit interrupts"
 LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
 STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
 STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-//ADD   R10,R10,#1   // ein ADD mehr und FIQ macht Endlosausgabe
-
-SUBS  PC,R14,#4
-
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-ADD   R10,R10,#1
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-
-SUBS  PC,R14,#4
-
-SUB   R10,R10,#3
-//CMP   R10,#0X02
-//MOVEQ R9,#1
-//BEQ   STEPEND0
-
 MOV   R8,#0X10000
 ADD   R8,R8,#4
 LDR   R9,[R8]
@@ -1080,6 +1047,13 @@ STRB  R10,[R9]
 ADD   R9,R9,#1
 SUB   R9,R9,#0X10000000 //65//62
 STR   R9,[R8]
+
+SUBS  PC,R14,#4
+
+//CMP   R10,#0X02
+//MOVEQ R9,#1
+//BEQ   STEPEND0
+
 
 MOV   R8,#0X20000000     //70 PBASE
 ADD   R8,R8,#0X210000    //70 GPIO_
