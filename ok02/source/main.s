@@ -73,8 +73,8 @@
 //73 L und N ab 4000 statt vorher E000, Stapelfehler in load_hex_dump
 //74 Platz machen ab FIQ und Ausgabe FIQ auf LED GPIO2
 //75 FIQ mit UART
+//76 ^B wieder zuschalten, in KEY am besten, dann aber FIQ umschalten auf 0
 //.. geht nur stockend und ohne ^C
-//.. ^B wieder zuschalten, in KEY am besten
 //.. warum die vielen ADD R10,#1 STR R10 nicht gingen
 /******************************************************************************
 *	main.s
@@ -655,6 +655,15 @@ LDRB  R0,[R1]
 ADD   R1,R1,#1
 SUB   R1,R1,#0X10000000 //65//62
 STR   R1,[R2]
+CMP   R0,#0X02
+BNE   KEYCODE02
+MOV   R9,#1     //56 vorher MOVEQ R9,R8
+MOV   R0,   #0X20000000  //75 PBASE
+ADD   R0,R0,#0X0000B200  //75 Interrupt
+MOV   R1,#0
+STR   R1,[R0,#0x0C]    //75 FIQ=0
+B     STEPA004
+KEYCODE02:
 STMEA R12!,{R0}
 MOV   R0,#0
 SUB   R0,R0,#1
