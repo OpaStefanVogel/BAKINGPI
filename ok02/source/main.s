@@ -73,6 +73,9 @@
 //73 L und N ab 4000 statt vorher E000, Stapelfehler in load_hex_dump
 //74 Platz machen ab FIQ und Ausgabe FIQ auf LED GPIO2
 //75 FIQ mit UART
+//.. geht nur stockend und ohne ^C
+//.. ^B wieder zuschalten, in KEY am besten
+//.. warum die vielen ADD R10,#1 STR R10 nicht gingen
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -1019,26 +1022,18 @@ FIQ:      //0X20
 //ADD   R9,R9,#1
 //STR   R9,[R8]
 
-//MOV   R8,#0X20000000 //74 GPIO
-//ADD   R8,R8,#0X200000
-//MOV   R11,#4 //Bitposition für GPIO2
-//AND   R10,R9,#1
-//CMP   R10,#1
-//STREQ R11,[R8,#40]
-//STRNE R11,[R8,#28]
-
-MOV   R8,   #0X20000000  //75 PBASE
-ADD   R8,R8,#0X0000B200  //75 ARM timer
-MOV   R9,#0
-STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer
+//MOV   R8,   #0X20000000  //75 PBASE
+//ADD   R8,R8,#0X0000B200  //75 ARM timer
+//MOV   R9,#0
+//STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer
 MOV   R8,#0X20000000     //70 PBASE
 ADD   R8,R8,#0X210000    //70 GPIO_
 ADD   R8,R8,#0X5000     //70 AUX_IRQ
-MOV   R9,#0
-STR   R9,[R8,#0x44]    //  "Disable receive and transmit interrupts"
+//MOV   R9,#0
+//STR   R9,[R8,#0x44]    //  "Disable receive and transmit interrupts"
 LDR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
-STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+//STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
+//STR   R10,[R8,#0x40]     //70 AUX_MU_IO_REG
 MOV   R8,#0X10000
 ADD   R8,R8,#4
 LDR   R9,[R8]
@@ -1047,6 +1042,14 @@ STRB  R10,[R9]
 ADD   R9,R9,#1
 SUB   R9,R9,#0X10000000 //65//62
 STR   R9,[R8]
+
+MOV   R8,#0X20000000 //74 GPIO
+ADD   R8,R8,#0X200000
+MOV   R11,#4 //Bitposition für GPIO2
+AND   R10,R9,#1
+CMP   R10,#1
+STREQ R11,[R8,#40]
+STRNE R11,[R8,#28]
 
 SUBS  PC,R14,#4
 
