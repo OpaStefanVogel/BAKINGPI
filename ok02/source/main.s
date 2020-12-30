@@ -75,7 +75,7 @@
 //75 FIQ mit UART
 //76 ^B wieder zuschalten, in KEY am besten, dann aber FIQ umschalten auf 0
 //77 stockend beseitigt mit -1 4 !
-//.. warum die vielen ADD R10,#1 STR R10 nicht gingen
+//78 warum in FIQ die vielen ADD R10,#1 STR R10 nicht gingen. jetzt gehen sie auf einmal
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
