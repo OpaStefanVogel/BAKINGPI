@@ -74,7 +74,7 @@
 //74 Platz machen ab FIQ und Ausgabe FIQ auf LED GPIO2
 //75 FIQ mit UART
 //76 ^B wieder zuschalten, in KEY am besten, dann aber FIQ umschalten auf 0
-//.. geht nur stockend und ohne ^C
+//77 stockend beseitigt mit -1 4 !
 //.. warum die vielen ADD R10,#1 STR R10 nicht gingen
 /******************************************************************************
 *	main.s
@@ -934,6 +934,11 @@ STEP0123:
 STMEA R12!,{R0} //32 ( --> n )
 
 STEPEND:
+MOV   R2,#0X10000 //77 kein KEY mehr nach -1 4 !
+ADD   R2,R2,#8
+LDR   R1,[R2]
+CMP   R1,#0
+BNE   STEPEND0
 //MOV   R9,R8
 BL    KEYFLAG   //51 ( flag )
 //BL    DUP

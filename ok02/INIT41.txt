@@ -23,6 +23,7 @@
 PIN3LOW
 PIN3HIGH
 
+0 0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=0
 0 9D 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=AUX
 0 10 DUMP
 0 10 DUMP
@@ -30,7 +31,7 @@ PIN3HIGH
 
 0A 00C MLIT MCODE FIQ
 00 FIQ M. ( 01D3 )
-40 FIQ M. CR 0 10 DUMP CR 0 10 DUMP CR 0 10 DUMP CR ( 0193 kann aber nicht rückgängig gemacht werden )
+40 FIQ M. -1 4 ! CR 0 10 DUMP CR 0 10 DUMP CR 0 10 DUMP CR ( 0193 kann aber nicht rückgängig gemacht werden )
 0 10 DUMP
 0 10 DUMP
 
