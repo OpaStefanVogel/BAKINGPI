@@ -2,7 +2,7 @@
 : BAUD? ( -- bd ) 2021 3000 2068 M+ 2@ M. DROP ;
 
 ( FIQ=mini UART
-( zuerst aktuelles kernel.img laden
+( zuerst aktuelles kernel.img laden, dann
 0 0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=0
 0 9D 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=AUX
 0A 00C MLIT MCODE FIQ
@@ -60,4 +60,6 @@ TEST
   CR DUP M. -1 M+ DUP 0= UNTIL ;
 TEST2
 0 5 2021 5044 2! 
- 
+
+
+

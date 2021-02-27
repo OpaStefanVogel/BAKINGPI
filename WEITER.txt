@@ -37,9 +37,12 @@ nano T7000.txt
 cat T7000.txt >/dev/ttyS0
 #dann Taste N, dann (T800.txt beginnt schon mit P)
 cat T8000.txt >/dev/ttyS0
-#inzwischen in einer Zeile:
-make;hexdump kernel.img -v -e '1/4 "%08x" "\n"' >/dev/ttyS0;echo "MN" >/dev/ttyS0
 
+#################################################################################
+#inzwischen in einer Zeile und dann cp:
+make;hexdump kernel.img -v -e '1/4 "%08x" "\n"' >/dev/ttyS0;echo "MN" >/dev/ttyS0
+cp INIT41.txt /dev/ttyS0
+#################################################################################
 
 #gpio im Terminal schalten:
 cd /sys/class/gpio

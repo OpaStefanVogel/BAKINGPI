@@ -2,7 +2,7 @@ ls
 git pull
 gitk --all &
 pcmanfm . &
-mousepad ../BAKINGPI_starten.txt ../WEITER.txt source/main.s INIT41.txt &
+mousepad ../BAKINGPI_starten.txt ../WEITER.txt source/main.s INIT41.txt INIT42.txt &
 stty -F /dev/ttyS0 115200 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
 #stty -F /dev/ttyS0 9600 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
-lxterminal -e "stty raw -echo opost quit ^C isig ixon -ixoff; cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0" &
+lxterminal -e "stty raw -echo opost quit ^C eol ^m isig ixon -ixoff; cp /dev/ttyS0 /dev/tty & cp /dev/tty /dev/ttyS0" &
