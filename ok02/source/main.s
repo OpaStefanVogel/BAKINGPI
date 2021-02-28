@@ -76,6 +76,7 @@
 //76 ^B wieder zuschalten, in KEY am besten, dann aber FIQ umschalten auf 0
 //77 stockend beseitigt mit -1 4 !
 //78 warum in FIQ die vielen ADD R10,#1 STR R10 nicht gingen. jetzt gehen sie auf einmal
+//79 D+
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -609,7 +610,7 @@ B     STEPA00D
 B     STEPA00E
 B     STEPA00F
 B     STEPA000
-B     STEPA001
+B     STEPA021 //D+
 B     STEPA002
 B     STEPA003
 B     STEPA004
@@ -844,6 +845,24 @@ LSL   R1,R1,#16
 LSR   R1,R1,#16
 ADD   R5,R5,R1
 STR   R5,[R4]
+B     STEPEND
+
+STEPA021:
+//0A 021 MLIT MCODE D+
+LDMEA R12!,{R0,R1,R2,R3} //79 ( ah al bh bl --> (a+b)h (a+b)l )
+LSL   R0,R0,#16
+LSL   R1,R1,#16
+LSR   R1,R1,#16
+ADD   R4,R0,R1
+LSL   R2,R2,#16
+LSL   R3,R3,#16
+LSR   R3,R3,#16
+ADD   R5,R2,R3
+ADD   R4,R4,R5
+LSL   R5,R4,#16
+LSR   R5,R5,#16
+LSR   R4,R4,#16
+STMEA R12!,{R4,R5} //57 ( a b --> )
 B     STEPEND
 
 STEPA02A:

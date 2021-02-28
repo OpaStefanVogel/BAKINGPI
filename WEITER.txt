@@ -39,6 +39,7 @@ cat T7000.txt >/dev/ttyS0
 cat T8000.txt >/dev/ttyS0
 
 #################################################################################
+# ^B L ... M N
 #inzwischen in einer Zeile und dann cp:
 make;hexdump kernel.img -v -e '1/4 "%08x" "\n"' >/dev/ttyS0;echo "MN" >/dev/ttyS0
 cp INIT41.txt /dev/ttyS0

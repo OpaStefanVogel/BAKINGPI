@@ -2,6 +2,7 @@
 ( LIT, reparieren:   muss da 0C sein
 0C ' LIT, 2 M+ ! ( macht aus der 04 ein 0C )
 
+0A 021 MLIT MCODE D+
 0A 029 MLIT MCODE 2!
 0A 02A MLIT MCODE 2@
 
@@ -21,7 +22,7 @@ PIN3HIGH
 
 : (*REM*)
   BEGIN KEY DUP 1 = NOT WHILE EMIT REPEAT DROP ;
- 
+
 : LOGINPUT ( bis von --> <inputtext> )
   BEGIN
     ( CR DUP M. 1000 OVER 2@ OVER M. DUP M. EMIT DROP
@@ -30,6 +31,18 @@ PIN3HIGH
     2DUP = UNTIL
   ;
 2 @ 4 LOGINPUT 0 10 DUMP
+
+: LOGINPUT ( --> <inputtext> )
+  0 0 BEGIN
+    2DUP
+    1000 0 D+ 2@ DUP FF AND 0D = IF DROP 0A END_IF EMIT DROP
+    0 1 D+
+    OVER 3 @ = OVER 2 @ = AND UNTIL
+  2DROP
+  ;
+
+
+LOGINPUT 0 10 DUMP
 ( 2 @ 3CC LOGINPUT
 ( 0 10 DUMP
 
