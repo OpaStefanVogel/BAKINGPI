@@ -78,6 +78,7 @@
 //78 warum in FIQ die vielen ADD R10,#1 STR R10 nicht gingen. jetzt gehen sie auf einmal
 //79 D+
 //80 Start STEP_32
+//81 BL RAM100000Start
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -236,6 +237,7 @@ BL RAM2F00Start //37
 BL RAM3000Start //27 eb0004bd
 //BL RAM3C00Start //65//43 52415453
 BL RQ0000Start //68
+BL RAM100000Start //81
 MOV R11,#0X10000 //66//29 R11=PC, R12=SP
 MOV R10,#0X16000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
@@ -2630,6 +2632,24 @@ STEPA02A_32:
 STEPB_32:
 STEPF_32:
 
+RAM100000Decode: //37 zu BL RAM2F00Start
+STMFD SP!,{R0-R3,LR}
+ADD   R0,LR,#4 //37 RAMB100000 nach 100000 verschieben
+STMEA R12!,{R0}//37 ( ramb100000 )
+MOV   R0,#0X100000 //66
+ADD   R0,R0,#0X000
+STMEA R12!,{R0}//37 ( ramb100000 100000 )
+MOV   R0,#0X80
+STMEA R12!,{R0}//37 ( ramb100000 100000 80 )
+BL    MOVE     //37 ( )
+LDMFD SP!,{R0-R3,PC}
+RAM100000Start:
+STMFD SP!,{R0-R7,LR}
+BL RAM100000Decode
+LDMFD SP!,{R0-R7,PC}
+RAM100000:
+  .word 0x00000123 //123
+  .word 0xA0000003 //RET
 
 
 
