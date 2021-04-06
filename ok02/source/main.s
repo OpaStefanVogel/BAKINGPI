@@ -81,6 +81,7 @@
 //81 BL RAM100000Start
 //82 RP=RP-4 und 2F80-2FFF auf (*4+10000) 1BE00-1BFFF
 //83 2900-2FFF auf (*4+10000) 1A400-1BFFF
+//84 UI IU und @ ! ab 4000 direkt
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -243,7 +244,7 @@ BL RAM100000Start //81
 MOV R11,#0X10000 //66//29 R11=PC, R12=SP
 MOV R10,#0X1C000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
-MOV R9,#0X000001  //56//42//43 Breakpoint Schrittzähler
+MOV R9,#0X000000  //56//42//43 Breakpoint Schrittzähler
 ADD R9,R9,#0X000  //56//42//43 Breakpoint Schrittzähler
 MOV R6,#0X53
 mov   r4,r2          //23 r2 aufheben
@@ -636,8 +637,8 @@ B     STEPA008
 B     STEPA029
 B     STEPA02A
 B     STEPA02B
-B     STEPA00C
-B     STEPA00D
+B     STEPA02C
+B     STEPA02D
 B     STEPA00E
 B     STEPA00F
 
@@ -766,6 +767,8 @@ B     STEPEND
 STEPA009:
 //0A 009 MLIT MCODE !
 LDMEA R12!,{R0,R1} //34 ( n adr --> )
+CMP   R1,#0X4000 //84
+BGE   STORE4000
 CMP   R1,#0X3000 //43
 ADDGE R1,#0X13000 //65
 STRGEB  R0,[R1]
@@ -777,6 +780,9 @@ BGE   STORE2
 ADD   R1,R1,R1
 ADD   R1,R1,#0X10000 //66
 STRH  R0,[R1]
+B     STEPEND
+STORE4000:
+STR   R0,[R1]
 B     STEPEND
 STORE2F00:
 ADD   R1,R1,R1
@@ -806,6 +812,8 @@ B     STEPEND
 STEPA00A:
 //0A 00A MLIT MCODE @
 LDMEA R12!,{R1} //34 ( adr --> )
+CMP   R1,#0X4000 //84
+BGE   FETCH4000
 LSL   R1,R1,#16 //48
 LSR   R1,R1,#16 //48
 CMP   R1,#0X3000
@@ -825,6 +833,10 @@ CMP   R1,#0
 ADDNE R3,#0XFF0000
 ADDNE R3,#0XFF000000
 STMEA R12!,{R3} //34 ( --> n )
+B     STEPEND
+FETCH4000:
+LDR   R3,[R1]
+STMEA R12!,{R3} // ( --> n )
 B     STEPEND
 FETCH2F00:
 ADD   R1,R1,R1
@@ -892,7 +904,7 @@ ADD   R4,R4,R5
 LSL   R5,R4,#16
 LSR   R5,R5,#16
 LSR   R4,R4,#16
-STMEA R12!,{R4,R5} //57 ( a b --> )
+STMEA R12!,{R4,R5} //57 ( (a+b)h (a+b)l )
 B     STEPEND
 
 STEPA02A:
@@ -906,7 +918,7 @@ LDR   R5,[R4]
 LSR   R0,R5,#16
 LSL   R1,R5,#16
 LSR   R1,R1,#16
-STMEA R12!,{R0,R1} //57 ( a b --> )
+STMEA R12!,{R0,R1} //57 ( a b )
 B     STEPEND
 
 STEPA02B://80
@@ -914,6 +926,24 @@ STEPA02B://80
 MOV   R11,#0X100000
 B     STEPEND
 
+STEPA02C://84
+//0A 02C MLIT MCODE UI ( ah al --> a )
+LDMEA R12!,{R2,R3} 
+LSL   R4,R2,#16
+LSL   R3,R3,#16
+LSR   R3,R3,#16
+ADD   R4,R4,R3
+STMEA R12!,{R4} //( a )
+B     STEPEND
+
+STEPA02D://84
+//0A 02A MLIT MCODE IU ( a --> ah al )
+LDMEA R12!,{R2}
+LSR   R0,R2,#16
+LSL   R1,R2,#16
+LSR   R1,R1,#16
+STMEA R12!,{R0,R1} //57 ( ah al )
+B     STEPEND
 
 STEPA003:
 //( 0A 003 MLIT MCODE RETURN )
