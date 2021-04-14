@@ -9,7 +9,7 @@
     </style>
     
 <script>
-alert(0x65);
+//alert(0x65);
 </script>
 <script>
 RAMB0000=[
@@ -146,7 +146,7 @@ RAMB0000=[
   0xB501,0x434C,0x33A4,0x0001,0x41F5,0xB501,0x000F,0xA007,0x434C,0x0010,0xA007,0xB603,0x42A9,0xA00B,0x9FCA,0xB200, // 0820-082F
   0x436D,0x003C,0x431D,0x33A6,0x0007,0x41F5,0x42CF,0x2F00,0xA009,0xA003,0x33B4,0x0008,0x4781,0x2F20,0xA00A,0xB501, // 0830-083F
   ];
-alert(RAMB0000);
+//alert(RAMB0000);
 
 RAMB3000=[
 
@@ -210,12 +210,40 @@ RAMB3000=[
   0x41,0x52,0x54,0x20,0x20,0x44,0x55,0x4D,0x50,0x5A,0x3E,0x20,0x20,0x20,0x20,0x20, // 3390-339F
   0x2D,0x2D,0x20,0x20,0x2D,0x20,0x2F,0x44,0x55,0x4D,0x50,0x5A,0x3E,0x20,0x52,0x41, // 33A0-33AF
   ];
-alert(RAMB3000);
+//alert(RAMB3000);
+  </script>
+<script>
+var PC=0;
+var SP=0;
+var RP=0;
+var STAPEL=[0x77,0x88,0x99];
+var STEP=0;
+var PD=0;
+var Logtext="";
+
+function FF_RESTART() {
+  PC=0; SP=0; RP=0; STEP=0; Logtext="restart\n";
+  do {
+    Logtext=Logtext+STEP.toString()+" "+PC.toString(16);
+    PD=RAMB0000[PC]; PC=PC+1; STEP=STEP+1;
+    Logtext=Logtext+" "+PD.toString(16);
+    switch (PD&0xC000) {
+      case 0x4000: PC=(PD&0XFFF); break;
+      default: alert(PD.toString(16));
+      }
+    for (var st=0;st<STAPEL.length;st++) Logtext=Logtext+" "+STAPEL[st].toString(16);
+    Logtext=Logtext+"\n";
+    } while (STEP<4);
+  document.getElementById("Display").firstChild.nodeValue=Logtext;
+  }
   </script>
   </head>
 
-<body>
+<body onload="FF_RESTART()">
 Simulator
+<div id="Display" style="white-space:pre">?
+  ??
+  </div>
 <div>
 <textarea cols="120" rows="20">???
   </textarea>
