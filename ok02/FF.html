@@ -216,7 +216,7 @@ RAMB2F00=[
   0x0000, //2F00 CONSTANT XBIT
   0x0000, //2F01 CONSTANT SMUDGEBIT
   0x3000, //2F02 CONSTANT RP0 3000 RP0 !
-  0x3C10, //2F03 CONSTANT IRAMADR
+  0x3C02, //2F03 CONSTANT IRAMADR
   0x3C00, //2F04 CONSTANT JRAMADR
   0x0000, //2F05 CONSTANT XOFF
   0x3AF4, //2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
@@ -238,6 +238,11 @@ RAMB2F00=[
   0x0000, //2F16 CONSTANT DUBIT
   0x2D00, //2F17 CONSTANT LOCALADRESSE
   ];
+
+RAMB3C00=[
+  0x37,0x0A,0x7B,0x20,0x7D,0x20,0x43,0x4F,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F
+  ];
+
   </script>
 <script>
 var PC=0;
@@ -253,7 +258,9 @@ Number.prototype.toHex0000=function() {return ("0000"+this.toString(16)).slice(-
 
 function FF_RESTART() {
   PC=0; SP=0; RP=0x3000; STEP=0; STAPEL=[]; ST=0;
+  for (var i=0x2900;i<0x4000;i++) RAMB0000[i]=0;
   for (var i=0;i<RAMB3000.length;i++) RAMB0000[i+0x3000]=RAMB3000[i];
+  for (var i=0;i<RAMB3C00.length;i++) RAMB0000[i+0x3C00]=RAMB3C00[i];
   for (var i=0;i<RAMB2F00.length;i++) RAMB0000[i+0x2F00]=RAMB2F00[i];
   Logtext="STEP   RP   PC   PD: STAPEL\n";
   do {debugger;
@@ -268,14 +275,18 @@ function FF_RESTART() {
       case 0x8000: if (PD<0x8800) PC=PC+(PD&0XFFF); else PC=PC+(PD&0XFFF)-0x1000; break;
       case 0x9000: if (STAPEL[ST-1]==0) {if (PD<0x9800) PC=PC+(PD&0XFFF); else PC=PC+(PD&0XFFF)-0x1000} ST=ST-1; break;
       case 0xA000: switch (PD) {
-        case 0xA000: /* MINUS */ STAPEL[ST-1]=0x10000-STAPEL[ST-1]; break;
+        case 0xA000: /* MINUS */ if (STAPEL[ST-1]!=0) STAPEL[ST-1]=0x10000-STAPEL[ST-1]; break;
         case 0xA001: /* U+ */ alert(PD.toHex0000()); break;
         case 0xA002: /*  */ alert(PD.toHex0000()); break;
         case 0xA003: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
         case 0xA004: /*  */ alert(PD.toHex0000()); break;
         case 0xA005: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
         case 0xA006: /*  */ alert(PD.toHex0000()); break;
-        case 0xA007: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-2]=STAPEL[ST-2]-0x10000;ST=ST-1; break;
+        case 0xA007: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; 
+          if (STAPEL[ST-2]>0xFFFF) STAPEL[ST-2]=STAPEL[ST-2]-0x10000;
+          if (STAPEL[ST-2]<0) STAPEL[ST-2]=STAPEL[ST-2]+0x10000;
+          ST=ST-1; 
+          break;
         case 0xA008: /* AND */ STAPEL[ST-2]=STAPEL[ST-2]&STAPEL[ST-1]; ST=ST-1; break;
         case 0xA009: /* ! */ switch (STAPEL[ST-1]) {
           case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
@@ -287,10 +298,10 @@ function FF_RESTART() {
           } break;
         case 0xA00B: /* NOT */ STAPEL[ST-1]=0xFFFF-STAPEL[ST-1]; break;
         case 0xA00C: /*  */ alert(PD.toHex0000()); break;
-        case 0xA00D: /* 0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+        case 0xA00D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
         case 0xA00E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
-        case 0xA00F: /*  */ alert(PD.toHex0000()); break;
-        default: /*  */ alert(PD.toHex0000()); break;
+        case 0xA00F: /*  0< */ if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+        default: alert(PD.toHex0000()); break;
         } break;
       case 0xB000: switch (PD) {
         case 0xB200: /* 2DROP */ ST=ST-2; break;
@@ -305,11 +316,14 @@ function FF_RESTART() {
         } break;
       default: STAPEL[ST]=PD; ST=ST+1;
       }
+    for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16);
+    Logtext=Logtext+" ";
     for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
-    Logtext=Logtext+"\n";
-    } while (STEP<445);
+    Logtext=Logtext+"                          "+STAPEL.slice(0,ST)+"\n";
+    } while (STEP<0x44f); //1F0:erstes KEYCODE, 3C2:INTERPRET
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
   document.getElementById("Display").firstChild.nodeValue=EText;
+  //alert(RAMB0000[0x3B01]);
   }
   </script>
   </head>
