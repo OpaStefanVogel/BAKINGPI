@@ -221,6 +221,7 @@ var ST=0;
 var STEP=0;
 var PD=0;
 var Logtext="";
+var EText="";
 Number.prototype.toHex0000=function() {return ("0000"+this.toString(16)).slice(-4)}
 
 function FF_RESTART() {
@@ -232,19 +233,37 @@ function FF_RESTART() {
     PD=RAMB0000[PC]; PC=PC+1; STEP=STEP+1;
     Logtext=Logtext+" "+PD.toHex0000(16)+":";
     switch (PD&0xF000) {
-      case 0x4000: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0XFFF); break;
-      case 0x9000: if (STAPEL.pop()==0) PC=PC-1+(PD&0XFFF); ST=ST-1; break;
+      case 0x4000: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
+      case 0x5000: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
+      case 0x6000: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
+      case 0x7000: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
+      case 0x8000: if (PD<0x8800) PC=PC+(PD&0XFFF); else PC=PC+(PD&0XFFF)-0x1000; break;
+      case 0x9000: if (STAPEL[ST-1]==0) {if (PD<0x9800) PC=PC+(PD&0XFFF); else PC=PC+(PD&0XFFF)-0x1000} ST=ST-1; break;
       case 0xA000: switch (PD) {
+        case 0xA000: /* MINUS */ alert(PD.toHex0000()); break;
+        case 0xA001: /* U+ */ alert(PD.toHex0000()); break;
+        case 0xA002: /*  */ alert(PD.toHex0000()); break;
+        case 0xA003: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
+        case 0xA004: /*  */ alert(PD.toHex0000()); break;
+        case 0xA005: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
+        case 0xA006: /*  */ alert(PD.toHex0000()); break;
+        case 0xA007: /*  */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-2]=STAPEL[ST-2]-0x10000;ST=ST-1; break;
+        case 0xA008: /*  */ alert(PD.toHex0000()); break;
         case 0xA009: /* ! */ switch (STAPEL[ST-1]) {
           case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
-          RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2;
+          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2;
           } break;
         case 0xA00A: /* @ */ switch (STAPEL[ST-1]) {
           case 0x2803: STAPEL[ST-1]=PC; break;
           default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]];
           } break;
-        case 0xA003: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
-        }
+        case 0xA00B: /*  */ alert(PD.toHex0000()); break;
+        case 0xA00C: /*  */ alert(PD.toHex0000()); break;
+        case 0xA00D: /*  */ alert(PD.toHex0000()); break;
+        case 0xA00E: /*  */ alert(PD.toHex0000()); break;
+        case 0xA00F: /*  */ alert(PD.toHex0000()); break;
+        default: /*  */ alert(PD.toHex0000()); break;
+        } break;
       case 0xB000: switch (PD) {
         case 0xB200: /* 2DROP */ ST=ST-2; break;
         case 0xB300: /* DROP */ ST=ST-1; break;
@@ -256,22 +275,26 @@ function FF_RESTART() {
         case 0xB603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-1]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
         case 0xB60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
         } break;
-      default: STAPEL.push(PD); ST=ST+1;
+      default: STAPEL[ST]=PD; ST=ST+1;
       }
     for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
     Logtext=Logtext+"\n";
-    } while (STEP<20);
-  document.getElementById("Display").firstChild.nodeValue=Logtext;
+    } while (STEP<288);
+  document.getElementById("Logfile").firstChild.nodeValue=Logtext;
+  document.getElementById("Display").firstChild.nodeValue=EText;
   }
   </script>
   </head>
 
 <body onload="FF_RESTART()">
 Simulator
-<div id="Display" style="white-space:pre">?
+<div id="Logfile" style="white-space:pre">?
   ??
   </div>
 <div>
+<div id="Display" style="white-space:pre">?
+  ??
+  </div>
 <textarea cols="120" rows="20">???
   </textarea>
   </div>
