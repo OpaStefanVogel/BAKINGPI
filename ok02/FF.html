@@ -216,24 +216,39 @@ RAMB3000=[
 var PC=0;
 var SP=0;
 var RP=0;
-var STAPEL=[0x77,0x88,0x99];
+var STAPEL=[];
+var ST=0;
 var STEP=0;
 var PD=0;
 var Logtext="";
+Number.prototype.toHex0000=function() {return ("0000"+this.toString(16)).slice(-4)}
 
 function FF_RESTART() {
-  PC=0; SP=0; RP=0; STEP=0; Logtext="restart\n";
-  do {
-    Logtext=Logtext+STEP.toString()+" "+PC.toString(16);
+  PC=0; SP=0; RP=0; STEP=0; STAPEL=[]; ST=0;
+  Logtext="STEP   PC   PD: STAPEL\n";
+  do {debugger;
+    Logtext=Logtext+STEP.toHex0000()+" "+PC.toHex0000();
     PD=RAMB0000[PC]; PC=PC+1; STEP=STEP+1;
-    Logtext=Logtext+" "+PD.toString(16);
-    switch (PD&0xC000) {
+    Logtext=Logtext+" "+PD.toHex0000(16)+":";
+    switch (PD&0xF000) {
       case 0x4000: PC=(PD&0XFFF); break;
-      default: alert(PD.toString(16));
+      case 0x9000: if (STAPEL.pop()==0) PC=PC-1+(PD&0XFFF); ST=ST-1; break;
+      case 0xB000: switch (PD) {
+        case 0xB200: /* 2DROP */ ST=ST-2; break;
+        case 0xB300: /* DROP */ ST=ST-1; break;
+        case 0xB412: /* SWAP */ PD=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+        case 0xB434: /*  ROT */ PD=STAPEL[ST-3]; STAPEL[ST-3]=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+        case 0xB43C: /* 2SWAP */ PD=[STAPEL[ST-4],STAPEL[ST-3]]; STAPEL[ST-4]=STAPEL[ST-2]; STAPEL[ST-3]=STAPEL[ST-1]; STAPEL[ST-2]=PD[0]; STAPEL[ST-1]=PD[1]; break;
+        case 0xB501: /*  DUP */ STAPEL[ST]=STAPEL[ST-1]; ST=ST+1; break;
+        case 0xB502: /* OVER */ STAPEL[ST]=STAPEL[ST-2]; ST=ST+1; break;
+        case 0xB603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-1]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
+        case 0xB60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
+        } break;
+      default: STAPEL.push(PD); ST=ST+1;
       }
     for (var st=0;st<STAPEL.length;st++) Logtext=Logtext+" "+STAPEL[st].toString(16);
     Logtext=Logtext+"\n";
-    } while (STEP<4);
+    } while (STEP<12);
   document.getElementById("Display").firstChild.nodeValue=Logtext;
   }
   </script>
