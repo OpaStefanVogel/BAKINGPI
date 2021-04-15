@@ -334,9 +334,11 @@ function FF_RESTART() {
     //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
     if (STEP>STARTSTEP) Logtext=Logtext+"\n";
         STARTSTEP=0xF716;
-    } while (STEP<STARTSTEP+0X1000); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok, 
+    } while (STEP<STARTSTEP+0X1000); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
+  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">'); 
+  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x39, 0x6D),'</span>'); 
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
-  document.getElementById("Display").firstChild.nodeValue=EText;
+  document.getElementById("Display").innerHTML=EText;
   //alert(RAMB0000[0x3B01]);
   }
   </script>
