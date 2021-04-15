@@ -356,6 +356,9 @@ function FF_CONTINUE() {
   RAMB0000[0x2F03]=RAMB0000[0x2F03]+input.length+1;
   //if ...>
   STEP=0;Logtext=Logtext+" "+event.charCode;
+  EText=EText+'<span style="color:blue">';
+  for (var i=0;i<ST;i++) EText=EText+STAPEL[i].toHex0000()+" ";
+  EText=EText+'</span><span style="border:solid orange 0.3px">';
   //for (var i in event) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
@@ -366,10 +369,12 @@ function FF_CONTINUE() {
         STARTSTEP=0x1F716;
         ENDSTEP=STARTSTEP+0X000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
-  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">'); 
+  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'</span><span style="color:blue">'); 
   EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x39, 0x6D),'</span>'); 
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
   document.getElementById("Display").innerHTML=EText;
+  var SText=""; for (var i=0;i<ST;i++) SText=SText+STAPEL[i].toHex0000()+" ";
+  document.getElementById("Stapel").firstChild.nodeValue=SText;  
   document.getElementById("input").value="";
   }
 
@@ -378,7 +383,8 @@ function FF_CONTINUE() {
 
 <body onload="FF_RESTART()">
 <div id="Display" style="white-space:pre"></div>
-<input id="input" type="text" onkeypress="if (event.charCode==13) {  PC=PC-1; FF_CONTINUE()}" size="40" value=""> </input>
+<div><span id="Stapel" style="color:blue; border:none"> </span><input id="input" type="text" onkeypress="if (event.charCode==13) {  PC=PC-1; FF_CONTINUE()}" size="40" value=""> </input>
+  </div>
 <div style="height:400px"></div>
 <textarea cols="120" rows="20" onkeydown="FF_CONTINUE()" >???
   </textarea>
