@@ -216,7 +216,7 @@ RAMB2F00=[
   0x0000, //2F00 CONSTANT XBIT
   0x0000, //2F01 CONSTANT SMUDGEBIT
   0x3000, //2F02 CONSTANT RP0 3000 RP0 !
-  0x3C05, //2F03 CONSTANT IRAMADR
+  0x3C08, //2F03 CONSTANT IRAMADR
   0x3C00, //2F04 CONSTANT JRAMADR
   0x0000, //2F05 CONSTANT XOFF
   0x3AF4, //2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
@@ -241,7 +241,8 @@ RAMB2F00=[
 
 RAMB3C00=[
 //0x37,0x0A,0x7B,0x20,0x7D,0x20,0x43,0x4F,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F: 7
-  0x37,0x20,0x4D,0x2E,0x0A,0x20,0x43,0x4F,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F: 7 M.
+//0x37,0x20,0x4D,0x2E,0x0A,0x20,0x43,0x4F,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F: 7 M.
+  0x35,0x20,0x31,0x2B,0x20,0x4D,0x2E,0x0A,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F: 5 1+ M.
   ];
 
   </script>
@@ -281,7 +282,7 @@ function FF_RESTART() {
         case 0xA001: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
         case 0xA002: /* U* */ if (STAPEL[ST-3]<0x8000&&STAPEL[ST-2]<0x8000&&STAPEL[ST-1]<0x8000) {
           var M= STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
-          STAPEL[ST-3]=M/0x10000;
+          STAPEL[ST-3]=(M&0xFFFF0000)/0x10000;
           STAPEL[ST-2]=M&0xFFFF;
           ST=ST-1;
           } else alert(STEP.toHex0000()+" "+PD.toHex0000()); break; // ( c b a --> (a*b+c)h (a*b+c)l )
@@ -332,7 +333,7 @@ function FF_RESTART() {
     if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
     //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
     if (STEP>STARTSTEP) Logtext=Logtext+"\n";
-        STARTSTEP=0xAB8F;
+        STARTSTEP=0xF716;
     } while (STEP<STARTSTEP+0X1000); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok, 
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
   document.getElementById("Display").firstChild.nodeValue=EText;
