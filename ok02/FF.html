@@ -261,6 +261,10 @@ var STARTSTEP=0;
 var ENDSTEP=0;
 Number.prototype.toHex0000=function() {return ("0000"+this.toString(16).toUpperCase()).slice(-4)}
 
+function V16Z32(n) {
+  if (n>0x7FFF) return n-0x10000; else return n;  
+  }
+
 function FF_STEP() {
   if (STEP>STARTSTEP) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
   PD=RAMB0000[PC]; PC=PC+1; STEP=STEP+1;
@@ -275,12 +279,12 @@ function FF_STEP() {
     case 0xA000: switch (PD) {
       case 0xA000: /* MINUS */ if (STAPEL[ST-1]!=0) STAPEL[ST-1]=0x10000-STAPEL[ST-1]; break;
       case 0xA001: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-      case 0xA002: /* U* */ if (STAPEL[ST-3]<0x8000&&STAPEL[ST-2]<0x8000&&STAPEL[ST-1]<0x8000) {
-        var M= STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
+      case 0xA002: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
+        var M=STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
         STAPEL[ST-3]=(M&0xFFFF0000)/0x10000;
         STAPEL[ST-2]=M&0xFFFF;
         ST=ST-1;
-        } else alert(STEP.toHex0000()+" "+PD.toHex0000()); break; // ( c b a -- > (a*b+c)h (a*b+c)l )
+        break; 
       case 0xA003: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
       case 0xA004: /*  */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
       case 0xA005: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
@@ -358,18 +362,18 @@ function FF_CONTINUE() {
   STEP=0;Logtext=Logtext+" "+event.charCode;
   EText=EText+'<span style="color:blue">';
   for (var i=0;i<ST;i++) EText=EText+STAPEL[i].toHex0000()+" ";
-  EText=EText+'</span><span style="border:solid orange 0.3px">';
+  EText=EText+'</span><span style="border:solid Lightgrey 1px">';
   //for (var i in event) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
     //for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16); Logtext=Logtext+" ";
-    if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
+    if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+"#"+STAPEL[st].toHex0000(16);
     //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
     if (STEP>STARTSTEP) Logtext=Logtext+"\n";
-        STARTSTEP=0x1F716;
-        ENDSTEP=STARTSTEP+0X000;
+        STARTSTEP=0x100706;
+        ENDSTEP=STARTSTEP+0X00200;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
-  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'</span><span style="color:blue">'); 
+  EText=EText.replace(String.fromCharCode(0x20,0x1B, 0x5B, 0x33, 0x36, 0x6D),'</span> <span style="color:blue">'); 
   EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x39, 0x6D),'</span>'); 
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
   document.getElementById("Display").innerHTML=EText;
@@ -383,7 +387,8 @@ function FF_CONTINUE() {
 
 <body onload="FF_RESTART()">
 <div id="Display" style="white-space:pre"></div>
-<div><span id="Stapel" style="color:blue; border:none"> </span><input id="input" type="text" onkeypress="if (event.charCode==13) {  PC=PC-1; FF_CONTINUE()}" size="40" value=""> </input>
+<div><span id="Stapel" style="color:blue; border:none"> </span>
+  <input id="input" type="text" style="font-family:monospace" onkeypress="if (event.charCode==13) {  PC=PC-1; FF_CONTINUE()}" size="40" value=""> </input>
   </div>
 <div style="height:400px"></div>
 <textarea cols="120" rows="20" onkeydown="FF_CONTINUE()" >???
