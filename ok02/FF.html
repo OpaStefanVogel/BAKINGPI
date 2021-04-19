@@ -339,15 +339,20 @@ function FF_RESTART() {
   for (var i=0;i<RAMB3000.length;i++) RAMB0000[i+0x3000]=RAMB3000[i];
   for (var i=0;i<RAMB3C00.length;i++) RAMB0000[i+0x3C00]=RAMB3C00[i];
   for (var i=0;i<RAMB2F00.length;i++) RAMB0000[i+0x2F00]=RAMB2F00[i];
+  var Startcode="7 1+ M.\n77 88 M* M.\n: + M+ ;\n: - M- ;\n: * M* ;\n: . M. ;\n77 88 * .\n";
+  for (var i=0;i<Startcode.length;i++) RAMB0000[i+0x3C00]=Startcode.charCodeAt(i);
+  RAMB0000[0x2F03]=0x3C00+Startcode.length;
   Logtext="STEP   RP   PC   PD: STAPEL\n";
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
-        STARTSTEP=0x1F716;
+        STARTSTEP=0x100F716;
         ENDSTEP=STARTSTEP+0X000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
-  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">'); 
-  EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x39, 0x6D),'</span>'); 
+  while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
+    EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">');
+    EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x39, 0x6D),'</span>');
+    }
   document.getElementById("Logfile").firstChild.nodeValue=Logtext;
   document.getElementById("Display").innerHTML=EText;
   //alert(RAMB0000[0x3B01]);
