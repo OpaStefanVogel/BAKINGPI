@@ -430,7 +430,7 @@ function Interpretiere_Startarray() {
 <body onload="FF_RESTART()">
 <div id="Display" style="overflow:auto; max-height:400px; white-space:pre"></div>
 <div><span id="Stapel" style="color:blue; border:none"> </span>
-  <input id="input" type="text" style="font-family:monospace" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Interpretiere("FFCode")'>FFCode</button> <button onclick='Interpretiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Interpretiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0">STARTSTEP=0</button>
+  <input id="input" type="text" style="font-family:monospace" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Interpretiere("FFCode")'>FFCode</button> <button onclick='Interpretiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Interpretiere("DUMPZ")'>DUMPZ</button> <button onclick='Interpretiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0">STARTSTEP=0</button>
   </div>
 <div style="display:none">
 <div style="height:400px"></div>
@@ -893,6 +893,48 @@ START
 </sekt>
 </sekt>
 </AXIOME>
+
+</script>
+<script id="DUMPZ">
+<FFINIT2>
+<sekt inhalt="bis Adresse 0800H passt noch DUMPZ drauf (inzwischen nicht mehr)">
+( erste Forth Erweiterungen )
+( - DUMPZ )
+( RAMB-Inhaltsausgabe erzeugen: )
+: LG. ( n --> )
+  DUBIT @ IF SHL16 DROP SHL16 DROP 
+    ELSE SHL16 DIG EMIT SHL16 DIG EMIT END_IF 
+  SHL16 DIG EMIT SHL16 DIG EMIT DROP ;
+: NG. ( n --> )
+  ." x" 22 EMIT LG. 22 EMIT ." ," ; 
+: DUMPZ ( bis+1 von dubit --> )
+  DUBIT ! XBIT @ >R 0 XBIT !
+  " ' START " INTERPRET 04 000 MLIT OR 10 !
+  CR 3C EMIT ." DUMPZ>"
+  BEGIN
+    CR ."   "
+    0000 BEGIN
+      2DUP M+
+      DUP IRAMADR = IF DROP JRAMADR END_IF
+      DUP LOCALADRESSE = IF DROP 2F00 2F80 ! 2F80 END_IF
+      @ NG. 1+ DUP 10 =
+      UNTIL DROP
+    ."  -- " DUP HG. ." -" DUP 0F M+ HG.
+    10 M+
+    2DUP > NOT UNTIL 2DROP
+  CR 3C EMIT ." /DUMPZ>"
+  R> XBIT !
+  ;
+
+HERE M. BZEIG M?
+</sekt>
+
+<sekt inhalt="ProgRAM und ByteRAM für Step_9 und Step_10 erstellen">
+HERE 0 0 DUMPZ          ( generiert ProgRAM für P20_FFP.vhd Step_10 )
+2F20 2F00 0 DUMPZ       ( generiert In8tialisierungswerte )
+BZEIG @ 3000 -1 DUMPZ   ( generiert ByteRAM für P20_FFP.vhd Step_10 )
+</sekt>
+
 </script>
 <script id="INIT41.txt">( : LIT, ( a --> ... DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
 ( LIT, reparieren:   muss da 0C sein
