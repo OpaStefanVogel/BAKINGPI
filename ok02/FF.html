@@ -246,7 +246,8 @@ RAMB3C00=[
   0x35,0x20,0x31,0x2B,0x20,0x4D,0x2E,0x0A,0x4D,0x50,0x49,0x4C,0x45,0x20,0x4D,0x4C, // 3C00-3C0F: 5 1+ M.
   ];
 
-RAMB20200000=[];
+RAMB100000=[0x00000123,0xA0000003];
+RAMB20200000=[0x12345678,0x87654321];
   </script>
 <script>
 var PC=0;
@@ -260,7 +261,9 @@ var Logtext="";
 var EText="";
 var STARTSTEP=0;
 var ENDSTEP=0;
-Number.prototype.toHex0000=function() {return ("0000"+this.toString(16).toUpperCase()).slice(-4)}
+Number.prototype.toHex0000=function() {
+  if (this<0x10000) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
+    else return this.toString(16).toUpperCase()}
 
 function V16Z32(n) {
   if (n>0x7FFF) return n-0x10000; else return n;  
@@ -282,7 +285,7 @@ function FF_STEP() {
       case 0xA001: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0xA002: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
         var M=STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
-        STAPEL[ST-3]=(M&0xFFFF0000)/0x10000;
+        STAPEL[ST-3]=(M&0xFFFF0000)>>>16;
         STAPEL[ST-2]=M&0xFFFF;
         ST=ST-1;
         break; 
@@ -300,27 +303,42 @@ function FF_STEP() {
         case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
         case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
         case 0x2801: ST=STAPEL[ST-2]; break;
-        default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2;
+        default: switch (STAPEL[ST-1]>>>16) {
+          case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+          case 0x0010: RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
+          }
         } break;
       case 0xA00A: /* @ */ switch (STAPEL[ST-1]) {
         case 0x2803: STAPEL[ST-1]=PC; break;
         case 0x2802: STAPEL[ST-1]=RP; break;
         case 0x2801: STAPEL[ST-1]=ST; break;
-        default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]];
+        default: switch (STAPEL[ST-1]>>>16) {
+          case 0x2020: STAPEL[ST-1]=RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+          case 0x0010: STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+          default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
+          }
         } break;
       case 0xA00B: /* NOT */ STAPEL[ST-1]=0xFFFF-STAPEL[ST-1]; break;
       case 0xA00C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0xA00D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
       case 0xA00E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
       case 0xA00F: /*  0< */ if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+      case 0xA027: /* N+ */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; ST=ST-1; break;
       case 0xA029: /* 2! */ switch (STAPEL[ST-2]) {
         case 0x2020: RAMB20200000[STAPEL[ST-1]]=STAPEL[ST-3]+0x10000*STAPEL[ST-4]; ST=ST-4; break;
         default: alert(PD.toHex0000()); Startarray=[]; return; 
         } break;
       case 0xA02A: /* 2@ */ switch (STAPEL[ST-2]) {
-        case 0x2020: alert(RAMB20200000);STAPEL[ST-2]=(RAMB20200000[STAPEL[ST-1]]&0xFFFF0000)/0x10000; STAPEL[ST-1]=RAMB20200000[STAPEL[ST-1]]&0xFFFF; break;
+        case 0x2020: alert(RAMB20200000);STAPEL[ST-2]=(RAMB20200000[STAPEL[ST-1]]&0xFFFF0000)>>>16; STAPEL[ST-1]=RAMB20200000[STAPEL[ST-1]]&0xFFFF; break;
+        case 0x0010: //alert(RAMB100000[STAPEL[ST-1]/4].toHex0000());
+          STAPEL[ST-2]=(RAMB100000[STAPEL[ST-1]/4]&0xFFFF0000)>>>16; 
+          STAPEL[ST-1]=RAMB100000[STAPEL[ST-1]/4]&0xFFFF; 
+          break;
         default: alert(PD.toHex0000()); Startarray=[]; return; 
         } break;
+      case 0xA02C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
+      case 0xA02D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
       default: alert(PD.toHex0000()); Startarray=[]; return; break;
       } break;
     case 0xB000: switch (PD) {
@@ -380,7 +398,7 @@ function FF_CONTINUE(input0) {
   STEP=0;//Logtext=Logtext+" "+event.charCode;
   EText=EText+'</span><span style="color:blue">';
   for (var i=0;i<ST;i++) EText=EText+STAPEL[i].toHex0000()+" ";
-  EText=EText+'</span><span style="border:solid Lightgrey 1px">';
+  EText=EText+'</span><span style="border:solid Lightgrey 1px; background-color:LightGoldenrodYellow">';
   //for (var i in event) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
@@ -435,9 +453,9 @@ function Kopiere(Code) {
 <body onload="FF_RESTART()">
 <div id="Display" style="overflow:auto; max-height:400px; white-space:pre"></div>
 <div><span id="Stapel" style="color:blue; border:none"> </span>
-  <input id="input" type="text" style="font-family:monospace" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0">STARTSTEP=0</button>
+  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0">STARTSTEP=0</button>
   </div>
-<div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20" onkeydown="FF_CONTINUE()" >11 22 * 33 + .
+<div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20"" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
 <div style="display:none">
 <div style="height:400px"></div>
@@ -965,7 +983,6 @@ PIN3LOW
 
 PIN3HIGH
 
-</script><script>
 : (*REM*)
   BEGIN KEY DUP 1 = NOT WHILE DUP 0D = IF DROP 0A END_IF EMIT 
   2 @ 1 AND IF PIN3LOW ELSE PIN3HIGH END_IF
@@ -980,8 +997,9 @@ PIN3HIGH
   2DROP
   ;
 
-LOGINPUT 0 10 DUMP
+( LOGINPUT 0 10 DUMP
 
+0A 027 MLIT MCODE N+
 0A 02B MLIT MCODE 100000EXECUTE
 0A 02C MLIT MCODE UI
 0A 02D MLIT MCODE IU
@@ -996,18 +1014,20 @@ LOGINPUT 0 10 DUMP
 : N. ( a --> <32bit> )
   IU SWAP HG. M. ;
 
-10 4 UI @ 77 M+ N.
+10 4 UI @ 77 N+ N.
 
 2F20 CONSTANT RAMP1 RAMP1 1+ RAMP1 ! ( bis 2F17 sind neu BASE TIB ... )
 : VARIABLE RAMP1 @ DUP CONSTANT DUP 1+ RAMP1 ! ! ;
 
 2020 0000 UI VARIABLE GPIOBASE
 GPIOBASE @ @ N.
-GPIOBASE @ 4 M+ @ N.
-4 GPIOBASE @ 28 M+ ! ( PIN3LOW )
-GPIOBASE @ 34 M+ @ 4 AND M.
-4 GPIOBASE @ 1C M+ ! ( PIN3HIGH )
-GPIOBASE @ 34 M+ @ 4 AND M.
+GPIOBASE @ 4 N+ @ N.
+6666 5555 UI GPIOBASE !
+GPIOBASE @ N.
+4 GPIOBASE @ 28 N+ ! ( PIN3LOW )
+GPIOBASE @ 34 N+ @ 4 AND M.
+4 GPIOBASE @ 1C N+ ! ( PIN3HIGH )
+GPIOBASE @ 34 N+ @ 4 AND M.
 </script
   </body>
 </html>
