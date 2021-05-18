@@ -253,7 +253,11 @@ RAMB100000=[0x00000123,4,5,6,
 0xB,0,0x90000004,9,
 0xC,0xD,0x40100068,0x8FFFFFC0,
 -1,-1,0x666,0x777,
-0x888,0xA0000003,
+0x888,0xA0000000/*MINUS*/,0x12345,0x54321,
+0xA0000007/*+*/,0,0xA000000B/*NOT*/,1,
+0xA000000B/*NOT*/,0,0xA000000D/*0=*/,1,
+0xA000000D/*0=*/,7,0xA000000F/*0lt*/,-7,
+0xA000000F/*0lt*/,0xA0000003,
 ];
 RAMB20200000=[0x12345678,0x87654321];
   </script>
@@ -380,9 +384,10 @@ function FF_STEP() {
     case 0x8: if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000; break;
     case 0x9: if (STAPEL[ST-1]==0) {if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000} ST=ST-1; break;
     case 0xA: switch (PD&0xFF) {
-      case 0x00: /* MINUS */ if (STAPEL[ST-1]!=0) STAPEL[ST-1]=0x10000-STAPEL[ST-1]; break;
+      case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
       case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
+        alert(STEP.toHex0000()+" "+PD.toHex0000());
         var M=STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
         STAPEL[ST-3]=(M&0xFFFF0000)>>>16;
         STAPEL[ST-2]=M&0xFFFF;
@@ -392,11 +397,7 @@ function FF_STEP() {
       case 0x04: /*  */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
       case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
       case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-      case 0x07: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; 
-        if (STAPEL[ST-2]>0xFFFF) STAPEL[ST-2]=STAPEL[ST-2]-0x10000;
-        if (STAPEL[ST-2]<0) STAPEL[ST-2]=STAPEL[ST-2]+0x10000;
-        ST=ST-1; 
-        break;
+      case 0x07: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1];  ST=ST-1; break;
       case 0x08: /* AND */ STAPEL[ST-2]=STAPEL[ST-2]&STAPEL[ST-1]; ST=ST-1; break;
       case 0x09: /* ! */ switch (STAPEL[ST-1]) {
         case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
@@ -418,11 +419,11 @@ function FF_STEP() {
           default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
           }
         } break;
-      case 0x0B: /* NOT */ STAPEL[ST-1]=0xFFFF-STAPEL[ST-1]; break;
+      case 0x0B: /* NOT */ STAPEL[ST-1]=-1-STAPEL[ST-1]; break;
       case 0x0C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-      case 0x0D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+      case 0x0D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
       case 0x0E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
-      case 0x0F: /*  0< */ if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+      case 0x0F: /*  0< */ if (STAPEL[ST-1]<0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
       case 0x21: /* D+ */ 
         var A=(STAPEL[ST-4]<<16)+STAPEL[ST-3]; 
         var B=(STAPEL[ST-2]<<16)+STAPEL[ST-1]; 
@@ -460,7 +461,9 @@ function FF_STEP() {
       case 0x603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-2]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
       case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
       } break;
-    default: alert("num="+(PD&0X0FFFFFFF).toHex0000()); STAPEL[ST]=PD; ST=ST+1;
+    default: /*alert("num="+(PD&0X0FFFFFFF).toHex0000());*/
+      STAPEL[ST]=PD; ST=ST+1;
+      break;
     }  
   //for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16); Logtext=Logtext+" ";
   if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
