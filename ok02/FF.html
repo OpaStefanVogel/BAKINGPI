@@ -324,6 +324,14 @@ function FF_STEP() {
       case 0xA00D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
       case 0xA00E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
       case 0xA00F: /*  0< */ if (STAPEL[ST-1]>0x7FFF) STAPEL[ST-1]=0XFFFF; else STAPEL[ST-1]=0; break;
+      case 0xA021: /* D+ */ 
+        var A=(STAPEL[ST-4]<<16)+STAPEL[ST-3]; 
+        var B=(STAPEL[ST-2]<<16)+STAPEL[ST-1]; 
+        var C=A+B;
+        STAPEL[ST-4]=C>>>16;
+        STAPEL[ST-3]=C&0xFFFF;
+        ST=ST-2; 
+        break;
       case 0xA027: /* N+ */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; ST=ST-1; break;
       case 0xA029: /* 2! */ switch (STAPEL[ST-2]) {
         case 0x2020: RAMB20200000[STAPEL[ST-1]]=STAPEL[ST-3]+0x10000*STAPEL[ST-4]; ST=ST-4; break;
@@ -502,14 +510,14 @@ IMMEDIATE: ( 29 WORD 2DROP ;
 IMMEDIATE: { 0 STAT ! ; ( war ursprünglich mal [ )  
 : } 1 STAT ! ;
 IMMEDIATE: COMPILE 20 WORD FIND LCFA DROP COMPILE, ;
-: MLIT ( a b --> 1000*a+b ) SWAP 1000 U* SWAP DROP ;
+: MLIT ( a b -- 1000*a+b ) SWAP 1000 U* SWAP DROP ;
 : ABS DUP 0LT IF MINUS END_IF ;
-: LIT, ( a --> ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
+: LIT, ( a -- ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
 COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 </sekt>
 
 <sekt inhalt="Konstanten">
-: CONSTANT ( /name/  c --> ) CREATE COMPILE (CONSTANT:) , SMUDGE ;
+: CONSTANT ( /name/  c -- ) CREATE COMPILE (CONSTANT:) , SMUDGE ;
 
 2800 CONSTANT KEYADR
 2801 CONSTANT SP
@@ -577,8 +585,8 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 </sekt>
 
 <sekt inhalt="ein Abschnitt für die Zeichenketten">
-: B, ( b --> ) BZEIG @ ! 1 BZEIG +! ;
-: Z, ( badr n --> ) BZEIG @ LIT, DUP ,
+: B, ( b -- ) BZEIG @ ! 1 BZEIG +! ;
+: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
   BEGIN SWAP DUP @ B, 1+ SWAP 1- DUP 0= UNTIL
   2DROP 20 B, ; 
 COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
@@ -609,15 +617,15 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 <sekt inhalt="etliche kleinere Funktionen">
 : C@ @ ;
 : C! ! ;
-: 1+ ( a --> a+1 ) 1 M+ ;
-: 1- ( a --> a+1 ) -1 M+ ;
+: 1+ ( a -- a+1 ) 1 M+ ;
+: 1- ( a -- a+1 ) -1 M+ ;
 : M- MINUS M+ ;
 : = M- 0= ;
-: LT ( a b --> r ) M- 0LT ;
-: > ( a b --> r ) SWAP LT ;
-: M* ( a b --> a*b ) 0 ROT ROT U* SWAP DROP ;
+: LT ( a b -- r ) M- 0LT ;
+: > ( a b -- r ) SWAP LT ;
+: M* ( a b -- a*b ) 0 ROT ROT U* SWAP DROP ;
 : BYE BEGIN ." BYE " AGAIN ;
-: +! ( a adr --> adr+1 ) SWAP OVER @ M+ SWAP ! ;
+: +! ( a adr -- adr+1 ) SWAP OVER @ M+ SWAP ! ;
 : R> RP @ 1+ @ RP @ 1+ RP 2DUP @ @ SWAP ! ! ;
 : >R RP @ DUP 1- RP 2DUP @ @ SWAP DUP 1- RP ! ! ! ! ; 
 : R RP @ 1+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
@@ -625,9 +633,9 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : EXECUTE PC ! ;
 : KEY BEGIN ( NOOP ) { A004 , } KEYCODE2 NOT WHILE DROP REPEAT ;
 : EMIT ' EMITCODE EXECUTE ;
-: SHL16 ( a --> t a' )
+: SHL16 ( a -- t a' )
   0 SWAP 10 U* SWAP ; ( t a' = SHL a )
-: DIG ( n --> c )
+: DIG ( n -- c )
   DUP 0A LT IF ELSE 7 M+ END_IF 30 M+ ;
 : TYPE
   BEGIN DUP WHILE
@@ -645,7 +653,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
     DP @ CRDP ! BZEIG @ CRBZEIG ! 
     END_IF
   0A EMIT ;
-: FEHLERTEXT ( n --> n ) ;
+: FEHLERTEXT ( n -- n ) ;
 : DISABLE 
   CR ." weiter nach Taste ESCAPE "
   BEGIN 20 EMIT 8 EMIT KEY 1B = UNTIL ; 
@@ -661,8 +669,8 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 </sekt>
 
 <sekt inhalt="lokale Variablen">
-: LOCAL ( n --> ) 1+ LOCALADRESSE @ OVER M- DUP LOCALADRESSE ! ! ;
-: END_LOCAL ( --> ) LOCALADRESSE @ DUP @ M+ LOCALADRESSE ! ;
+: LOCAL ( n -- ) 1+ LOCALADRESSE @ OVER M- DUP LOCALADRESSE ! ! ;
+: END_LOCAL ( -- ) LOCALADRESSE @ DUP @ M+ LOCALADRESSE ! ;
 : L0 LOCALADRESSE @ 1+ ;
 : L1 LOCALADRESSE @ 2 M+ ;
 : L2 LOCALADRESSE @ 3 M+ ;
@@ -674,16 +682,16 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 </sekt>
 
 <sekt inhalt="alles zu KEY">
-IMMEDIATE: ' ( /name/ --> --> pfa ) 
+IMMEDIATE: ' ( /name/ -- -- pfa ) 
   20 WORD FIND LCFA DROP 1+ STAT @ IF LIT, END_IF ; 
 
-: INCR4 ( adr --> )
+: INCR4 ( adr -- )
   DUP @ 1+
   DUP 3FF AND 000 = IF -400 M+ END_IF 
   SWAP !
   ;
 
-: KEY_INT ( --> )
+: KEY_INT ( -- )
   KEYADR @ 
   DUP 08 LT IF 
     18 M+ @ DUP IF DUP EXECUTE END_IF
@@ -697,7 +705,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
   0 KEYADR !
   ;
 
-: KEYCODE2 ( --> c f )
+: KEYCODE2 ( -- c f )
   JRAMADR @ IRAMADR @ = IF 0 0 
     ELSE JRAMADR @ @ -1
     JRAMADR INCR4
@@ -713,7 +721,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
 ( ESCAPE durch EXPECT durchlaufen lassen )
 ( und 7F in 08 umwandeln )
 ( und nach n Zeichen kein 0D mehr lesen )
-: EXPECT ( /text/  adr n --> adr m )
+: EXPECT ( /text/  adr n -- adr m )
   5 LOCAL
   L2 ! L1 ! L1 @ L4 !
   BEGIN
@@ -742,7 +750,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
   ;
 
 
-: DIGIT ( z --> d r ) ( r=-1 wenn gueltig )
+: DIGIT ( z -- d r ) ( r=-1 wenn gueltig )
   ( vorher r=0 wenn gueltig!!! )
   DUP 30 ( 30 48 ) LT NOT OVER 3A ( 3A 58 ) LT AND
   OVER 41 ( 41 65 ) LT NOT OR 
@@ -752,7 +760,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
     DUP BASE @ LT NOT IF DROP DROP 0 0 END_IF
     SWAP END_IF ;
 
-: NUMBER ( badr n --> a r )
+: NUMBER ( badr n -- a r )
   7 LOCAL ( L3 L4 nicht verwendet )
   L1 ! L0 !
   0 L1 @ IF
@@ -784,7 +792,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
   END_LOCAL
   ;
 
-: WORD ( b --> adr n )
+: WORD ( b -- adr n )
   >R
   IN3 @ IN2 !
   BEGIN 
@@ -800,7 +808,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
   R> DROP
   ;
 
-: Z= ( adr1 n1 adr2 n2 --> r )
+: Z= ( adr1 n1 adr2 n2 -- r )
   >R OVER R M- IF R> DROP DROP DROP DROP 0 ELSE
     R> DROP SWAP 0 BEGIN 2DUP M- WHILE >R >R
       OVER C@ OVER C@ M- IF DROP DROP 0 0 END_IF
@@ -810,7 +818,7 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
     END_IF ;
 ( : Z= DROP SWAP DROP SWAP @ SWAP @ = ;
 
-: FIND ( adr n --> lfa r )
+: FIND ( adr n -- lfa r )
   >R >R 0 ( heisst noch nicht gefunden )
   LFA @ 
   SMUDGEBIT @ IF DUP @ M+ END_IF
@@ -829,18 +837,18 @@ IMMEDIATE: ' ( /name/ --> --> pfa )
   ( OVER LFA @ SWAP LT IF M." *" OVER M. LFA @ M. END_IF ( vref wenn gebraucht )
   ;
 
-: LCFA ( lfa r --> cfa r ) SWAP 3 M+ SWAP ;
+: LCFA ( lfa r -- cfa r ) SWAP 3 M+ SWAP ;
 
-: COMPILE, ( adr --> ) 04 000 MLIT OR , ;
+: COMPILE, ( adr -- ) 04 000 MLIT OR , ;
 
-: CREATE ( /name/  --> )
+: CREATE ( /name/  -- )
   CSP! ( Stapelbalance prüfen in ; )
   DP @ LFA @ OVER M- , LFA !
   20 WORD Z,
   1 SMUDGEBIT ! ( HERE 2 M- DUP @ MINUS SWAP ! ( UNSMUDGE )
   ;
 
-: INTERPRET ( adr n --> ... )
+: INTERPRET ( adr n -- ... )
   IN1 @ >R IN2 @ >R IN3 @ >R IN4 @ >R
   OVER M+ IN4 !
   DUP IN1 ! DUP IN2 ! IN3 !
@@ -926,13 +934,13 @@ START
 ( erste Forth Erweiterungen )
 ( - DUMPZ )
 ( RAMB-Inhaltsausgabe erzeugen: )
-: LG. ( n --> )
+: LG. ( n -- )
   DUBIT @ IF SHL16 DROP SHL16 DROP 
     ELSE SHL16 DIG EMIT SHL16 DIG EMIT END_IF 
   SHL16 DIG EMIT SHL16 DIG EMIT DROP ;
-: NG. ( n --> )
+: NG. ( n -- )
   ." x" 22 EMIT LG. 22 EMIT ." ," ; 
-: DUMPZ ( bis+1 von dubit --> )
+: DUMPZ ( bis+1 von dubit -- )
   DUBIT ! XBIT @ >R 0 XBIT !
   " ' START " INTERPRET 04 000 MLIT OR 10 !
   CR 3C EMIT ." DUMPZ>"
@@ -961,7 +969,7 @@ BZEIG @ 3000 -1 DUMPZ   ( generiert ByteRAM für P20_FFP.vhd Step_10 )
 </sekt>
 
 </script>
-<script id="INIT41.txt">( : LIT, ( a --> ... DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
+<script id="INIT41.txt">( : LIT, ( a -- ... DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
 ( LIT, reparieren:   muss da 0C sein
 0C ' LIT, 2 M+ ! ( macht aus der 04 ein 0C )
 
@@ -969,7 +977,11 @@ BZEIG @ 3000 -1 DUMPZ   ( generiert ByteRAM für P20_FFP.vhd Step_10 )
 0A 029 MLIT MCODE 2!
 0A 02A MLIT MCODE 2@
 
-: DUMP ( addr n --> )
+7 8 3 4
+D+
+M. M.
+
+: DUMP ( addr n -- )
   BEGIN SWAP ( CR DUP M. ) DUP @ M. 1+ SWAP 1- DUP 0= UNTIL 2DROP ;
 
 0 20 DUMP
@@ -988,7 +1000,7 @@ PIN3HIGH
   2 @ 1 AND IF PIN3LOW ELSE PIN3HIGH END_IF
   REPEAT DROP ;
 
-: LOGINPUT ( --> <inputtext> )
+: LOGINPUT ( -- <inputtext> )
   0 0 BEGIN
     2DUP
     1000 0 D+ 2@ DUP FF AND 0D = IF DROP 0A END_IF EMIT DROP
@@ -1003,7 +1015,7 @@ PIN3HIGH
 0A 02B MLIT MCODE 100000EXECUTE
 0A 02C MLIT MCODE UI
 0A 02D MLIT MCODE IU
-0A 004 MLIT MCODE KEYCODE ( --> char flag )
+0A 004 MLIT MCODE KEYCODE ( -- char flag )
 : T 100000EXECUTE ;
 ( 0 0123 10 0000 2!
 ( 0A 0000 MLIT 0003 10 0004 2!
@@ -1011,7 +1023,7 @@ PIN3HIGH
 10 0004 2@ M. M.
 ( T ( dann S und #
 
-: N. ( a --> <32bit> )
+: N. ( a -- <32bit> )
   IU SWAP HG. M. ;
 
 10 4 UI @ 77 N+ N.
@@ -1025,9 +1037,14 @@ GPIOBASE @ 4 N+ @ N.
 6666 5555 UI GPIOBASE !
 GPIOBASE @ N.
 4 GPIOBASE @ 28 N+ ! ( PIN3LOW )
-GPIOBASE @ 34 N+ @ 4 AND M.
+GPIOBASE @ 28 N+ @ N.
+GPIOBASE @ 34 N+ @ N.
 4 GPIOBASE @ 1C N+ ! ( PIN3HIGH )
-GPIOBASE @ 34 N+ @ 4 AND M.
+GPIOBASE @ 1C N+ @ N.
+GPIOBASE @ 34 N+ @ N.
+0 GPIOBASE @ 1C N+ ! ( PIN3HIGH )
+GPIOBASE @ 1C N+ @ N.
+GPIOBASE @ 34 N+ @ N.
 </script
   </body>
 </html>
