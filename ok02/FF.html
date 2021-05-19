@@ -259,7 +259,35 @@ RAMB100000=[0x00000123,4,5,6,
 0xA000000D/*0=*/,7,0xA000000F/*0lt*/,-7,
 0xA000000F/*0lt*/,0xA0000003,
 ];
+
 RAMB20200000=[0x12345678,0x87654321];
+
+for (var i=0;i<RAMB0000.length;i++) {
+  var PD=RAMB0000[i];
+  switch (PD&0xF000) {
+    case 0x0000: PD=PD; break;
+    case 0x1000: PD=PD; break;
+    case 0x2000: PD=PD; break;
+    case 0x3000: PD=PD; break;
+    case 0x4000: PD=0x40100000+(PD&0x0FFF)*4; break;
+    case 0x5000: PD=0x50100000+(PD&0x0FFF)*4; break;
+    case 0x6000: PD=0x60100000+(PD&0x0FFF)*4; break;
+    case 0x7000: PD=0x70100000+(PD&0x0FFF)*4; break;
+    case 0x8000: if (PD&0x0800==0) PD=0x80000000+(PD&0x0FFF)*4; else PD=0x80000000+((((PD&0x0FFF)|0x0FFFF000)*4)&0x0FFFFFFF); break;
+    case 0x9000: PD=0x90000000+(PD&0x0FFF)*4; break;
+    case 0xA000: PD=0xA0000000+(PD&0x0FFF); break;
+    case 0xB000: PD=0xB0000000+(PD&0x0FFF); break;
+    case 0xC000: PD=PD|0xFFFF0000; break;
+    case 0xD000: PD=PD|0xFFFF0000; break;
+    case 0xE000: PD=PD|0xFFFF0000; break;
+    case 0xF000: PD=PD|0xFFFF0000; break;
+    }
+  RAMB100000[i]=PD;
+  }
+RAMB100000[0x1]=0xA0000003;
+RAMB100000[0x31D]=0x00100000+4*RAMB0000[0x31D];
+RAMB100000[0x763]=0xA0000003;
+
   </script>
 <script>
 var PC=0;
@@ -358,7 +386,7 @@ function FF_STEP() {
           break;
         default: alert(PD.toHex0000()); Startarray=[]; return; 
         } break;
-      case 0xA02B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; break;
+      case 0xA02B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; ENDSTEP=STEP+0x180; break;
       case 0xA02C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
       case 0xA02D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
       default: alert(PD.toHex0000()); Startarray=[]; return; break;
@@ -564,7 +592,7 @@ function Kopiere(Code) {
 <body onload="FF_RESTART()">
 <div id="Display" style="overflow:auto; max-height:400px; white-space:pre"></div>
 <div><span id="Stapel" style="color:blue; border:none"> </span>
-  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0">STARTSTEP=0</button>
+  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=100">STARTSTEP=0</button>
   </div>
 <div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20"" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
@@ -1125,7 +1153,9 @@ PIN3HIGH
 10 0000 2@ M. M.
 10 0004 2@ M. M.
 ( T ( dann S und #
-T
+( T
+</script><script>
+
 0 SP !
 
 : N. ( a -- <32bit> )
