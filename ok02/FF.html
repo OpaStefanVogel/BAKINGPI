@@ -282,10 +282,10 @@ function V16Z32(n) {
   }
 
 function FF_STEP() {
-  if (STEP>STARTSTEP) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
+  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
   if (PC<0X10000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFF)/4]; PC=PC+4}
   STEP=STEP+1;
-  if (STEP>STARTSTEP) Logtext=Logtext+" "+PD.toHex0000(16)+":";
+  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
   if (PC<0x100000) switch (PD>>>12) {
     case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
     case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
@@ -466,9 +466,9 @@ function FF_STEP() {
       break;
     }  
   //for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16); Logtext=Logtext+" ";
-  if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
+  if (STEP>STARTSTEP||PC>=0x100000) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
   //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
-  if (STEP>STARTSTEP) Logtext=Logtext+"\n";
+  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+"\n";
   }
 
 function FF_RESTART() {
@@ -484,7 +484,7 @@ function FF_RESTART() {
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
-        STARTSTEP=0x7000F716;
+        STARTSTEP=0x1000F716;
         ENDSTEP=STARTSTEP+0X000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
@@ -568,7 +568,7 @@ function Kopiere(Code) {
   </div>
 <div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20"" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
-<div style="display:none">
+<div style="display:non">
 <div style="height:400px"></div>
 <textarea cols="120" rows="20" onkeydown="FF_CONTINUE()" >???
   </textarea>
