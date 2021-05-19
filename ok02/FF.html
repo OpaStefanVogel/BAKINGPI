@@ -273,8 +273,8 @@ for (var i=0;i<RAMB0000.length;i++) {
     case 0x5000: PD=0x50100000+(PD&0x0FFF)*4; break;
     case 0x6000: PD=0x60100000+(PD&0x0FFF)*4; break;
     case 0x7000: PD=0x70100000+(PD&0x0FFF)*4; break;
-    case 0x8000: if (PD&0x0800==0) PD=0x80000000+(PD&0x0FFF)*4; else PD=0x80000000+((((PD&0x0FFF)|0x0FFFF000)*4)&0x0FFFFFFF); break;
-    case 0x9000: PD=0x90000000+(PD&0x0FFF)*4; break;
+    case 0x8000: if ((PD&0x0800)==0) PD=0x80000000+(PD&0x0FFF)*4; else PD=0x80000000+((((PD&0x0FFF)|0x0FFFF000)*4)&0x0FFFFFFF); break;
+    case 0x9000: if ((PD&0x0800)==0) PD=0x90000000+(PD&0x0FFF)*4; else PD=0x90000000+((((PD&0x0FFF)|0x0FFFF000)*4)&0x0FFFFFFF); break;
     case 0xA000: PD=0xA0000000+(PD&0x0FFF); break;
     case 0xB000: PD=0xB0000000+(PD&0x0FFF); break;
     case 0xC000: PD=PD|0xFFFF0000; break;
@@ -286,8 +286,7 @@ for (var i=0;i<RAMB0000.length;i++) {
   }
 RAMB100000[0x1]=0xA0000003;
 RAMB100000[0x31D]=0x00100000+4*RAMB0000[0x31D];
-RAMB100000[0x763]=0xA0000003;
-
+//RAMB100000[0x765]=0xA0000003;
   </script>
 <script>
 var PC=0;
@@ -311,7 +310,8 @@ function V16Z32(n) {
 
 function FF_STEP() {
   if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
-  if (PC<0X10000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFF)/4]; PC=PC+4}
+  if (PC>=0x100000) Logtext=Logtext+" ("+((PC&0xFFFFF)/4).toHex0000()+")";
+  if (PC<0X100000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFFF)/4]; PC=PC+4}
   STEP=STEP+1;
   if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
   if (PC<0x100000) switch (PD>>>12) {
@@ -386,7 +386,7 @@ function FF_STEP() {
           break;
         default: alert(PD.toHex0000()); Startarray=[]; return; 
         } break;
-      case 0xA02B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; ENDSTEP=STEP+0x180; break;
+      case 0xA02B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; break;
       case 0xA02C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
       case 0xA02D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
       default: alert(PD.toHex0000()); Startarray=[]; return; break;
@@ -422,7 +422,7 @@ function FF_STEP() {
         ST=ST-1;
         break; 
       case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
-      case 0x04: /*  */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
+      case 0x04: /*  */ alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
       case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
       case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x07: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1];  ST=ST-1; break;
@@ -513,7 +513,7 @@ function FF_RESTART() {
   do {
     FF_STEP();
         STARTSTEP=0x1000F716;
-        ENDSTEP=STARTSTEP+0X000;
+        ENDSTEP=STARTSTEP+0X100;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
     EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">');
@@ -532,15 +532,23 @@ function FF_CONTINUE(input0) {
     RAMB0000[0x2F03]=RAMB0000[0x2F03]+1;
     if (RAMB0000[0x2F03]==0x4000) RAMB0000[0x2F03]=0x3C00;
     }
-  //alert(RAMB0000[0x2F03].toHex0000());
+  if (PC>0x100000) {
+    alert(RAMB0000[0x2F03].toHex0000());
+    alert(PC.toHex0000());
+    STEP=0; //ENDSTEP=STEP+0x1000;
+    }
   //if ...>
   STEP=0;//Logtext=Logtext+" "+event.charCode;
   EText=EText+'</span><span style="color:blue">';
   for (var i=0;i<ST;i++) EText=EText+STAPEL[i].toHex0000()+" ";
   EText=EText+'</span><span style="border:solid Lightgrey 1px; background-color:LightGoldenrodYellow">';
   //for (var i in event) Logtext=Logtext+i+"\n"; alert(Logtext);
+  if (PC>0x100000) {
+    alert(EText.slice(-100));
+    }
   do {
     FF_STEP();
+//  if (PC>0x100000) alert("nach FF_STEP(): "+RAMB0000[0x2F03].toHex0000()+" "+(PC.toHex0000()));
     //for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16); Logtext=Logtext+" ";
     //if (STEP>STARTSTEP) for (var st=0;st<ST;st++) Logtext=Logtext+"#"+STAPEL[st].toHex0000(16);
     //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
@@ -592,7 +600,7 @@ function Kopiere(Code) {
 <body onload="FF_RESTART()">
 <div id="Display" style="overflow:auto; max-height:400px; white-space:pre"></div>
 <div><span id="Stapel" style="color:blue; border:none"> </span>
-  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {  PC=PC-1; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=100">STARTSTEP=0</button>
+  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=100">STARTSTEP=0</button>
   </div>
 <div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20"" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
