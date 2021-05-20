@@ -292,6 +292,9 @@ var x=LFA;
 
 while (RAMB100000[LFA]!=0) {x=LFA; LFA=LFA+RAMB100000[LFA]; RAMB100000[x]=RAMB100000[x]*4}
 //in T LFA=0x100000+4*LFA setzen
+RAMB100000[0x66A]=0xA000002E; //4+ statt 1+
+RAMB100000[0x66E]=0xA000002E; //4+ statt 1+
+RAMB100000[0x69F]=0x0C; //in LCFA 0C M+ statt 3 M+
 
 function Display(RAM) {
   var Text="";
@@ -494,6 +497,7 @@ function FF_STEP() {
       case 0x2B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; break;
       case 0x2C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
       case 0x2D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
+      case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
       default: alert(PD.toHex0000()); Startarray=[]; return; break;
       } break;
     case 0xB: switch (PD&0xFFF) {
@@ -618,7 +622,7 @@ function Kopiere(Code) {
 <body onload="FF_RESTART()">
 <div id="Display" style="overflow:auto; max-height:400px; white-space:pre"></div>
 <div><span id="Stapel" style="color:blue; border:none"> </span>
-  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)' style="background-color:aqua;">Enter</button> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=0x755">STARTSTEP=0</button> <button onclick="Display(RAMB100000)">RAMB100000</button> 
+  <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> <button onclick='if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)' style="background-color:aqua;">Enter</button> <button onclick='Kopiere("FFCode")'>FFCode</button> <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=0x1646">STARTSTEP=0</button> <button onclick="Display(RAMB100000)">RAMB100000</button> 
   </div>
 <div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20"" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
