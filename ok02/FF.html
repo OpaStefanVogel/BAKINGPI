@@ -296,6 +296,11 @@ RAMB100000[0x66A]=0xA000002E; //4+ statt 1+
 RAMB100000[0x66E]=0xA000002E; //4+ statt 1+
 RAMB100000[0x69F]=0x0C; //in LCFA 0C M+ statt 3 M+
 
+//ab 0x34C
+//  x"435E",x"A003",x"FFFA",x"33B6",x"0003",x"4781",x"0008",x"B412",x"4324",x"432E",x"431D",x"B412",x"0001",x"4844",x"B501",x"A00D", -- 0850-085F
+//  x"9FF6",x"B200",x"A003",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000", -- 0860-086F
+ok
+
 function Display(RAM) {
   var Text="";
   for (var i=0;i<RAM.length;i++) Text=Text+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
