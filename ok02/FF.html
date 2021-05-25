@@ -299,7 +299,7 @@ RAMB100000[0x69F]=0x0C; //in LCFA 0C M+ statt 3 M+
 //0x34C : HG. 8 BEGIN SWAP SHL16 DIG EMIT SWAP 1 M- DUP 0= UNTIL 2DROP ;
 //  x"0008",x"B412",x"4324",x"432E",x"431D",x"B412",x"0001",x"4294",x"B501",x"A00D",x"9FF6",x"B200",x"A003",x"0000",x"0000",x"0000", -- 034C-35B
 
-RAMB100000[0x34C]=0x00000004; // 4
+RAMB100000[0x34C]=0x00000008; // 4
 RAMB100000[0x34D]=0xB0000412; // SWAP
 RAMB100000[0x34E]=0x40100000+4*0x0324; // SHL16
 RAMB100000[0x34F]=0x40100000+4*0x032E; // DIG
@@ -315,6 +315,7 @@ RAMB100000[0x358]=0xA0000003; // RET
 
 //RAMB100000[0x324]=0xA0000002; // U*
 
+RAMB100000[0x461]=0xA000002E; //4+ statt 1+ in '
 
 
 //ab 0x34C
@@ -348,7 +349,9 @@ BigInt.prototype.toHex0000=function() {
   if (0n<=this&&this<0x10000n) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
 
-//alert((0x10000000<<2).toHex0000());
+//alert((0x10000000>>>2).toHex0000());
+//alert((0x100000064n>>BigInt(2)).toHex0000());
+//alert(eval("0x"+(0x100000064n>>BigInt(7)).toHex0000()));
 //alert((-0x100000064n<<222n).toHex0000());
 
 function V16Z32(n) {
@@ -463,10 +466,13 @@ function FF_STEP() {
       case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
       case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
-        alert(STEP.toHex0000()+" "+PD.toHex0000());
-        var M=STAPEL[ST-3]+STAPEL[ST-2]*STAPEL[ST-1]; 
-        STAPEL[ST-3]=(M&0xFFFF0000)>>>16;
-        STAPEL[ST-2]=M&0xFFFF;
+        alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
+        var M=BigInt(STAPEL[ST-3])+BigInt(STAPEL[ST-2])*BigInt(STAPEL[ST-1]); 
+alert(M);alert(">>>"+(M>>BigInt(16)));
+        STAPEL[ST-3]=Number("0x"+((M&BigInt(0xFFFF0000))>>16n).toHex0000());
+alert(STAPEL[ST-3]);
+        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFF)).toHex0000());
+alert(STAPEL[ST-2]);
         ST=ST-1;
         break; 
       case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
