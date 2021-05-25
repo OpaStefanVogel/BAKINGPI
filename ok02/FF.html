@@ -359,11 +359,11 @@ function V16Z32(n) {
   }
 
 function FF_STEP() {
-  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
+  if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
   if (PC>=0x100000) Logtext=Logtext+" ("+((PC&0xFFFFF)/4).toHex0000()+")";
   if (PC<0X100000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFFF)/4]; PC=PC+4}
   STEP=STEP+1;
-  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
+  if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
   if (PC<0x100000) switch (PD>>>12) {
     case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
     case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
@@ -466,13 +466,13 @@ function FF_STEP() {
       case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
       case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
-        alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
+        //alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
         var M=BigInt(STAPEL[ST-3])+BigInt(STAPEL[ST-2])*BigInt(STAPEL[ST-1]); 
-alert(M);alert(">>>"+(M>>BigInt(16)));
-        STAPEL[ST-3]=Number("0x"+((M&BigInt(0xFFFF0000))>>16n).toHex0000());
-alert(STAPEL[ST-3]);
-        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFF)).toHex0000());
-alert(STAPEL[ST-2]);
+//alert(M);alert(">>>"+(M>>BigInt(16)));
+        STAPEL[ST-3]=Number("0x"+((M&BigInt(0xFFFFFFFF00000000))>>32n).toHex0000());
+//alert(STAPEL[ST-3]);
+        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFFFFFF)).toHex0000());
+//alert(STAPEL[ST-2]);
         ST=ST-1;
         break; 
       case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
@@ -554,9 +554,9 @@ alert(STAPEL[ST-2]);
       break;
     }  
   //for (var st=0;st<8;st++) Logtext=Logtext+" "+RAMB0000[0x2FF8+st].toHex0000(16); Logtext=Logtext+" ";
-  if (STEP>STARTSTEP||PC>=0x100000) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
+  if (STEP>STARTSTEP||PC>=0x200000) for (var st=0;st<ST;st++) Logtext=Logtext+" "+STAPEL[st].toHex0000(16);
   //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
-  if (STEP>STARTSTEP||PC>=0x100000) Logtext=Logtext+"\n";
+  if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+"\n";
   }
 
 function FF_RESTART() {
@@ -594,7 +594,7 @@ function FF_CONTINUE(input0) {
     }
   Logtext=Logtext.slice(-1000);
   STEP=0;//Logtext=Logtext+" "+event.charCode;
-  if (PC>0x100000) {
+  if (PC>0x200000) {
 //    alert("continue "+RAMB0000[0x2F03].toHex0000()+" "+RAMB0000[0x2F04].toHex0000());
 //    alert(PC.toHex0000());
     //ENDSTEP=0x100;
@@ -604,7 +604,7 @@ function FF_CONTINUE(input0) {
   for (var i=0;i<ST;i++) EText=EText+STAPEL[i].toHex0000()+" ";
   EText=EText+'</span><span style="border:solid Lightgrey 1px; background-color:LightGoldenrodYellow">';
   //for (var i in event) Logtext=Logtext+i+"\n"; alert(Logtext);
-  if (PC>0x100000) {
+  if (PC>0x200000) {
 //    alert(EText.slice(-100));
     }
   do {
