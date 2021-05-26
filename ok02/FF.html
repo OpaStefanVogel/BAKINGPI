@@ -316,6 +316,8 @@ RAMB100000[0x358]=0xA0000003; // RET
 //RAMB100000[0x324]=0xA0000002; // U*
 
 RAMB100000[0x461]=0xA000002E; //4+ statt 1+ in '
+RAMB100000[0x303]=0x4; // 4 DP +! statt 1 in : ,
+RAMB100000[0x048]=0x10000000; // 10000000 * statt 1000 * in : MLIT
 
 
 //ab 0x34C
@@ -360,7 +362,7 @@ function V16Z32(n) {
 
 function FF_STEP() {
   if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+STEP.toHex0000()+" "+RP.toHex0000()+" "+PC.toHex0000();
-  if (PC>=0x100000) Logtext=Logtext+" ("+((PC&0xFFFFF)/4).toHex0000()+")";
+  if (PC>=0x200000) Logtext=Logtext+" ("+((PC&0xFFFFF)/4).toHex0000()+")";
   if (PC<0X100000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFFF)/4]; PC=PC+4}
   STEP=STEP+1;
   if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
