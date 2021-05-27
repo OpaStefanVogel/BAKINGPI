@@ -478,9 +478,9 @@ function FF_STEP() {
       case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
         //alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
-        var M=BigInt(STAPEL[ST-3])+BigInt(STAPEL[ST-2])*BigInt(STAPEL[ST-1]); 
+        var M=(BigInt(STAPEL[ST-3])&0xFFFFFFFFn)+(BigInt(STAPEL[ST-2])&0xFFFFFFFFn)*(BigInt(STAPEL[ST-1])&0xFFFFFFFFn); 
 //alert(M);alert(">>>"+(M>>BigInt(16)));
-        STAPEL[ST-3]=Number("0x"+((M&BigInt(0xFFFFFFFF00000000))>>32n).toHex0000());
+        STAPEL[ST-3]=Number("0x"+((M&0xFFFFFFFF00000000n)>>32n).toHex0000());
 //alert(STAPEL[ST-3]);
         STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFFFFFF)).toHex0000());
 //alert(STAPEL[ST-2]);
@@ -490,7 +490,7 @@ function FF_STEP() {
       case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
       case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
       case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-      case 0x07: /* + */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1];  ST=ST-1; break;
+      case 0x07: /* M+ */ STAPEL[ST-2]=(STAPEL[ST-2]+STAPEL[ST-1])&0xFFFFFFFF;  ST=ST-1; break;
       case 0x08: /* AND */ STAPEL[ST-2]=STAPEL[ST-2]&STAPEL[ST-1]; ST=ST-1; break;
       case 0x09: /* ! */ switch (STAPEL[ST-1]) {
         case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
@@ -1177,6 +1177,7 @@ START
 0A 2F MLIT MCODE 4-
 2 2 M* DUP M* BASE !           ( HEX )
 ( DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
+HERE DPMERK !
 </sekt>
 
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
