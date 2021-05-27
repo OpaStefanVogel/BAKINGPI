@@ -292,8 +292,8 @@ var x=LFA;
 
 while (RAMB100000[LFA]!=0) {x=LFA; LFA=LFA+RAMB100000[LFA]; RAMB100000[x]=RAMB100000[x]*4}
 //in T LFA=0x100000+4*LFA setzen
-RAMB100000[0x66A]=0xA000002E; //4+ statt 1+
-RAMB100000[0x66E]=0xA000002E; //4+ statt 1+
+RAMB100000[0x66A]=0xA000002E; //4+ statt 1+ in FIND
+RAMB100000[0x66E]=0xA000002E; //4+ statt 1+ in FIND
 RAMB100000[0x69F]=0x0C; //in LCFA 0C M+ statt 3 M+
 
 //0x34C : HG. 8 BEGIN SWAP SHL16 DIG EMIT SWAP 1 M- DUP 0= UNTIL 2DROP ;
@@ -315,21 +315,23 @@ RAMB100000[0x358]=0xA0000003; // RET
 
 //RAMB100000[0x324]=0xA0000002; // U*
 
-RAMB100000[0x461]=0xA000002E; //4+ statt 1+ in '
+RAMB100000[0x461]=0xA000002E; //4+ statt 1+ in Tik
 RAMB100000[0x303]=0x4; // 4 DP +! statt 1 in : ,
 RAMB100000[0x048]=0x10000000; // 10000000 * statt 1000 * in : MLIT
+
+RAMB100000[0x20F]=0x10000000; // in XSETBIT
+RAMB100000[0x215]=0x0FFFFFFF; // auch in XSETBIT
+RAMB100000[0x225]=0xA000002E; // 4+ in BRANCH,
+RAMB100000[0x230]=0xA000002E; // 4+ in 0BRANCH,
+RAMB100000[0x24D]=0x04;       // 4 ALLOT in IF
+RAMB100000[0x25B]=0xA000002F; // 4- in END_IF
+RAMB100000[0x262]=0x04;       // 4 ALLOT in ELSE
 
 
 //ab 0x34C
 //  x"435E",x"A003",x"FFFA",x"33B6",x"0003",x"4781",x"0008",x"B412",x"4324",x"432E",x"431D",x"B412",x"0001",x"4844",x"B501",x"A00D", -- 0850-085F
 //  x"9FF6",x"B200",x"A003",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000",x"0000", -- 0860-086F
 ok
-
-function Display(RAM) {
-  var Text="";
-  for (var i=0;i<RAM.length;i++) Text=Text+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
-  document.getElementById("aktuell.txt").value=Text;
-  }
 
   </script>
 <script>
@@ -344,12 +346,19 @@ var Logtext="";
 var EText="";
 var STARTSTEP=0;
 var ENDSTEP=0;
+
 Number.prototype.toHex0000=function() {
   if (0<=this&&this<0x10000) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
 BigInt.prototype.toHex0000=function() {
   if (0n<=this&&this<0x10000n) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
+
+function Display(RAM) {
+  Logtext="";
+  for (var i=0;i<RAM.length;i++) Logtext=Logtext+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
+  document.getElementById("aktuell.txt").value=Logtext;
+  }
 
 //alert((0x10000000>>>2).toHex0000());
 //alert((0x100000064n>>BigInt(2)).toHex0000());
@@ -538,6 +547,7 @@ function FF_STEP() {
       case 0x2C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
       case 0x2D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
       case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
+      case 0x2F: /* 4- */ STAPEL[ST-1]=STAPEL[ST-1]-4; break;
       default: alert(PD.toHex0000()); Startarray=[]; return; break;
       } break;
     case 0xB: switch (PD&0xFFF) {
@@ -654,7 +664,7 @@ function Interpretiere_Startarray() {
   }
 
 function Kopiere(Code) {
-  document.getElementById("aktuell.txt").firstChild.nodeValue=document.getElementById(Code).firstChild.nodeValue;
+  document.getElementById("aktuell.txt").value=document.getElementById(Code).firstChild.nodeValue;
   }
 
   </script>
@@ -1162,8 +1172,11 @@ START
 
 <sekt inhalt="Anfangszustand so herstellen wie zum Recompilieren benötigt">
 ( zuerst alles Notwendige wieder auf Ausgangszustand schalten )
+0A 04 MLIT MCODE KOOP
+0A 2E MLIT MCODE 4+
+0A 2F MLIT MCODE 4-
 2 2 M* DUP M* BASE !           ( HEX )
-DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
+( DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
 </sekt>
 
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
@@ -1171,7 +1184,7 @@ IMMEDIATE: ( 29 WORD 2DROP ;
 IMMEDIATE: { 0 STAT ! ; ( war ursprünglich mal [ )  
 : } 1 STAT ! ;
 IMMEDIATE: COMPILE 20 WORD FIND LCFA DROP COMPILE, ;
-: MLIT ( a b -- 1000*a+b ) SWAP 1000 U* SWAP DROP ;
+: MLIT ( a b -- 1000*a+b ) SWAP 10000000 U* SWAP DROP ;
 : ABS DUP 0LT IF MINUS END_IF ;
 : LIT, ( a -- ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
 COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
@@ -1233,6 +1246,7 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0A 007 MLIT MCODE M+
 0A 009 MLIT MCODE !
 0A 00A MLIT MCODE @
+
 0B 412 MLIT MCODE SWAP
 0B 502 MLIT MCODE OVER
 0B 501 MLIT MCODE DUP
@@ -1261,16 +1275,16 @@ COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
 : JRBIT 8 ;
 : JR0BIT 9 ;
 ( **** : XSETBT 1000 M* SWAP 0FFF AND OR ;
-: XSETBT 0 1000 ROT U* SWAP DROP SWAP 0FFF AND OR ;
+: XSETBT 0 10000000 ROT U* SWAP DROP SWAP 0FFFFFFF AND OR ;
 : ALLOT DP +! ;
-: BRANCH, HERE 1+ M- JRBIT XSETBT , ;
-: 0BRANCH, HERE 1+ M- JR0BIT XSETBT , ;
+: BRANCH, HERE 4+ M- JRBIT XSETBT , ;
+: 0BRANCH, HERE 4+ M- JR0BIT XSETBT , ;
 IMMEDIATE: BEGIN HERE ;
 IMMEDIATE: AGAIN BRANCH, ;
 IMMEDIATE: UNTIL 0BRANCH, ;
-IMMEDIATE: IF JR0BIT 1 ALLOT HERE ;
-IMMEDIATE: END_IF HERE OVER M- ROT XSETBT SWAP 1- ! ;
-IMMEDIATE: ELSE 1 ALLOT COMPILE END_IF JRBIT HERE ;
+IMMEDIATE: IF JR0BIT 4 ALLOT HERE ;
+IMMEDIATE: END_IF HERE OVER M- ROT XSETBT SWAP 4- ! ;
+IMMEDIATE: ELSE 4 ALLOT COMPILE END_IF JRBIT HERE ;
 IMMEDIATE: WHILE COMPILE IF ;
 IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 </sekt>
@@ -1290,9 +1304,9 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : R> RP @ 1+ @ RP @ 1+ RP 2DUP @ @ SWAP ! ! ;
 : >R RP @ DUP 1- RP 2DUP @ @ SWAP DUP 1- RP ! ! ! ! ; 
 : R RP @ 1+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
-: , DP @ ! 1 DP +! ;
+: , DP @ ! 4 DP +! ;
 : EXECUTE PC ! ;
-: KEY BEGIN ( NOOP ) { A004 , } KEYCODE2 NOT WHILE DROP REPEAT ;
+: KEY BEGIN ( NOOP ) KOOP KEYCODE2 NOT WHILE DROP REPEAT ;
 : EMIT ' EMITCODE EXECUTE ;
 : SHL16 ( a -- t a' )
   0 SWAP 10 U* SWAP ; ( t a' = SHL a )
@@ -1303,8 +1317,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
     SWAP DUP C@ EMIT 1+
     SWAP 1- REPEAT
   2DROP ;
-: HG. SHL16 DIG EMIT SHL16 DIG EMIT SHL16 DIG EMIT
-  SHL16 DIG EMIT DROP ;
+: HG. 8 BEGIN SWAP SHL16 DIG EMIT SWAP 1 M- DUP 0= UNTIL 2DROP ;
 : M. HG. 20 EMIT ;
 : M? @ M. ;
 : CR 
@@ -1344,7 +1357,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 
 <sekt inhalt="alles zu KEY">
 IMMEDIATE: ' ( /name/ -- -- pfa ) 
-  20 WORD FIND LCFA DROP 1+ STAT @ IF LIT, END_IF ; 
+  20 WORD FIND LCFA DROP 4+ STAT @ IF LIT, END_IF ; 
 
 : INCR4 ( adr -- )
   DUP @ 1+
@@ -1484,8 +1497,8 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   LFA @ 
   SMUDGEBIT @ IF DUP @ M+ END_IF
   BEGIN
-    DUP 1+ DUP @ ( lfa nfa adr )
-    SWAP 1+ @ ( lfa adr n1 )
+    DUP 4+ DUP @ ( lfa nfa adr )
+    SWAP 4+ @ ( lfa adr n1 )
     ( 2DUP CR B. 2DUP TYPE
     ( BEGIN 2DUP M+ 1 M- C@ 0= WHILE 1 M- REPEAT ( ??? momentan nicht )
     R> R> 2DUP >R >R ( 0 lfa adr1 n1 adr2 n2 )
@@ -1498,7 +1511,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   ( OVER LFA @ SWAP LT IF M." *" OVER M. LFA @ M. END_IF ( vref wenn gebraucht )
   ;
 
-: LCFA ( lfa r -- cfa r ) SWAP 3 M+ SWAP ;
+: LCFA ( lfa r -- cfa r ) SWAP 0C M+ SWAP ;
 
 : COMPILE, ( adr -- ) 04 000 MLIT OR , ;
 
@@ -1682,6 +1695,7 @@ PIN3HIGH
 : T 
   10 07DD 4 * UI LFA ! ( LFA neu )
   10 083A 4 * UI DP ! ( DP neu )
+  10 0020 4 * UI DPMERK ! ( DPMERK neu )
   100000EXECUTE
   ;
 ( 0 0123 10 0000 2!
