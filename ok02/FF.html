@@ -675,6 +675,7 @@ function Kopiere(Code) {
 <div><span id="Stapel" style="color:blue; border:none"> </span>
   <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> 
   <button onclick='if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)' style="background-color:aqua;">Enter</button> 
+  <button onclick='FF_CONTINUE("\u001B")' style="background-color:pink">Escape</button> 
   <button onclick='Kopiere("FFCode")'>FFCode</button> 
   <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> 
   <button onclick='Kopiere("FFINIT1RPIB.txt")'>FFINIT1RPIB.txt</button> 
@@ -1731,6 +1732,6 @@ GPIOBASE @ 34 N+ @ N.
 0 GPIOBASE @ 1C N+ ! ( PIN3HIGH )
 GPIOBASE @ 1C N+ @ N.
 GPIOBASE @ 34 N+ @ N.
-</script
+</script>
   </body>
 </html>
