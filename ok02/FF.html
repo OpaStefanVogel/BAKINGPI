@@ -350,13 +350,17 @@ var ENDSTEP=0;
 Number.prototype.toHex0000=function() {
   if (0<=this&&this<0x10000) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
+Number.prototype.toHexx0000=function() {
+  if (0<=this) return "0x"+("00000000"+this.toString(16).toUpperCase()).slice(-8);
+    else return "0x"+("FFFFFFFF"+(this+2**32).toString(16).toUpperCase()).slice(-8)}
 BigInt.prototype.toHex0000=function() {
   if (0n<=this&&this<0x10000n) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
 
 function Display(RAM) {
   Logtext="";
-  for (var i=0;i<RAM.length;i++) Logtext=Logtext+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
+//  for (var i=0;i<RAM.length;i++) Logtext=Logtext+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
+  for (var i=0;i<RAM.length;i++) Logtext=Logtext+"  .word  "+RAM[i].toHexx0000()+" //"+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
   document.getElementById("aktuell.txt").value=Logtext;
   }
 
@@ -1177,7 +1181,7 @@ START
 0A 2E MLIT MCODE 4+
 0A 2F MLIT MCODE 4-
 2 2 M* DUP M* BASE !           ( HEX )
-( DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
+DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
 HERE DPMERK !
 </sekt>
 
@@ -1319,7 +1323,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
     SWAP DUP C@ EMIT 1+
     SWAP 1- REPEAT
   2DROP ;
-: HG. 8 BEGIN SWAP SHL16 DIG EMIT SWAP 1 M- DUP 0= UNTIL 2DROP ;
+: HG. 8 BEGIN SWAP SHL16 DIG EMIT SWAP 1 M- DUP 0= UNTIL 2DROP NOOP ; ( NOOP kann wieder weg wenn neue Version )
 : M. HG. 20 EMIT ;
 : M? @ M. ;
 : CR 
