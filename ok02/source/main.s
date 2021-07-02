@@ -83,6 +83,17 @@
 //83 2900-2FFF auf (*4+10000) 1A400-1BFFF
 //84 UI IU und @ ! ab 4000 direkt
 //85 RAM100000 vollständig, aus FF.html
+
+//N Neustart ab 4000
+//R Neuatart ab 8000
+//L Laden auf 4000
+//P Laden auf 8000
+//M Laden benden
+//S Step
+//# continue
+//^B break
+
+
 /******************************************************************************
 *	main.s
 *	 by Alex Chadwick
@@ -2599,6 +2610,106 @@ B     STEPF_32
 B     STEPF_32
 B     STEPF_32
 B     STEPF_32
+
+//#########################################################################################
+//  else switch (PD>>>28) {
+//    case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x8: if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000; break;
+//    case 0x9: if (STAPEL[ST-1]==0) {if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000} ST=ST-1; break;
+//    case 0xA: switch (PD&0xFF) {
+//      case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
+//      case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
+//      case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
+//        //alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
+//        var M=(BigInt(STAPEL[ST-3])&0xFFFFFFFFn)+(BigInt(STAPEL[ST-2])&0xFFFFFFFFn)*(BigInt(STAPEL[ST-1])&0xFFFFFFFFn); 
+////alert(M);alert(">>>"+(M>>BigInt(16)));
+//        STAPEL[ST-3]=Number("0x"+((M&0xFFFFFFFF00000000n)>>32n).toHex0000());
+////alert(STAPEL[ST-3]);
+//        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFFFFFF)).toHex0000());
+////alert(STAPEL[ST-2]);
+//        ST=ST-1;
+//        break; 
+//      case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
+//      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
+//      case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
+//      case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
+//      case 0x07: /* M+ */ STAPEL[ST-2]=(STAPEL[ST-2]+STAPEL[ST-1])&0xFFFFFFFF;  ST=ST-1; break;
+//      case 0x08: /* AND */ STAPEL[ST-2]=STAPEL[ST-2]&STAPEL[ST-1]; ST=ST-1; break;
+//      case 0x09: /* ! */ switch (STAPEL[ST-1]) {
+//        case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
+//        case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
+//        case 0x2801: ST=STAPEL[ST-2]; break;
+//        default: switch (STAPEL[ST-1]>>>16) {
+//          case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+//          case 0x0010: 
+//            if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
+//            RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+//          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
+//          }
+//        } break;
+//      case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
+//        case 0x2803: STAPEL[ST-1]=PC; break;
+//        case 0x2802: STAPEL[ST-1]=RP; break;
+//        case 0x2801: STAPEL[ST-1]=ST; break;
+//        default: switch (STAPEL[ST-1]>>>16) {
+//          case 0x2020: STAPEL[ST-1]=RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+//          case 0x0010:
+//            if (STAPEL[ST-1]&0x3) alert("@ PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
+//            STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+//          default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
+//          }
+//        } break;
+//      case 0x0B: /* NOT */ STAPEL[ST-1]=-1-STAPEL[ST-1]; break;
+//      case 0x0C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
+//      case 0x0D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
+//      case 0x0E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
+//      case 0x0F: /*  0< */ if (STAPEL[ST-1]<0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
+//      case 0x21: /* D+ */ 
+//        var A=(STAPEL[ST-4]<<16)+STAPEL[ST-3]; 
+//        var B=(STAPEL[ST-2]<<16)+STAPEL[ST-1]; 
+//        var C=A+B;
+//        STAPEL[ST-4]=C>>>16;
+//        STAPEL[ST-3]=C&0xFFFF;
+//        ST=ST-2; 
+//        break;
+//      case 0x27: /* N+ */ STAPEL[ST-2]=STAPEL[ST-2]+STAPEL[ST-1]; ST=ST-1; break;
+//      case 0x29: /* 2! */ switch (STAPEL[ST-2]) {
+//        case 0x2020: RAMB20200000[STAPEL[ST-1]]=STAPEL[ST-3]+0x10000*STAPEL[ST-4]; ST=ST-4; break;
+//        default: alert(PD.toHex0000()); Startarray=[]; return; 
+//        } break;
+//      case 0x2A: /* 2@ */ switch (STAPEL[ST-2]) {
+//        case 0x2020: alert(RAMB20200000);STAPEL[ST-2]=(RAMB20200000[STAPEL[ST-1]]&0xFFFF0000)>>>16; STAPEL[ST-1]=RAMB20200000[STAPEL[ST-1]]&0xFFFF; break;
+//        case 0x0010: //alert(RAMB100000[STAPEL[ST-1]/4].toHex0000());
+//          if (STAPEL[ST-1]&0x3) alert(STAPEL[ST-1].toHex0000());
+//          STAPEL[ST-2]=(RAMB100000[STAPEL[ST-1]/4]&0xFFFF0000)>>>16; 
+//          STAPEL[ST-1]=RAMB100000[STAPEL[ST-1]/4]&0xFFFF; 
+//          break;
+//        default: alert(PD.toHex0000()); Startarray=[]; return; 
+//        } break;
+//      case 0x2B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; break;
+//      case 0x2C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
+//      case 0x2D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
+//      case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
+//      case 0x2F: /* 4- */ STAPEL[ST-1]=STAPEL[ST-1]-4; break;
+//      default: alert(PD.toHex0000()); Startarray=[]; return; break;
+//      } break;
+//    case 0xB: switch (PD&0xFFF) {
+//      case 0x200: /* 2DROP */ ST=ST-2; break;
+//      case 0x300: /* DROP */ ST=ST-1; break;
+//      case 0x412: /* SWAP */ PD=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+//      case 0x434: /*  ROT */ PD=STAPEL[ST-3]; STAPEL[ST-3]=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+//      case 0x43C: /* 2SWAP */ PD=[STAPEL[ST-4],STAPEL[ST-3]]; STAPEL[ST-4]=STAPEL[ST-2]; STAPEL[ST-3]=STAPEL[ST-1]; STAPEL[ST-2]=PD[0]; STAPEL[ST-1]=PD[1]; break;
+//      case 0x501: /*  DUP */ STAPEL[ST]=STAPEL[ST-1]; ST=ST+1; break;
+//      case 0x502: /* OVER */ STAPEL[ST]=STAPEL[ST-2]; ST=ST+1; break;
+//      case 0x603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-2]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
+//      case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
+//      } break;
+//    default: /*alert("num="+(PD&0X0FFFFFFF).toHex0000());*/
+//      STAPEL[ST]=PD; ST=ST+1;
+//      break;
 
 STEP0123_32:
 STMEA R12!,{R0} //32 ( --> n )
