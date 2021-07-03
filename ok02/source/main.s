@@ -82,7 +82,8 @@
 //82 RP=RP-4 und 2F80-2FFF auf (*4+10000) 1BE00-1BFFF
 //83 2900-2FFF auf (*4+10000) 1A400-1BFFF
 //84 UI IU und @ ! ab 4000 direkt
-//85 RAM100000 vollständig, aus FF.html
+//85 RAM100000 vollständig, aus FF.html, von N aus laden weil sonst zu groß
+//86 STEP4_32
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -2613,7 +2614,6 @@ B     STEPF_32
 
 //#########################################################################################
 //  else switch (PD>>>28) {
-//    case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
@@ -2716,7 +2716,19 @@ STMEA R12!,{R0} //32 ( --> n )
 MOV   R9,#1
 B     STEPEND
 
-STEP4_32:
+STEP4_32: //86
+//    case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//SUB   R11,R11,#0X10000 //66
+//LSR   R2,R11,#1
+//STR   R2,[R10,#-4]! //45
+//SUB   R11,R0,#0X4000
+//ADD   R11,R11,R11
+//ADD   R11,R11,#0X10000 //66
+//B     STEPEND
+STR   R11,[R10,#-4]!
+SUB   R11,R0,#0X40000000
+B     STEPEND
+
 STEP5_32:
 STEP6_32:
 STEP7_32:
@@ -2786,9 +2798,12 @@ STEPA002_32:
 STEPA003_32:
 //( 0A 003 MLIT MCODE RETURN )
 LDR   R2,[R10],#4 //44
+CMP   R2,#0X100000
+MOVGE R11,R2
+BGE   STEPEND
 LSL   R11,R2,#1
 ADD   R11,R11,#0X10000 //66
-MOV   R9,#1
+MOV   R9,#0
 B     STEPEND
 
 STEPA004_32:
@@ -2826,8 +2841,12 @@ STMFD SP!,{R0-R7,LR}
 BL RAM100000Decode
 LDMFD SP!,{R0-R7,PC}
 RAM100000:
-  .word 0x00000123 //123
-  .word 0xA0000003 //RET
+  .word 0x00000123 //00 
+  .word 0x00000234 //04
+  .word 0x40100010 //08 
+  .word 0xA0000003 //0C
+  .word 0x00000345 //10
+  .word 0xA0000003 //14
 
 
 //85
