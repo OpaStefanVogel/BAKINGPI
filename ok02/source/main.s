@@ -84,7 +84,8 @@
 //84 UI IU und @ ! ab 4000 direkt
 //85 RAM100000 vollständig, aus FF.html, von N aus laden weil sonst zu groß
 //86 STEP4_32, STEP8_32, STEP9_32, STEPF_32
-//87 MINUS EMITCODE M+ AND NOT 0= ORR 0<  
+//87 MINUS EMITCODE M+ AND NOT 0= ORR 0< 
+//88 @ und ! unverändert 
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -2632,30 +2633,6 @@ B     STEPF_32
 //        break; 
 //      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
 //      case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-//      case 0x09: /* ! */ switch (STAPEL[ST-1]) {
-//        case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
-//        case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
-//        case 0x2801: ST=STAPEL[ST-2]; break;
-//        default: switch (STAPEL[ST-1]>>>16) {
-//          case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
-//          case 0x0010: 
-//            if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-//            RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
-//          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
-//          }
-//        } break;
-//      case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
-//        case 0x2803: STAPEL[ST-1]=PC; break;
-//        case 0x2802: STAPEL[ST-1]=RP; break;
-//        case 0x2801: STAPEL[ST-1]=ST; break;
-//        default: switch (STAPEL[ST-1]>>>16) {
-//          case 0x2020: STAPEL[ST-1]=RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]; break;
-//          case 0x0010:
-//            if (STAPEL[ST-1]&0x3) alert("@ PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-//            STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
-//          default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
-//          }
-//        } break;
 //      case 0x0C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x21: /* D+ */ 
 //        var A=(STAPEL[ST-4]<<16)+STAPEL[ST-3]; 
@@ -2682,8 +2659,6 @@ B     STEPF_32
 //      case 0x2B: /* 100000 EXECUTE */ RP=RP-1; RAMB0000[RP]=PC; PC=0X100000; break;
 //      case 0x2C: /* UI */ STAPEL[ST-2]=STAPEL[ST-2]*0x10000+STAPEL[ST-1]; ST=ST-1; break;
 //      case 0x2D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
-//      case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
-//      case 0x2F: /* 4- */ STAPEL[ST-1]=STAPEL[ST-1]-4; break;
 //      default: alert(PD.toHex0000()); Startarray=[]; return; break;
 //      } break;
 //    case 0xB: switch (PD&0xFFF) {
@@ -2808,8 +2783,8 @@ B     STEPA02A_32
 B     STEPA00B_32
 B     STEPA00C_32
 B     STEPA00D_32
-B     STEPA00E_32
-B     STEPA00F_32
+B     STEPA02E_32
+B     STEPA02F_32
 
 
 STEPA000_32: //87
@@ -2864,8 +2839,35 @@ AND   R0,R0,R1
 STMEA R12!,{R0} // ( --> a_and_b )
 B     STEPEND
 
-STEPA009_32:
-STEPA00A_32:
+STEPA009_32: //88
+//      case 0x09: /* ! */ switch (STAPEL[ST-1]) {
+//        case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
+//        case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
+//        case 0x2801: ST=STAPEL[ST-2]; break;
+//        default: switch (STAPEL[ST-1]>>>16) {
+//          case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+//          case 0x0010: 
+//            if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
+//            RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
+//          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
+//          }
+//        } break;
+B STEPA009
+
+STEPA00A_32: //88
+//      case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
+//        case 0x2803: STAPEL[ST-1]=PC; break;
+//        case 0x2802: STAPEL[ST-1]=RP; break;
+//        case 0x2801: STAPEL[ST-1]=ST; break;
+//        default: switch (STAPEL[ST-1]>>>16) {
+//          case 0x2020: STAPEL[ST-1]=RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+//          case 0x0010:
+//            if (STAPEL[ST-1]&0x3) alert("@ PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
+//            STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
+//          default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
+//          }
+//        } break;
+B STEPA00A
 
 STEPA00B_32: //87
 //      case 0x0B: /* NOT */ STAPEL[ST-1]=-1-STAPEL[ST-1]; break;
@@ -2908,6 +2910,20 @@ B     STEPEND
 STEPA021_32: //D+
 STEPA029_32:
 STEPA02A_32:
+
+STEPA02E_32:
+//      case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
+LDMEA R12!,{R0} // ( a --> )
+ADD   R0,R0,#4
+STMEA R12!,{R0} // ( --> a+4 )
+B     STEPEND
+
+STEPA02F_32:
+//      case 0x2F: /* 4- */ STAPEL[ST-1]=STAPEL[ST-1]-4; break;
+LDMEA R12!,{R0} // ( a --> )
+SUB   R0,R0,#4
+STMEA R12!,{R0} // ( --> a-4 )
+B     STEPEND
 
 STEPB_32:
 STEPF_32:
@@ -2961,7 +2977,16 @@ RAM100000:
   .word 0xA000000F //3A 0<
   .word 0xF0008888 //3C
   .word 0xA000000F //3E 0<
-  .word 0x8FFFFF94 //40
+  .word 0x00100000 //40
+  .word 0xA000000A //42 @
+  .word 0x00000321 //44
+  .word 0x00100000 //46
+  .word 0xA0000009 //48 !
+  .word 0x00100000 //4A
+  .word 0xA000000A //4C @
+  .word 0xA000002E //4E 4+
+  .word 0xA000002F //50 4-
+  .word 0x8FFFFF70 //52
 
 
 //85
