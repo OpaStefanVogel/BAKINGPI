@@ -85,7 +85,8 @@
 //85 RAM100000 vollständig, aus FF.html, von N aus laden weil sonst zu groß
 //86 STEP4_32, STEP8_32, STEP9_32, STEPF_32
 //87 MINUS EMITCODE M+ AND NOT 0= ORR 0< 
-//88 @ und ! unverändert 
+//88 @ und ! unverändert, 4+ 4-
+//89 STEPB_32 unverändert wie STEPB 
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -2661,17 +2662,6 @@ B     STEPF_32
 //      case 0x2D: /* IU */ STAPEL[ST]=STAPEL[ST-1]&0xFFFF; STAPEL[ST-1]=STAPEL[ST-1]>>>16; ST=ST+1; break;
 //      default: alert(PD.toHex0000()); Startarray=[]; return; break;
 //      } break;
-//    case 0xB: switch (PD&0xFFF) {
-//      case 0x200: /* 2DROP */ ST=ST-2; break;
-//      case 0x300: /* DROP */ ST=ST-1; break;
-//      case 0x412: /* SWAP */ PD=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
-//      case 0x434: /*  ROT */ PD=STAPEL[ST-3]; STAPEL[ST-3]=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
-//      case 0x43C: /* 2SWAP */ PD=[STAPEL[ST-4],STAPEL[ST-3]]; STAPEL[ST-4]=STAPEL[ST-2]; STAPEL[ST-3]=STAPEL[ST-1]; STAPEL[ST-2]=PD[0]; STAPEL[ST-1]=PD[1]; break;
-//      case 0x501: /*  DUP */ STAPEL[ST]=STAPEL[ST-1]; ST=ST+1; break;
-//      case 0x502: /* OVER */ STAPEL[ST]=STAPEL[ST-2]; ST=ST+1; break;
-//      case 0x603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-2]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
-//      case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
-//      } break;
 //    default: /*alert("num="+(PD&0X0FFFFFFF).toHex0000());*/
 //      STAPEL[ST]=PD; ST=ST+1;
 //      break;
@@ -2911,21 +2901,34 @@ STEPA021_32: //D+
 STEPA029_32:
 STEPA02A_32:
 
-STEPA02E_32:
+STEPA02E_32: //88
 //      case 0x2E: /* 4+ */ STAPEL[ST-1]=STAPEL[ST-1]+4; break;
 LDMEA R12!,{R0} // ( a --> )
 ADD   R0,R0,#4
 STMEA R12!,{R0} // ( --> a+4 )
 B     STEPEND
 
-STEPA02F_32:
+STEPA02F_32: //88
 //      case 0x2F: /* 4- */ STAPEL[ST-1]=STAPEL[ST-1]-4; break;
 LDMEA R12!,{R0} // ( a --> )
 SUB   R0,R0,#4
 STMEA R12!,{R0} // ( --> a-4 )
 B     STEPEND
 
-STEPB_32:
+STEPB_32: //89
+//    case 0xB: switch (PD&0xFFF) {
+//      case 0x200: /* 2DROP */ ST=ST-2; break;
+//      case 0x300: /* DROP */ ST=ST-1; break;
+//      case 0x412: /* SWAP */ PD=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+//      case 0x434: /*  ROT */ PD=STAPEL[ST-3]; STAPEL[ST-3]=STAPEL[ST-2]; STAPEL[ST-2]=STAPEL[ST-1]; STAPEL[ST-1]=PD; break;
+//      case 0x43C: /* 2SWAP */ PD=[STAPEL[ST-4],STAPEL[ST-3]]; STAPEL[ST-4]=STAPEL[ST-2]; STAPEL[ST-3]=STAPEL[ST-1]; STAPEL[ST-2]=PD[0]; STAPEL[ST-1]=PD[1]; break;
+//      case 0x501: /*  DUP */ STAPEL[ST]=STAPEL[ST-1]; ST=ST+1; break;
+//      case 0x502: /* OVER */ STAPEL[ST]=STAPEL[ST-2]; ST=ST+1; break;
+//      case 0x603: /* 2DUP */ STAPEL[ST]=STAPEL[ST-2]; STAPEL[ST+1]=STAPEL[ST-1]; ST=ST+2; break;
+//      case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
+//      } break;
+B STEPB
+
 STEPF_32:
 B   STEP0123_32
 
@@ -2981,12 +2984,20 @@ RAM100000:
   .word 0xA000000A //42 @
   .word 0x00000321 //44
   .word 0x00100000 //46
-  .word 0xA0000009 //48 !
+  .word 0xA0000009 //48 !S
   .word 0x00100000 //4A
   .word 0xA000000A //4C @
   .word 0xA000002E //4E 4+
   .word 0xA000002F //50 4-
-  .word 0x8FFFFF70 //52
+  .word 0xB0000412 //52 SWAP
+  .word 0xB0000502 //54 OVER
+  .word 0xB0000501 //56 DUP
+  .word 0xB0000300 //58 DROP
+  .word 0xB000043C //5A 2SWAP
+  .word 0xB000060C //5C 2OVER
+  .word 0xB0000603 //5E 2DUP
+  .word 0xB0000200 //60 2DROP
+  .word 0x8FFFFF50 //62
 
 
 //85
