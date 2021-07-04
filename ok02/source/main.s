@@ -2617,7 +2617,6 @@ B     STEPF_32
 //    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
-//    case 0x9: if (STAPEL[ST-1]==0) {if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000} ST=ST-1; break;
 //    case 0xA: switch (PD&0xFF) {
 //      case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
 //      case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
@@ -2749,6 +2748,20 @@ ADDGE R11,R11,#0XF0000000
 B     STEPEND
 
 STEP9_32:
+//    case 0x9: if (STAPEL[ST-1]==0) {if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000} ST=ST-1; break;
+//LDMEA R12!,{R2}
+//CMP   R2,#0
+//BNE   STEPEND
+//SUB   R0,R0,#0X9000
+//.. weiter wie STEP8_32
+LDMEA R12!,{R2}
+CMP   R2,#0
+BNE   STEPEND
+SUB   R0,R0,#0X90000000
+ADD   R11,R11,R0
+CMP   R0,#0X08000000
+ADDGE R11,R11,#0XF0000000
+B     STEPEND
 
 STEPA_32:
 AND   R1,R0,#0X00FF
@@ -2858,14 +2871,20 @@ LDMFD SP!,{R0-R7,PC}
 RAM100000:
   .word 0x00000123 //00 
   .word 0x00000234 //02
-  .word 0x40100010 //04 
+  .word 0x40100010 //04 CR
   .word 0xA0000003 //06
   .word 0x00000345 //08
-  .word 0x80000008 //0A
+  .word 0x80000008 //0A JR
   .word 0x00000567 //0C
   .word 0xA0000003 //0E
   .word 0x00000456 //10
-  .word 0x8FFFFFF0 //12
+  .word 0x90000004 //12 456 JR0
+  .word 0x00000567 //14
+  .word 0x00000000 //16
+  .word 0x90000004 //18 000 JR0
+  .word 0x00000765 //20
+  .word 0x00000678 //22
+  .word 0x8FFFFFD8 //24
 
 
 //85
