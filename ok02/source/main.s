@@ -83,7 +83,7 @@
 //83 2900-2FFF auf (*4+10000) 1A400-1BFFF
 //84 UI IU und @ ! ab 4000 direkt
 //85 RAM100000 vollständig, aus FF.html, von N aus laden weil sonst zu groß
-//86 STEP4_32
+//86 STEP4_32, STEP8_32
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -2617,7 +2617,6 @@ B     STEPF_32
 //    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
-//    case 0x8: if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000; break;
 //    case 0x9: if (STAPEL[ST-1]==0) {if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000} ST=ST-1; break;
 //    case 0xA: switch (PD&0xFF) {
 //      case 0x00: /* MINUS */ STAPEL[ST-1]=-STAPEL[ST-1]; break;
@@ -2732,7 +2731,23 @@ B     STEPEND
 STEP5_32:
 STEP6_32:
 STEP7_32:
+
 STEP8_32:
+//    case 0x8: if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000; break;
+//SUB   R0,R0,#0X8000
+//CMP   R0,#0X0800
+//MVNGE R1,#0
+//LSLGE R1,#12
+//ADDGE R0,R0,R1
+//ADD   R0,R0,R0
+//ADD   R11,R11,R0
+//B     STEPEND
+SUB   R0,R0,#0X80000000
+ADD   R11,R11,R0
+CMP   R0,#0X08000000
+ADDGE R11,R11,#0XF0000000
+B     STEPEND
+
 STEP9_32:
 
 STEPA_32:
@@ -2842,11 +2857,15 @@ BL RAM100000Decode
 LDMFD SP!,{R0-R7,PC}
 RAM100000:
   .word 0x00000123 //00 
-  .word 0x00000234 //04
-  .word 0x40100010 //08 
-  .word 0xA0000003 //0C
-  .word 0x00000345 //10
-  .word 0xA0000003 //14
+  .word 0x00000234 //02
+  .word 0x40100010 //04 
+  .word 0xA0000003 //06
+  .word 0x00000345 //08
+  .word 0x80000008 //0A
+  .word 0x00000567 //0C
+  .word 0xA0000003 //0E
+  .word 0x00000456 //10
+  .word 0x8FFFFFF0 //12
 
 
 //85
