@@ -88,6 +88,7 @@
 //88 @ und ! unverändert, 4+ 4-
 //89 STEPB_32 unverändert wie STEPB
 //90 STEPA004_32=STEPA004 KX
+//91 U*
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -2620,16 +2621,6 @@ B     STEPF_32
 //  else switch (PD>>>28) {
 //    case 0xA: switch (PD&0xFF) {
 //      case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
-//      case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
-//        //alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
-//        var M=(BigInt(STAPEL[ST-3])&0xFFFFFFFFn)+(BigInt(STAPEL[ST-2])&0xFFFFFFFFn)*(BigInt(STAPEL[ST-1])&0xFFFFFFFFn); 
-////alert(M);alert(">>>"+(M>>BigInt(16)));
-//        STAPEL[ST-3]=Number("0x"+((M&0xFFFFFFFF00000000n)>>32n).toHex0000());
-////alert(STAPEL[ST-3]);
-//        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFFFFFF)).toHex0000());
-////alert(STAPEL[ST-2]);
-//        ST=ST-1;
-//        break; 
 //      case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x0C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x21: /* D+ */ 
@@ -2790,7 +2781,37 @@ STMEA R12!,{R0} // ( --> -a )
 B     STEPEND
 
 STEPA001_32:
-STEPA002_32:
+
+STEPA002_32: //91
+//      case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
+//        //alert(STEP.toHex0000()+" "+PD.toHex0000()+" "+STAPEL[ST-3].toHex0000()+" "+STAPEL[ST-2].toHex0000()+" "+STAPEL[ST-1].toHex0000());
+//        var M=(BigInt(STAPEL[ST-3])&0xFFFFFFFFn)+(BigInt(STAPEL[ST-2])&0xFFFFFFFFn)*(BigInt(STAPEL[ST-1])&0xFFFFFFFFn); 
+////alert(M);alert(">>>"+(M>>BigInt(16)));
+//        STAPEL[ST-3]=Number("0x"+((M&0xFFFFFFFF00000000n)>>32n).toHex0000());
+////alert(STAPEL[ST-3]);
+//        STAPEL[ST-2]=Number("0x"+(M&BigInt(0xFFFFFFFF)).toHex0000());
+////alert(STAPEL[ST-2]);
+//        ST=ST-1;
+//        break; 
+//0A 002 MLIT MCODE U*
+//LDMEA R12!,{R0,R1,R2} // ( c b a --> (a*b+c)h (a*b+c)l )
+//MOV   R4,#0X10000
+//SUB   R4,R4,#1
+//AND   R0,R0,R4
+//AND   R1,R1,R4
+//AND   R2,R2,R4
+//MLA   R3,R2,R1,R0
+//LSR   R2,R3,#16
+//STMEA R12!,{R2} // ( --> (a*b+c)h )
+//AND   R3,R3,R4
+//STMEA R12!,{R3} // ( --> (a*b+c)h (a*b+c)l )
+//B     STEPEND
+LDMEA R12!,{R0,R2,R3} // ( c b a --> (a*b+c)h (a*b+c)l )
+MOV   R1,#0
+UMLAL R0,R1,R2,R3     //UMLAL{<cond>}{S} <RdLo>, <RdHi>, <Rm>,  <Rs>
+STMEA R12!,{R1,R0}    // ( --> (a*b+c)h (a*b+c)l )
+B     STEPEND
+
 STEPA003_32:
 //      case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
 //( 0A 003 MLIT MCODE RETURN )
@@ -2996,7 +3017,11 @@ RAM100000:
   .word 0xB000060C //5C 2OVER
   .word 0xB0000603 //5E 2DUP
   .word 0xB0000200 //60 2DROP
-  .word 0x8FFFFF50 //62
+  .word 0x00000001 //62
+  .word 0x23456789 //64
+  .word 0x00000010 //66
+  .word 0xA0000002 //68 U*
+  .word 0x8FFFFF40 //6A
 
 
 //85
