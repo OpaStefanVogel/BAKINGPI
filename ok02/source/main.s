@@ -86,7 +86,8 @@
 //86 STEP4_32, STEP8_32, STEP9_32, STEPF_32
 //87 MINUS EMITCODE M+ AND NOT 0= ORR 0< 
 //88 @ und ! unverändert, 4+ 4-
-//89 STEPB_32 unverändert wie STEPB 
+//89 STEPB_32 unverändert wie STEPB
+//90 STEPA004_32=STEPA004 KX
 
 //N Neustart ab 4000
 //R Neuatart ab 8000
@@ -518,8 +519,8 @@ SPDOT9:
 LDMFD SP!,{R0-R3,PC}
 
 //Speicher
-//original    aktuell                     neu
-//0000-27FF   *2+10000   10000-14FFF
+//original    aktuell                     neu                      1000000
+//0000-27FF   *2+10000   10000-14FFF                               1000000-...
 //2800-28ff   ? ? RP PC
 //2900-2EFF   *2+10000   15010-15DFF      *4+10000   1A400-1BBFF
 //2F00-2F7F   *2+10000   15E00-15EFF      *4+10000   1BC00-1BDFF
@@ -2617,9 +2618,6 @@ B     STEPF_32
 
 //#########################################################################################
 //  else switch (PD>>>28) {
-//    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
-//    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
-//    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //    case 0xA: switch (PD&0xFF) {
 //      case 0x01: /* U+ */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x02: /* U* ( c b a -- (a*b+c)_high (a*b+c)_low ) unsigned */  
@@ -2632,7 +2630,6 @@ B     STEPF_32
 ////alert(STAPEL[ST-2]);
 //        ST=ST-1;
 //        break; 
-//      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
 //      case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x0C: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
 //      case 0x21: /* D+ */ 
@@ -2667,12 +2664,19 @@ B     STEPF_32
 //      break;
 
 STEP0123_32:
+STEPF_32:
 STMEA R12!,{R0} //32 ( --> n )
 MOV   R9,#1
 B     STEPEND
 
 STEP4_32: //86
+STEP5_32:
+STEP6_32:
+STEP7_32:
 //    case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x6: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
+//    case 0x7: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFFFFFF); break;
 //SUB   R11,R11,#0X10000 //66
 //LSR   R2,R11,#1
 //STR   R2,[R10,#-4]! //45
@@ -2683,10 +2687,6 @@ STEP4_32: //86
 STR   R11,[R10,#-4]!
 SUB   R11,R0,#0X40000000
 B     STEPEND
-
-STEP5_32:
-STEP6_32:
-STEP7_32:
 
 STEP8_32:
 //    case 0x8: if ((PD&0x0FFFFFFF)<0x08000000) PC=PC+(PD&0X0FFFFFFF); else PC=PC+(PD&0X0FFFFFFF)-0x10000000; break;
@@ -2803,7 +2803,9 @@ ADD   R11,R11,#0X10000 //66
 MOV   R9,#0
 B     STEPEND
 
-STEPA004_32:
+STEPA004_32: //90
+//      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
+B STEPA004
 
 STEPA005_32: //87
 //      case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
@@ -2928,9 +2930,6 @@ STEPB_32: //89
 //      case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
 //      } break;
 B STEPB
-
-STEPF_32:
-B   STEP0123_32
 
 RAM100000Decode: //37 zu BL RAM2F00Start
 STMFD SP!,{R0-R3,LR}
