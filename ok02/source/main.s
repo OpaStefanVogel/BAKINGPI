@@ -89,15 +89,19 @@
 //89 STEPB_32 unverändert wie STEPB
 //90 STEPA004_32=STEPA004 KX
 //91 U*
+//92 MDOT_32 SPDOT_32
 
+//Tasten bei R9=STEPFLAG=1
 //N Neustart ab 4000
 //R Neuatart ab 8000
 //L Laden auf 4000
 //P Laden auf 8000
 //M Laden benden
 //S Step
-//# continue
-//^B break
+//# und 0 2809 ! continue R9=STEPFLAG=0
+//^B und 1 2809 ! break R9=STEPFLAG=1
+
+//R8=STEPNR, R9=STEPFLAG, R10=RP, R11=PC, R12=SP, R13=sp, R14=lr, R15=pc
 
 
 /******************************************************************************
@@ -494,6 +498,46 @@ STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
 LDMFD SP!,{R0-R3,PC}
 
+MDOT_32: //29 ( w -->  <hex>)
+STMFD SP!,{R0-R3,LR}
+LDMEA R12!,{R0}
+LSR   R1,R0,#0X1C
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X18
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X14
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X10
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X0C
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X08
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X04
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+LSR   R1,R0,#0X00
+STMEA R12!,{R1}
+BL    DIGIT
+BL    EMIT
+MOV   R0,#0X20 
+STMEA R12!,{R0}// ( ' ' )
+BL    EMIT     // ( )
+LDMFD SP!,{R0-R3,PC}
+
 DIGIT: //29 ( b --> c )
 STMFD SP!,{R0,LR}
 LDMEA R12!,{R0}
@@ -507,7 +551,7 @@ LDMFD SP!,{R0,PC}
 SPDOT: //32 ( -->  <hex> <hex> <hex>...)
 STMFD SP!,{R0-R3,LR}
 MOV   R2,R12
-MOV   R1,#0XC000 //RP0
+MOV   R1,#0XC000 //SP0
 SPDOT1:
 CMP   R1,R2
 BEQ   SPDOT9
@@ -517,6 +561,21 @@ BL    MDOT
 ADD   R1,R1,#4
 B     SPDOT1
 SPDOT9:
+LDMFD SP!,{R0-R3,PC}
+
+SPDOT_32: //92 ( -->  <hex> <hex> <hex>...)
+STMFD SP!,{R0-R3,LR}
+MOV   R2,R12
+MOV   R1,#0XC000 //SP0
+SPDOT1_32:
+CMP   R1,R2
+BEQ   SPDOT9_32
+LDR   R0,[R1]
+STMEA R12!,{R0}
+BL    MDOT_32
+ADD   R1,R1,#4
+B     SPDOT1_32
+SPDOT9_32:
 LDMFD SP!,{R0-R3,PC}
 
 //Speicher
@@ -1087,6 +1146,8 @@ BLT   STEPR    //42
 MOV   R0,#0X20 
 STMEA R12!,{R0}// ( ' ' )
 BL    EMIT     // ( )
+CMP   R11,#0X100000  //92
+BGE   STEPDOT_32
 BL    SPDOT
 BL    CR
 STMEA R12!,{R8}// ( nr )
@@ -1103,6 +1164,22 @@ BL    MDOT
 LDRH  R0,[R11]
 STMEA R12!,{R0}// ( [PC] )
 BL    MDOT
+LDMFD SP!,{R0-R7,PC}
+STEPDOT_32:
+BL    SPDOT_32
+BL    CR
+STMEA R12!,{R8}// ( nr )
+BL    MDOT_32
+STMEA R12!,{R10}//58 ( RP )
+BL    MDOT
+LDR   R0,[R10]
+STMEA R12!,{R0} //66 ( [RP] )
+BL    MDOT_32
+STMEA R12!,{R11}// ( PC )
+BL    MDOT_32
+LDR   R0,[R11]
+STMEA R12!,{R0}// ( [PC] )
+BL    MDOT_32
 LDMFD SP!,{R0-R7,PC}
 
 RQ0000Decode: //70//43 zu BL RQ0000Start
