@@ -1177,6 +1177,9 @@ STMEA R12!,{R0} //66 ( [RP] )
 BL    MDOT_32
 STMEA R12!,{R11}// ( PC )
 BL    MDOT_32
+LSR   R0,R11,#2
+STMEA R12!,{R0}// ( PC/4 )
+BL    MDOT
 LDR   R0,[R11]
 STMEA R12!,{R0}// ( [PC] )
 BL    MDOT_32
@@ -2734,7 +2737,7 @@ B     STEPF_32
 STEP0123_32:
 STEPF_32:
 STMEA R12!,{R0} //32 ( --> n )
-MOV   R9,#1
+//MOV   R9,#1
 B     STEPEND
 
 STEP4_32: //86
@@ -2903,11 +2906,13 @@ B     STEPEND
 
 STEPA004_32: //90
 //      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
+//MOV   R9,#1
 B STEPA004
 
 STEPA005_32: //87
 //      case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
 //0A 005 MLIT MCODE EMITCODE
+//MOV   R9,#1
 BL    EMIT        //34 ( c -->  <char> )
 B     STEPEND
 
@@ -3997,7 +4002,8 @@ RAM100000:
   .word  0x00000003 //0C40 0310 0003
   .word  0x40101E04 //0C44 0311 40101E04
   .word  0xA0000004 //0C48 0312 A0000004
-  .word  0x401012B0 //0C4C 0313 401012B0
+//.word  0x401012B0 //0C4C 0313 401012B0
+  .word  0x80000000 //0C4C 0313 80000000
   .word  0xA000000B //0C50 0314 A000000B
   .word  0x90000008 //0C54 0315 90000008
   .word  0xB0000300 //0C58 0316 B0000300
