@@ -2889,7 +2889,9 @@ STEPA002_32: //91
 LDMEA R12!,{R0,R2,R3} // ( c b a --> (a*b+c)h (a*b+c)l )
 MOV   R1,#0
 UMLAL R0,R1,R2,R3     //UMLAL{<cond>}{S} <RdLo>, <RdHi>, <Rm>,  <Rs>
-STMEA R12!,{R1,R0}    // ( --> (a*b+c)h (a*b+c)l )
+STMEA R12!,{R1}    // ( --> (a*b+c)h )
+STMEA R12!,{R0}    // ( --> (a*b+c)h (a*b+c)l )
+//MOV   R9,#1
 B     STEPEND
 
 STEPA003_32:
