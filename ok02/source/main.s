@@ -90,6 +90,7 @@
 //90 STEPA004_32=STEPA004 KX
 //91 U*
 //92 MDOT_32 SPDOT_32
+//93 SP von C000 nach 1C000, Tasten L und N von 0x4000 nach 0x44000
 
 //Tasten bei R9=STEPFLAG=1
 //N Neustart ab 4000
@@ -248,7 +249,7 @@ mov r1,#1
 lsl r1,#2 //6 Bitposition für GPIO2
 mov r7,#0 //7 Anzahl der empfangenen Zeichen
 mov r13,#0xE000  //27
-mov r12,#0xC000 //27 C000 wird auch nochmal in //32 verwendet
+mov r12,#0x1C000 //93 1C000 //27 C000 wird auch nochmal in //32 verwendet
 
 //MOV   R0,#0X20 
 //STMEA R12!,{R0}// ( ' ' )
@@ -264,7 +265,7 @@ BL RAM3000Start //27 eb0004bd
 BL RQ0000Start //68
 BL RAM100000Start //81
 MOV R11,#0X10000 //66//29 R11=PC, R12=SP
-MOV R10,#0X1C000 //30//45 R10=RP, R11=PC, R12=SP
+MOV R10,#0X1C000 //93 1C000 //30//45 R10=RP, R11=PC, R12=SP
 MOV R8,#0X0     //38 Schrittzähler
 MOV R9,#0X000000  //56//42//43 Breakpoint Schrittzähler
 ADD R9,R9,#0X000  //56//42//43 Breakpoint Schrittzähler
@@ -288,7 +289,7 @@ streq r1,[r0,#28] //3
 str   r6,[r2,#0x40] //7 Zeichen zurückschicken
 loop2b$:
 CMP   R6,#0X4E       //17 if "N"...
-MOVEQ PC,#0X4000     //17 bei "N" Neustart //27 jetzt ab 0XE000 //73 4000
+MOVEQ PC,#0X44000    //93 44000 //17 bei "N" Neustart //27 jetzt ab 0XE000 //73 4000
 CMP   R6,#0X52       //22 if "R"...
 MOVEQ PC,#0X8000     //22 bei "R" Neustart ab 0X8000
 CMP   R6,#0X53       //29 if "S"... dann "STEP"
@@ -301,7 +302,7 @@ mov   r5,#0x4B
 STMEA R12!,{R5}// ( "L" )
 BL    EMIT     // ( )
 cmp   r6,#0x4C      //11 wenn L...
-MOVEQ R2,#0X4000    //22//13//18 direkt Programmstart überschreiben //27//73 jetzt ab 0X4000
+MOVEQ R2,#0X44000   //93 44000 //22//13//18 direkt Programmstart überschreiben //27//73 jetzt ab 0X4000
 bleq  load_hex_dump //11 wenn L, dann ein hex dump laden
 cmp   r6,#0x50      //22 wenn P...
 MOVEQ R2,#0X8000    //22 bei P ab 0X8000
@@ -551,7 +552,7 @@ LDMFD SP!,{R0,PC}
 SPDOT: //32 ( -->  <hex> <hex> <hex>...)
 STMFD SP!,{R0-R3,LR}
 MOV   R2,R12
-MOV   R1,#0XC000 //SP0
+MOV   R1,#0X1C000 //SP0
 SPDOT1:
 CMP   R1,R2
 BEQ   SPDOT9
@@ -566,7 +567,7 @@ LDMFD SP!,{R0-R3,PC}
 SPDOT_32: //92 ( -->  <hex> <hex> <hex>...)
 STMFD SP!,{R0-R3,LR}
 MOV   R2,R12
-MOV   R1,#0XC000 //SP0
+MOV   R1,#0X1C000 //SP0
 SPDOT1_32:
 CMP   R1,R2
 BEQ   SPDOT9_32
