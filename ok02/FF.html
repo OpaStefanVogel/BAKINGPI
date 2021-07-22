@@ -667,10 +667,13 @@ function Interpretiere_Startarray() {
     } //else setTimeout(Interpretiere,3000,"FFINIT1.txt");
   }
 
+function KopiereInput(Code) {
+  document.getElementById("aktuell.txt").value=Code;
+  }
+
 function Kopiere(Code) {
   document.getElementById("aktuell.txt").value=document.getElementById(Code).firstChild.nodeValue;
   }
-
   </script>
   </head>
 
@@ -693,9 +696,9 @@ function Kopiere(Code) {
 
 <div>
   <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> 
-  <button style="background-color:aqua;" onclick='FF_CONTINUE("HERE 100 M+ DPMERK ! 3400 BANF !")'>HERE 100 M+ DPMERK ! 3400 BANF !</button> 
+  <button style="background-color:gray;" onclick='KopiereInput("HERE 100 M+ DPMERK ! 3400 BANF !")'>HERE 100 M+ DPMERK ! 3400 BANF !</button> 
   2x<button onclick='Kopiere("FFINIT1RPIB_NEU.txt")'>FFINIT1RPIB_NEU.txt</button> 
-  <button style="background-color:aqua;" onclick='FF_CONTINUE("100020 DPMERK ! 3000 BANF !")'>100020 DPMERK ! 3000 BANF !</button> 
+  <button style="background-color:gray;" onclick='KopiereInput("100020 DPMERK ! 3000 BANF !")'>100020 DPMERK ! 3000 BANF !</button> 
   noch 2x<button onclick='Kopiere("FFINIT1RPIB_NEU.txt")'>FFINIT1RPIB_NEU.txt</button> 
   <button onclick="Display(RAMB100000)">RAMB100000</button> 
   </div>
@@ -1627,6 +1630,7 @@ START
 <sekt inhalt="Axiome (sie enthalten Vorwärtsreferenzen und sind deshalb separat zusammengefasst)">
 <sekt inhalt="vorab der Ablauf, was tun, wenn diese Axiome geändert werden müssen">
 ( neu mit 4 + statt 4+ und ohne NOOP in HG. )
+( HERE 100 + DPMERK ! 34000 BANF !
 
 ( wenn die Axiome so bleiben wie sie sind, ganz normal 1x hintereinanderweg compilieren )
 ( wenn die Axiome verändert werden sollen, dann )
