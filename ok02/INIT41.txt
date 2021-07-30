@@ -57,7 +57,20 @@ PIN3HIGH
 T
 
 0A 004 MLIT MCODE KEYCODE ( --> char flag )
+A0000019 ' C! !
+A000001A ' C@ !
+A0000019 ' B, 8 M+ !
+( 0A 019 MLIT MCODE C!
+( 0A 01A MLIT MCODE C@
+( danach dann im Terminal vor FFINIT1RPIB_NEU.txt
+( echo > /dev/ttyS0 " HERE 100 M+ DPMERK ! 34000 BANF !" )
 
+100000 C@ M.
+99887751 100000 C!
+11223362 100001 C!
+73 100002 C!
+84 100003 C!
+100000 @ M.
 ( : N. ( a --> <32bit> )
 (   IU SWAP HG. M. ;
 : N. M. ;
