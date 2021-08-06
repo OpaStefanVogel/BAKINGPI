@@ -12,9 +12,10 @@
 ( wenn die Axiome verändert werden sollen, dann )
   ( zuerst RESET und 1x die ursprünglichen Axiome laden )
   ( anschließend die neuen Axiome compilieren, so: )
-    ( HERE 100 + DPMERK ! 3400 BANF ! )
-    ( 2x neue Axiome compilieren <REF1/> )
-    ( 0020 DPMERK ! 3000 BANF ! )
+    ( HERE 100 + DPMERK ! 34000 BANF ! ) 
+      ( aktuell HERE 100 M+ DPMERK ! 34000 DUP BANF ! 2F04C ! 2F04C DUP ' B, ! DUP ' B, 10 M+ ! ' Z, ! 2F054 DUP ' CSP? 8 M+ ! ' CSP! 8 M+ ! 
+    ( 2x neue Axiome compilieren <REF1/> ergibt aktuell 00104100 0002F04C 0003437D )
+    ( 0020 DPMERK ! 3000 BANF ! ) 
     ( 2x neue Axiome compilieren <REF1/> nochmal )
     ( danach alles, was nach den AXIOMEN folgt, 1x compilieren )
   ( bei verzwickten Veränderungen kann es vorkommen, )
@@ -25,6 +26,8 @@
 ( zuerst alles Notwendige wieder auf Ausgangszustand schalten )
 2 2 M* DUP M* BASE !           ( HEX )
 DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
+HERE M.
+BZEIG @ M.
 HERE DPMERK !
 </sekt>
 
@@ -37,18 +40,6 @@ IMMEDIATE: COMPILE 20 WORD FIND LCFA DROP COMPILE, ;
 : ABS DUP 0LT IF MINUS END_IF ;
 : LIT, ( a -- ) DUP ABS 04 000 MLIT AND IF 111 ERROR END_IF , ;
 COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
-</sekt>
-
-<sekt inhalt="ein Abschnitt für die Zeichenketten">
-: B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
-: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
-  BEGIN SWAP DUP @ B, 1+ SWAP 1- DUP 0= UNTIL
-  2DROP 20 B, ; 
-COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
-: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
-22 WORD: " ;
-22 WORD: ." TYPE ;
-( 2F054 CONSTANT CSP
 </sekt>
 
 <sekt inhalt="Konstanten">
@@ -79,7 +70,7 @@ COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
 2F10 CONSTANT STAT 0 STAT !
 2F11 CONSTANT LFA
 ( 2F12 CONSTANT BANF
-2F13 CONSTANT BZEIG
+( 2F13 CONSTANT BZEIG
 ( 2F14 CONSTANT DPMERK
 ( 2F15 CONSTANT CSP
 ( 2F16 CONSTANT DUBIT
@@ -104,8 +95,9 @@ COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
 ( 2F03C CONSTANT DP
 ( 2F040 CONSTANT STAT 0 STAT !
 ( 2F044 CONSTANT LFA
-2F048 CONSTANT BANF 2F12 @ BANF !
-( 2F04C CONSTANT BZEIG
+2F048 CONSTANT BANF 2F12 @ BANF ! 
+BANF @ M. BZEIG M. BZEIG @ M.
+2F04C CONSTANT BZEIG
 2F050 CONSTANT DPMERK 2F14 @ DPMERK !
 2F054 CONSTANT CSP
 2F058 CONSTANT DUBIT 2F16 @ DUBIT !
@@ -220,6 +212,19 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
   DISABLE QUIT ;
 : CSP! SP @ CSP ! ;
 : CSP? SP @ CSP @ M- IF 9 ERROR END_IF ;
+</sekt>
+BZEIG M. BZEIG @ M.
+
+<sekt inhalt="ein Abschnitt für die Zeichenketten">
+: B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
+: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
+  BEGIN SWAP DUP @ B, 1+ SWAP 1- DUP 0= UNTIL
+  2DROP 20 B, ;
+COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
+: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
+22 WORD: " ;
+22 WORD: ." TYPE ;
+( 2F054 CONSTANT CSP
 </sekt>
 
 <sekt inhalt="lokale Variablen">
@@ -451,8 +456,9 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
       END_IF
     AGAIN 
   ;
+</sekt>
 
-
+<sekt inhalt=": START">
 : START ." FORTY-FORTH" CR CR QUIT ;
 
 
@@ -474,7 +480,7 @@ IMMEDIATE: ; 0 STAT ! CSP? RETURN , SMUDGE { SMUDGE } ;
 
 <sekt inhalt="neues Vokabular abkoppeln und Programm neu starten">
 0 DPMERK @ ! ( abkoppeln )
-HERE M. BZEIG M?
+HERE M. BZEIG M. BZEIG @ M.
 
 START
 </sekt>
