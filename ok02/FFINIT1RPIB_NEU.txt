@@ -13,10 +13,10 @@
   ( zuerst RESET und 1x die ursprünglichen Axiome laden )
   ( anschließend die neuen Axiome compilieren, so: )
     ( HERE 100 + DPMERK ! 34000 BANF ! ) 
-      ( aktuell HERE 100 M+ DPMERK ! 34000 DUP BANF ! 2F04C ! 2F04C DUP ' B, ! DUP ' B, 10 M+ ! ' Z, ! 2F054 DUP ' CSP? 8 M+ ! ' CSP! 8 M+ ! 2F040 CONSTANT STAT 0 STAT !
-    ( 2x neue Axiome compilieren <REF1/> ergibt aktuell 00104100 0002F04C 0003437D )
+      ( aktuell  HERE 100 M+ DUP 2F14 ! 2F050 ! 34000 DUP 2F12 ! 2F04C ! 2F04C DUP ' B, ! DUP ' B, 10 M+ ! ' Z, ! 2F054 DUP ' CSP? 8 M+ ! ' CSP! 8 M+ !
+    ( 2x neue Axiome compilieren <REF1/> ergibt aktuell etwa 00104100 0002F04C 0003437D )
     ( 0020 DPMERK ! 3000 BANF ! ) 
-      ( aktuell 100080 DPMERK ! 30000 BANF ! 30000 2F14 ! )
+      ( aktuell 100080 DPMERK ! 30000 BANF ! 30000 2F12 ! )
     ( 2x neue Axiome compilieren <REF1/> nochmal )
     ( danach alles, was nach den AXIOMEN folgt, 1x compilieren )
   ( bei verzwickten Veränderungen kann es vorkommen, )
@@ -99,17 +99,16 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2F038 CONSTANT ERRORNR 0 ERRORNR !
 ( 2F03C CONSTANT DP
 : DP 2F0F ;
-( 2F040 CONSTANT STAT 0 STAT !100080 DPMERK ! 30000 BANF !"
-
+( 2F040 CONSTANT STAT 0 STAT ! 100080 DPMERK ! 30000 BANF !
 : STAT 2F10 ; STAT M. STAT @ M.
 ( 2F044 CONSTANT LFA
 : LFA 2F11 ;
 2F048 CONSTANT BANF ( 2F12 @ BANF ! 
 BANF @ M. BZEIG M. BZEIG @ M.
 2F04C CONSTANT BZEIG
-2F050 CONSTANT DPMERK 2F14 @ DPMERK !
+2F050 CONSTANT DPMERK ( 2F14 @ DPMERK !
 2F054 CONSTANT CSP
-2F058 CONSTANT DUBIT 2F16 @ DUBIT !
+2F058 CONSTANT DUBIT ( 0 DUBIT !
 2F05C CONSTANT LOCALADRESSE 2D000 LOCALADRESSE !
 
 VERSION 1+ CONSTANT VERSION VERSION M.
