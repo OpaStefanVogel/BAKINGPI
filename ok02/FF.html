@@ -256,11 +256,11 @@ var RAMB2F000=[
   , 0x00030071 //0002F018 
   , 0x001002CC //0002F01C 
   , 0x00000010 //0002F020 
-  , 0x00003B00 //0002F024 
-  , 0x00003B00 //0002F028 
-  , 0x00003B16 //0002F02C 
-  , 0x00003B1C //0002F030 
-  , 0x00003B1B //0002F034 
+  , 0x0003B000 //0002F024 vorher 3B00
+  , 0x0003B000 //0002F028 auch
+  , 0x0003B000 //0002F02C auch
+  , 0x0003B000 //0002F030 auch
+  , 0x0003B000 //0002F034 auch
   , 0x00000000 //0002F038 
   , 0x00102680 //0002F03C 
   , 0x00000000 //0002F040 
@@ -3369,6 +3369,17 @@ function FF_STEP() {
       case 0x0D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
       case 0x0E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
       case 0x0F: /*  0< */ if (STAPEL[ST-1]<0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
+      case 0x19: /* C! */ switch (STAPEL[ST-1]>>>16) {
+        case 0x0003:alert(STAPEL[ST-1].toHex0000()+" C! "+RAMB30000.length.toHex0000()+" ST="+ST);
+        var adr=Math.floor((STAPEL[ST-1]&0xFFFF)/4);
+        switch (STAPEL[ST-1]&0x3) {
+          case 0x00: RAMB30000[adr]=(RAMB30000[adr]&0xFFFFFF00)|(STAPEL[ST-2]&0x000000FF); ST=ST-2; break;
+          case 0x01: RAMB30000[adr]=(RAMB30000[adr]&0xFFFF00FF)|((STAPEL[ST-2]<<8)&0x0000FF00); ST=ST-2; break;
+          case 0x02: RAMB30000[adr]=(RAMB30000[adr]&0xFF00FFFF)|((STAPEL[ST-2]<<16)&0x00FF0000); ST=ST-2; break;
+          case 0x03: RAMB30000[adr]=(RAMB30000[adr]&0x00FFFFFF)|((STAPEL[ST-2]<<24)&0xFF000000); ST=ST-2; break;
+          } break;
+        default: alert(3000); break;
+        } break;
       case 0x1A: /* C@ */ switch (STAPEL[ST-1]>>>16) {
         case 0x0003://alert(STAPEL[ST-1].toHex0000()+" C@ "+RAMB30000.length.toHex0000()+" ST="+ST);
         var adr=Math.floor((STAPEL[ST-1]&0xFFFF)/4);
@@ -3443,8 +3454,8 @@ function FF_RESTART() {
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
-        STARTSTEP=0x0;
-        ENDSTEP=STARTSTEP+0X240;
+        STARTSTEP=0x593;
+        ENDSTEP=STARTSTEP+0X100;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
     EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">');
