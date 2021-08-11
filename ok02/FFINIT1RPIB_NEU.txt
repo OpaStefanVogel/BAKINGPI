@@ -219,7 +219,7 @@ BZEIG M. BZEIG @ M.
 <sekt inhalt="ein Abschnitt für die Zeichenketten">
 : B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
 : Z, ( badr n -- ) BZEIG @ LIT, DUP ,
-  BEGIN SWAP DUP @ B, 1+ SWAP 1- DUP 0= UNTIL
+  BEGIN SWAP DUP C@ B, 1+ SWAP 1- DUP 0= UNTIL
   2DROP 20 B, ;
 COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
 : WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
@@ -443,7 +443,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   BEGIN ( im Prinzip nur BEGIN CR TIB @ 100 EXPECT INTERPRET AGAIN )
     CR 
     TIB @ 100 EXPECT
-    OVER @ 3C = IF 2DROP ELSE ( xml am Zeilenanfang gleich überlesen )
+    OVER C@ 3C = IF 2DROP ELSE ( xml am Zeilenanfang gleich überlesen )
       XBIT @ IF 
         3C EMIT ." ok>" 
         INTERPRET 
