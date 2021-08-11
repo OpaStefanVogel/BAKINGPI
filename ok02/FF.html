@@ -256,7 +256,7 @@ var RAMB2F000=[
   , 0x00030071 //0002F018 
   , 0x001002CC //0002F01C 
   , 0x00000010 //0002F020 
-  , 0x0003B000 //0002F024 vorher 3B00
+  , 0x00003B00 //0002F024 TIB, erst 3B00, auch 3B000
   , 0x0003B000 //0002F028 auch
   , 0x0003B000 //0002F02C auch
   , 0x0003B000 //0002F030 auch
@@ -3379,7 +3379,8 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x02: RAMB30000[adr]=(RAMB30000[adr]&0xFF00FFFF)|((STAPEL[ST-2]<<16)&0x00FF0000); ST=ST-2; break;
           case 0x03: RAMB30000[adr]=(RAMB30000[adr]&0x00FFFFFF)|((STAPEL[ST-2]<<24)&0xFF000000); ST=ST-2; break;
           } break;
-        default: alert(STEP.toHex0000()+" A0000019: "+3000); break;
+//        default: alert(STEP.toHex0000()+" A0000019: "+3000); break;
+        default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
         } break;
       case 0x1A: /* C@ */ switch (STAPEL[ST-1]>>>16) {
         case 0x0003://alert(STAPEL[ST-1].toHex0000()+" C@ "+RAMB30000.length.toHex0000()+" ST="+ST);
@@ -3390,7 +3391,8 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x02: STAPEL[ST-1]=RAMB30000[adr]>>>16&0xFF; break;
           case 0x03: STAPEL[ST-1]=RAMB30000[adr]>>>24&0xFF; break;
           } break;
-        default: if (STAPEL[ST-1]) alert(STEP.toHex0000()+" A000001A: "+STAPEL[ST-1].toHex0000()); break;
+//        default: if (STAPEL[ST-1]) alert(STEP.toHex0000()+" A000001A: "+STAPEL[ST-1].toHex0000()); break;
+        default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
         } break;
       case 0x21: /* D+ */ 
         var A=(STAPEL[ST-4]<<16)+STAPEL[ST-3]; 
