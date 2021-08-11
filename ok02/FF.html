@@ -3329,7 +3329,8 @@ function FF_STEP() {
         ST=ST-1;
         break; 
       case 0x03: /* RETURN */ PC=RAMB0000[RP]; RP=RP+1; break;
-      case 0x04: /*alert("case 0xA0000004: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03].toHex0000()+" "+RAMB0000[0x2F04].toHex0000()+" "+STEP.toHex0000()+" "+ENDSTEP.toHex0000()+"  "+RAMB0000[RAMB0000[0x2F04]]);*/ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; else {STAPEL[ST]=RAMB0000[RAMB0000[0x2F04]]; RAMB0000[0x2F04]=RAMB0000[0x2F04]+1; STAPEL[ST+1]=-1; ST=ST+2} break;
+      case 0x04: /*alert("case 0xA0000004: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03].toHex0000()+" "+RAMB0000[0x2F04].toHex0000()+" "+STEP.toHex0000()+" "+ENDSTEP.toHex0000()+"  "+RAMB0000[RAMB0000[0x2F04]]);*/ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; else {STAPEL[ST]=RAMB0000[RAMB0000[0x2F04]]; RAMB0000[0x2F04]=RAMB0000[0x2F04]+1; if (RAMB0000[0x2F04]==0x4000) RAMB0000[0x2F04]=0x3C00;
+STAPEL[ST+1]=-1; ST=ST+2} break;
       case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
       case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x07: /* M+ */ STAPEL[ST-2]=(STAPEL[ST-2]+STAPEL[ST-1])&0xFFFFFFFF;  ST=ST-1; break;
@@ -3454,8 +3455,8 @@ function FF_RESTART() {
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
-        STARTSTEP=0x135800;
-        ENDSTEP=STARTSTEP+0X1000;
+        STARTSTEP=0x1035800;
+        ENDSTEP=STARTSTEP+0X4000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
     EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">');
@@ -3528,7 +3529,7 @@ function Interpretiere_Startarray() {
   if (Startarray.length>0) {
     var ST=Startarray.shift();
     //alert(ST);
-    FF_CONTINUE(ST);
+    PC=PC-4; FF_CONTINUE(ST);
     setTimeout(Interpretiere_Startarray,1);
     } //else setTimeout(Interpretiere,3000,"FFINIT1.txt");
   }
@@ -4578,7 +4579,7 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2F01C CONSTANT CRDP DP @ 8 M- CRDP !
 
 2F020 CONSTANT BASE 4 4 M* BASE !
-2F024 CONSTANT TIB 3B00 TIB !
+2F024 CONSTANT TIB ( 3B00 TIB !
 2F028 CONSTANT IN1 ( 2F0A @ IN1 !
 2F02C CONSTANT IN2 ( 2F0B @ IN2 !
 2F030 CONSTANT IN3 ( 2F0C @ IN3 !
