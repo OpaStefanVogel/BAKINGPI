@@ -1676,7 +1676,7 @@ RAMB100000=[
    , 0x40100B00 //00100F28 
    , 0xB0000412 //00100F2C 
    , 0xB0000501 //00100F30 
-   , 0xA000000A //00100F34 
+   , 0xA000001A //00100F34 C@ statt @
    , 0x40100EEC //00100F38 
    , 0x40100918 //00100F3C 
    , 0xB0000412 //00100F40 
@@ -3359,7 +3359,7 @@ function FF_STEP() {
             STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
           case 0x0002: //alert("@ case 0x0002: "+STAPEL[ST-1].toHex0000());
             STAPEL[ST-1]=RAMB2F000[(STAPEL[ST-1]&0x0FFF)/4]; break;
-          case 0x0003:alert(STEP.toHex0000()+" A000000A: "+STAPEL[ST-1].toHex0000());
+          case 0x0003:alert(STEP.toHex0000()+" "+PC.toHex0000()+" A000000A: "+STAPEL[ST-1].toHex0000());
             STAPEL[ST-1]=RAMB30000[(STAPEL[ST-1]&0x0FFF)/4]; break;
           default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
           }
@@ -3454,7 +3454,7 @@ function FF_RESTART() {
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
   do {
     FF_STEP();
-        STARTSTEP=0x144593;
+        STARTSTEP=0x135800;
         ENDSTEP=STARTSTEP+0X1000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
