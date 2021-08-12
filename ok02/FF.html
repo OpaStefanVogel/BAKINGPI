@@ -6,6 +6,21 @@
 
   <style>
     body { font-family:monospace; }
+
+ok {
+  background-color: Khaki; 
+  }
+
+fl {
+  background-color: LightGrey; 
+  float: left; 
+  }
+
+fr {
+  background-color: White; 
+  color: LightGrey;
+  float: right; 
+  }
     </style>
     
 <script>
@@ -3194,10 +3209,11 @@ BigInt.prototype.toHex0000=function() {
   if (0n<=this&&this<0x10000n) return ("0000"+this.toString(16).toUpperCase()).slice(-4);
     else return this.toString(16).toUpperCase()}
 
-function Display(RAM) {
+function Display(RAM,ab,anz) {
   Logtext="";
 //  for (var i=0;i<RAM.length;i++) Logtext=Logtext+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
-  for (var i=0;i<RAM.length;i++) if (RAM[i]!=undefined) Logtext=Logtext+"  .word  "+RAM[i].toHexx0000()+" //"+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
+//  for (var i=0;i<RAM.length;i++) if (RAM[i]!=undefined) Logtext=Logtext+"  .word  "+RAM[i].toHexx0000()+" //"+(i*4).toHex0000()+" "+i.toHex0000()+" "+RAM[i].toHex0000()+"\n";
+  for (var i=0;i<RAM.length;i++) if (RAM[i]!=undefined) Logtext=Logtext+"  .word  "+RAM[i].toHexx0000()+" //"+(ab+i*4).toHex0000()+"\n";
   document.getElementById("aktuell.txt").value=Logtext;
   }
 
@@ -3216,7 +3232,7 @@ function FF_STEP() {
   if (PC<0X100000) {PD=RAMB0000[PC]; PC=PC+1} else {PD=RAMB100000[(PC&0xFFFFF)/4]; PC=PC+4};
   //alert("STEP="+STEP+" PC="+PC.toHex0000()+" PD="+PD.toHex0000());
   STEP=STEP+1;
-  if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+" "+PD.toHex0000(16)+":";
+  if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+" "+("        "+PD.toHex0000(16)).slice(-8)+":";
   if (PC<0x100000) switch (PD>>>12) {
     case 0x4: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
     case 0x5: RP=RP-1; RAMB0000[RP]=PC; PC=(PD&0X3FFF); break;
@@ -3390,7 +3406,7 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x01: STAPEL[ST-1]=RAMB30000[adr]>>>8&0xFF; break;
           case 0x02: STAPEL[ST-1]=RAMB30000[adr]>>>16&0xFF; break;
           case 0x03: STAPEL[ST-1]=RAMB30000[adr]>>>24&0xFF; break;
-          } break;
+          } /*STARTSTEP=STEP; ENDSTEP=STEP+10;*/ break;
 //        default: if (STAPEL[ST-1]) alert(STEP.toHex0000()+" A000001A: "+STAPEL[ST-1].toHex0000()); break;
         default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
         } break;
@@ -3455,10 +3471,10 @@ function FF_RESTART() {
   RAMB0000[0x2F03]=0x3C00+Startcode.length;
   Logtext="STEP   RP   PC   PD: STAPEL\n";
   //for (var i in document.getElementById("input")) Logtext=Logtext+i+"\n"; alert(Logtext);
+  STARTSTEP=0x1035800;
+  ENDSTEP=STARTSTEP+0X400;
   do {
     FF_STEP();
-        STARTSTEP=0x1035800;
-        ENDSTEP=STARTSTEP+0X4000;
     } while (STEP<ENDSTEP); //1F0:erstes KEYCODE, 3C2:INTERPRET, 08721: 7 ok,
   while (EText.indexOf(String.fromCharCode(0x1B))>-1) {
     EText=EText.replace(String.fromCharCode(0x1B, 0x5B, 0x33, 0x36, 0x6D),'<span style="color:blue">');
@@ -3551,23 +3567,27 @@ function Kopiere(Code) {
 <div><span id="Stapel" style="color:blue; border:none"> </span>
   <input id="input" type="text" style="font-family:monospace; background-color:LightGoldenrodYellow" onkeypress='if (event.charCode==13) {if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)}' size="40" value=""> </input> 
   <button onclick='if (PC<0x100000) PC=PC-1; else PC=PC-4; FF_CONTINUE(document.getElementById("input").value)' style="background-color:aqua;">Enter</button> 
-  <button onclick='FF_CONTINUE("\u001B")' style="background-color:pink">Escape</button> 
+  <button onclick='FF_CONTINUE("\u001B")' style="background-color:pink">Escape</button>
+  </div>
+<div>
   <button onclick='Kopiere("FFCode")'>FFCode</button> 
   <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> 
   <button onclick='Kopiere("FFINIT1RPIB.txt")'>FFINIT1RPIB.txt</button> 
   <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> 
   <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> 
   <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=0x1646">STARTSTEP=0</button> 
-  <button onclick="Display(RAMB100000)">RAMB100000</button> 
+  <button onclick="Display(RAMB2F000,0x2F000)">RAMB2F000</button> 
+  <button onclick="Display(RAMB30000,0x30000)">RAMB30000</button> 
+  <button onclick="Display(RAMB100000,0x100000)">RAMB100000</button> 
   </div>
 <div style="vertical-align:top"><code><textarea id="aktuell.txt" cols="120" rows="20" >11 22 * 33 + .
 </textarea></code><button onclick='Interpretiere("aktuell.txt")' style="background-color:aqua; vertical-align:top; font-size:200%">INTERPRET</button></div>
 
 <div>
   <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> 
-  <button style="background-color:gray;" onclick='KopiereInput("HERE 100 M+ DPMERK ! 3400 BANF !")'>HERE 100 M+ DPMERK ! 3400 BANF !</button> 
+  <button style="background-color:gray;" onclick='KopiereInput("HERE 100 M+ DPMERK ! 34000 BANF !")'>HERE 100 M+ DPMERK ! 34000 BANF !</button> 
   2x<button onclick='Kopiere("FFINIT1RPIB_NEU.txt")'>FFINIT1RPIB_NEU.txt</button> 
-  <button style="background-color:gray;" onclick='KopiereInput("100020 DPMERK ! 3000 BANF !")'>100020 DPMERK ! 3000 BANF !</button> 
+  <button style="background-color:gray;" onclick='KopiereInput("100080 DPMERK ! 3000 BANF !")'>100080 DPMERK ! 30000 BANF !</button> 
   noch 2x<button onclick='Kopiere("FFINIT1RPIB_NEU.txt")'>FFINIT1RPIB_NEU.txt</button> 
   <button onclick="Display(RAMB100000)">RAMB100000</button> 
   </div>
@@ -4499,18 +4519,14 @@ START
 <AXIOME>
 <sekt inhalt="Axiome (sie enthalten Vorwärtsreferenzen und sind deshalb separat zusammengefasst)">
 <sekt inhalt="vorab der Ablauf, was tun, wenn diese Axiome geändert werden müssen">
-( neu mit 4 + statt 4+ und ohne NOOP in HG. )
-( HERE 100 + DPMERK ! 34000 BANF !
-
+( Variante für RPIB )
 ( wenn die Axiome so bleiben wie sie sind, ganz normal 1x hintereinanderweg compilieren )
 ( wenn die Axiome verändert werden sollen, dann )
-  ( zuerst RESET und 1x die ursprünglichen Axiome laden )
+  ( zuerst RESET und 1x die ursprünglichen Axiome compilieren )
   ( anschließend die neuen Axiome compilieren, so: )
     ( HERE 100 + DPMERK ! 34000 BANF ! ) 
-      ( aktuell  HERE 100 M+ DUP DPMERK ! 34000 BANF ! TT ( aus INIT2.txt )
-    ( 2x neue Axiome compilieren <REF1/> ergibt aktuell etwa 00104100 0002F04C 0003437D )
-    ( 0020 DPMERK ! 3000 BANF ! ) 
-      ( aktuell 100080 DPMERK ! 30000 BANF ! )
+    ( 2x neue Axiome compilieren <REF1/> )
+    ( 100080 DPMERK ! 30000 BANF ! )
     ( 2x neue Axiome compilieren <REF1/> nochmal )
     ( danach alles, was nach den AXIOMEN folgt, 1x compilieren )
   ( bei verzwickten Veränderungen kann es vorkommen, )
@@ -4521,9 +4537,6 @@ START
 ( zuerst alles Notwendige wieder auf Ausgangszustand schalten )
 2 2 M* DUP M* BASE !           ( HEX )
 DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
-HERE M.
-BZEIG @ M.
-HERE DPMERK !
 </sekt>
 
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
@@ -4545,32 +4558,6 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2802 CONSTANT RP
 2803 CONSTANT PC
 
-( 2F00 CONSTANT XBIT
-( 2F01 CONSTANT SMUDGEBIT
-( 2F02 CONSTANT RP0 3000 RP0 !
-( 2F03 CONSTANT IRAMADR
-( 2F04 CONSTANT JRAMADR
-( 2F05 CONSTANT XOFF
-( 2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
-( 2F07 CONSTANT CRDP DP @ 8 M- CRDP !
-
-( 2F08 CONSTANT BASE
-( 2F09 CONSTANT TIB
-( 2F0A CONSTANT IN1
-( 2F0B CONSTANT IN2
-( 2F0C CONSTANT IN3
-( 2F0D CONSTANT IN4
-( 2F0E CONSTANT ERRORNR 0 ERRORNR !
-( 2F0F CONSTANT DP
-( 2F10 CONSTANT STAT 0 STAT !
-( 2F11 CONSTANT LFA
-( 2F12 CONSTANT BANF
-( 2F13 CONSTANT BZEIG
-( 2F14 CONSTANT DPMERK
-( 2F15 CONSTANT CSP
-( 2F16 CONSTANT DUBIT
-( 2F17 CONSTANT LOCALADRESSE
-
 2F000 CONSTANT XBIT ( 0 XBIT !
 2F004 CONSTANT SMUDGEBIT 0 SMUDGEBIT !
 2F008 CONSTANT RP0 3000 RP0 !
@@ -4582,21 +4569,20 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 
 2F020 CONSTANT BASE 4 4 M* BASE !
 2F024 CONSTANT TIB ( 3B00 TIB !
-2F028 CONSTANT IN1 ( 2F0A @ IN1 !
-2F02C CONSTANT IN2 ( 2F0B @ IN2 !
-2F030 CONSTANT IN3 ( 2F0C @ IN3 !
-2F034 CONSTANT IN4 ( 2F0D @ IN4 !
+2F028 CONSTANT IN1
+2F02C CONSTANT IN2
+2F030 CONSTANT IN3
+2F034 CONSTANT IN4
 2F038 CONSTANT ERRORNR 0 ERRORNR !
-2F03C CONSTANT DP ( 2F0F
-2F040 CONSTANT STAT 0 STAT ! ( 2F10
-2F044 CONSTANT LFA ( 2F11
-2F048 CONSTANT BANF ( 2F12 @ BANF ! 
-BANF @ M. BZEIG M. BZEIG @ M.
+2F03C CONSTANT DP
+2F040 CONSTANT STAT 0 STAT !
+2F044 CONSTANT LFA
+2F048 CONSTANT BANF
 2F04C CONSTANT BZEIG
-2F050 CONSTANT DPMERK ( 2F14 @ DPMERK !
+2F050 CONSTANT DPMERK
 2F054 CONSTANT CSP
 2F058 CONSTANT DUBIT ( 0 DUBIT !
-2F05C CONSTANT LOCALADRESSE 2D000 LOCALADRESSE !
+2F05C CONSTANT LOCALADRESSE ( 2D000 LOCALADRESSE !
 
 VERSION 1+ CONSTANT VERSION VERSION M.
 </sekt>
@@ -4620,6 +4606,7 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0A 007 MLIT MCODE M+
 0A 009 MLIT MCODE !
 0A 00A MLIT MCODE @
+0A 004 MLIT MCODE KX
 0A 019 MLIT MCODE C!
 0A 01A MLIT MCODE C@
 
@@ -4634,7 +4621,6 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0B 200 MLIT MCODE 2DROP
 08 000 MLIT MCODE NOOP
 
-0A 04 MLIT MCODE KX
 </sekt>
 
 <sekt inhalt="weiter mit Programmstrukturen">
@@ -4758,6 +4744,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
       END_IF
   0 KEYADR !
   ;
+( ' KEY_INT 04 000 MLIT OR 12 !
 
 : KEYCODE2 ( -- c f )
   JRAMADR @ IRAMADR @ = IF 0 0 
@@ -4768,7 +4755,6 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
     END_IF
   ;
 
-' KEY_INT 04 000 MLIT OR 12 !
 </sekt>
 
 <sekt inhalt="es folgt der Interpreter">
@@ -4975,8 +4961,8 @@ IMMEDIATE: ; 0 STAT ! CSP? RETURN , SMUDGE { SMUDGE } ;
 
 <sekt inhalt="neues Vokabular abkoppeln und Programm neu starten">
 0 DPMERK @ ! ( abkoppeln )
-HERE M. BZEIG M. BZEIG @ M.
-4 ' START MLIT DUP M. 10100080 !
+HERE M. BZEIG @ M.
+4 ' START MLIT DUP M. 100040 !
 
 START
 </sekt>
