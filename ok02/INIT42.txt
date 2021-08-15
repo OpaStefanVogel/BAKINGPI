@@ -1,37 +1,43 @@
-: BAUD! ( bd -- ) 0 SWAP 2021 3000 2068 M+ 2! ;
-: BAUD? ( -- bd ) 2021 3000 2068 M+ 2@ M. DROP ;
+( vorher main.s mit A00C laden
 
-( FIQ=mini UART
-( zuerst aktuelles kernel.img laden, dann
-0 0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=0
-0 9D 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=AUX
-0A 00C MLIT MCODE FIQ
-00 FIQ M. ( 01D3 )
-40 FIQ M. -1 4 ! CR 0 10 DUMP CR 0 10 DUMP CR 0 10 DUMP CR ( 0193 kann aber nicht rückgängig gemacht werden )
+( FIQ auf mini UART anwenden:
+0A 00C MLIT MCODE FIQ 00 FIQ M. 40 FIQ M. ( 200001D3 20000193 )
+2000B20C CONSTANT FIQ_KANAL
+10008 CONSTANT UARTUMSCHALTBIT
 
-( Tests weiL was nicht ging
-: T 1 2809 ! 77 88 99 M* M+ M. 0 2809 ! ; 
+: FIQ=UART
+  9D FIQ_KANAL ! ( FIQ=AUX
+  -1 UARTUMSCHALTBIT ! 
+  ;
 
-0 0 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=0
-0 9D 2000 B20C 2! 2000 B20C 2@ M. M. ( FIQ=AUX
-0 10 DUMP
-0 10 DUMP
-0 10 DUMP
+FIQ=UART
 
-0A 00C MLIT MCODE FIQ
-00 FIQ M. ( 01D3 )
-40 FIQ M. -1 4 ! CR 0 10 DUMP CR 0 10 DUMP CR 0 10 DUMP CR ( 0193 kann aber nicht rückgängig gemacht werden )
-0 10 DUMP
-0 10 DUMP
+: FIQ=0
+  0 FIQ_KANAL ! ( FIQ=AUX
+  0 UARTUMSCHALTBIT ! 
+  ;
+
+( FIQ=0
+
+( BAUD noch auf VARIABLE BAUD ummachen:
+: BAUD! ( bd -- ) 20215068 ! ; ( 10E = 115000, 
+: BAUD@ ( -- bd ) 20215068 @ ;
+: BAUD? ( -- bd ) BAUD@ M. ;
+BAUD? ( 0000010E )
 
 ( Free running counter Page 196
-003E 0220 2000 B408 2!
+003E0220 2000B408 !
 ( 003E 0020 2000 B408 2!
-2000 B420 2@ M. M.
-2000 B420 2@ M. M.
-2000 B420 2@ M. M.
+2000B420 @ M.
+2000B420 @ M.
+2000B420 @ M.
 
-( zusätzlich ARM Timer Page 196
+
+
+
+( ----------------------------------------- alt, nur für 16 Bit
+
+( ARM Timer Page 196
 003E 02A2 2000 B408 2!
 00FF FFFF 2000 B400 2!
 ( 003E 0020 2000 B408 2! ( Timer aus

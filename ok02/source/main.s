@@ -3089,6 +3089,13 @@ STMEA R12!,{R0} // ( --> not(a) )
 B     STEPEND
 
 STEPA00C_32:
+//0A 00C MLIT MCODE FIQ
+LDMEA R12!,{R1} // ( bic --> )
+    mrs r0,cpsr       //69 Enable FIQ https://github.com/dwelch67/raspberrypi/blinker08
+    bic r0,r0,R1      //72//69
+    msr cpsr_c,r0     //69
+STMEA R12!,{R0} // ( --> cpsr_neu )
+B     STEPEND
 
 STEPA00D_32: //87
 //      case 0x0D: /*  0= */ if (STAPEL[ST-1]==0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
