@@ -5,18 +5,14 @@
 <AXIOME>
 <sekt inhalt="Axiome (sie enthalten Vorwärtsreferenzen und sind deshalb separat zusammengefasst)">
 <sekt inhalt="vorab der Ablauf, was tun, wenn diese Axiome geändert werden müssen">
-( neu mit 4 + statt 4+ und ohne NOOP in HG. )
-( HERE 100 + DPMERK ! 34000 BANF !
-
+( Variante für RPIB, neues Z=, TIB auf 3B000 )
 ( wenn die Axiome so bleiben wie sie sind, ganz normal 1x hintereinanderweg compilieren )
 ( wenn die Axiome verändert werden sollen, dann )
-  ( zuerst RESET und 1x die ursprünglichen Axiome laden )
+  ( zuerst RESET und 1x die ursprünglichen Axiome compilieren )
   ( anschließend die neuen Axiome compilieren, so: )
     ( HERE 100 + DPMERK ! 34000 BANF ! ) 
-      ( aktuell  HERE 100 M+ DUP DPMERK ! 34000 BANF ! TT ( aus INIT2.txt )
-    ( 2x neue Axiome compilieren <REF1/> ergibt aktuell etwa 00104100 0002F04C 0003437D )
-    ( 0020 DPMERK ! 3000 BANF ! ) 
-      ( aktuell 100080 DPMERK ! 30000 BANF ! )
+    ( 2x neue Axiome compilieren <REF1/> )
+    ( 100080 DPMERK ! 30000 BANF ! )
     ( 2x neue Axiome compilieren <REF1/> nochmal )
     ( danach alles, was nach den AXIOMEN folgt, 1x compilieren )
   ( bei verzwickten Veränderungen kann es vorkommen, )
@@ -27,9 +23,6 @@
 ( zuerst alles Notwendige wieder auf Ausgangszustand schalten )
 2 2 M* DUP M* BASE !           ( HEX )
 DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
-HERE M.
-BZEIG @ M.
-HERE DPMERK !
 </sekt>
 
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
@@ -51,32 +44,6 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2802 CONSTANT RP
 2803 CONSTANT PC
 
-( 2F00 CONSTANT XBIT
-( 2F01 CONSTANT SMUDGEBIT
-( 2F02 CONSTANT RP0 3000 RP0 !
-( 2F03 CONSTANT IRAMADR
-( 2F04 CONSTANT JRAMADR
-( 2F05 CONSTANT XOFF
-( 2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
-( 2F07 CONSTANT CRDP DP @ 8 M- CRDP !
-
-( 2F08 CONSTANT BASE
-( 2F09 CONSTANT TIB
-( 2F0A CONSTANT IN1
-( 2F0B CONSTANT IN2
-( 2F0C CONSTANT IN3
-( 2F0D CONSTANT IN4
-( 2F0E CONSTANT ERRORNR 0 ERRORNR !
-( 2F0F CONSTANT DP
-( 2F10 CONSTANT STAT 0 STAT !
-( 2F11 CONSTANT LFA
-( 2F12 CONSTANT BANF
-( 2F13 CONSTANT BZEIG
-( 2F14 CONSTANT DPMERK
-( 2F15 CONSTANT CSP
-( 2F16 CONSTANT DUBIT
-( 2F17 CONSTANT LOCALADRESSE
-
 2F000 CONSTANT XBIT ( 0 XBIT !
 2F004 CONSTANT SMUDGEBIT 0 SMUDGEBIT !
 2F008 CONSTANT RP0 3000 RP0 !
@@ -87,22 +54,21 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2F01C CONSTANT CRDP DP @ 8 M- CRDP !
 
 2F020 CONSTANT BASE 4 4 M* BASE !
-2F024 CONSTANT TIB ( 3B00 TIB !
-2F028 CONSTANT IN1 ( 2F0A @ IN1 !
-2F02C CONSTANT IN2 ( 2F0B @ IN2 !
-2F030 CONSTANT IN3 ( 2F0C @ IN3 !
-2F034 CONSTANT IN4 ( 2F0D @ IN4 !
+2F024 CONSTANT TIB 3B000 TIB !
+2F028 CONSTANT IN1
+2F02C CONSTANT IN2
+2F030 CONSTANT IN3
+2F034 CONSTANT IN4
 2F038 CONSTANT ERRORNR 0 ERRORNR !
-2F03C CONSTANT DP ( 2F0F
-2F040 CONSTANT STAT 0 STAT ! ( 2F10
-2F044 CONSTANT LFA ( 2F11
-2F048 CONSTANT BANF ( 2F12 @ BANF ! 
-BANF @ M. BZEIG M. BZEIG @ M.
+2F03C CONSTANT DP
+2F040 CONSTANT STAT 0 STAT !
+2F044 CONSTANT LFA
+2F048 CONSTANT BANF
 2F04C CONSTANT BZEIG
-2F050 CONSTANT DPMERK ( 2F14 @ DPMERK !
+2F050 CONSTANT DPMERK
 2F054 CONSTANT CSP
 2F058 CONSTANT DUBIT ( 0 DUBIT !
-2F05C CONSTANT LOCALADRESSE 2D000 LOCALADRESSE !
+2F05C CONSTANT LOCALADRESSE ( 2D000 LOCALADRESSE !
 
 VERSION 1+ CONSTANT VERSION VERSION M.
 </sekt>
@@ -126,6 +92,7 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0A 007 MLIT MCODE M+
 0A 009 MLIT MCODE !
 0A 00A MLIT MCODE @
+0A 004 MLIT MCODE KX
 0A 019 MLIT MCODE C!
 0A 01A MLIT MCODE C@
 
@@ -140,7 +107,18 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0B 200 MLIT MCODE 2DROP
 08 000 MLIT MCODE NOOP
 
-0A 04 MLIT MCODE KX
+</sekt>
+
+<sekt inhalt="ein Abschnitt für die Zeichenketten">
+: B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
+: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
+  BEGIN SWAP DUP C@ B, 1+ SWAP 1- DUP 0= UNTIL
+  2DROP 20 B, ;
+COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
+: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
+22 WORD: " ;
+22 WORD: ." TYPE ;
+( 2F054 CONSTANT CSP
 </sekt>
 
 <sekt inhalt="weiter mit Programmstrukturen">
@@ -214,19 +192,6 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : CSP! SP @ CSP ! ;
 : CSP? SP @ CSP @ M- IF 9 ERROR END_IF ;
 </sekt>
-BZEIG M. BZEIG @ M.
-
-<sekt inhalt="ein Abschnitt für die Zeichenketten">
-: B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
-: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
-  BEGIN SWAP DUP C@ B, 1+ SWAP 1- DUP 0= UNTIL
-  2DROP 20 B, ;
-COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
-: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
-22 WORD: " ;
-22 WORD: ." TYPE ;
-( 2F054 CONSTANT CSP
-</sekt>
 
 <sekt inhalt="lokale Variablen">
 : LOCAL ( n -- ) 1+ 4 M* LOCALADRESSE @ OVER M- DUP LOCALADRESSE ! ! ;
@@ -264,6 +229,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
       END_IF
   0 KEYADR !
   ;
+( ' KEY_INT 04 000 MLIT OR 12 !
 
 : KEYCODE2 ( -- c f )
   JRAMADR @ IRAMADR @ = IF 0 0 
@@ -274,7 +240,6 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
     END_IF
   ;
 
-' KEY_INT 04 000 MLIT OR 12 !
 </sekt>
 
 <sekt inhalt="es folgt der Interpreter">
@@ -369,14 +334,15 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   ;
 
 : Z= ( adr1 n1 adr2 n2 -- r )
-  >R OVER R M- IF R> DROP DROP DROP DROP 0 ELSE
-    R> DROP SWAP 0 BEGIN 2DUP M- WHILE >R >R
-      OVER C@ OVER C@ M- IF DROP DROP 0 0 END_IF
+  ROT 2DUP M- IF 2DROP 2DROP 0 ELSE
+    BEGIN DUP WHILE ( adr1 adr2 n1 n2
+      2SWAP OVER C@ OVER C@ M- IF 2DROP 2DROP 1 1 0 0 END_IF
       DUP IF 1+ SWAP 1+ SWAP END_IF
-      R> R> 1+ REPEAT 2DROP ( neu bei 16 BIT ohne DO LOOP )
+      2SWAP -1 M+ REPEAT 2DROP 
     DROP IF -1 ELSE 0 END_IF
     END_IF ;
-( : Z= DROP SWAP DROP SWAP @ SWAP @ = ;
+
+( : TEST CR " 123456789" " 123457789" Z= M. CR " 123456789" " 123456789" Z= M. ; TEST
 
 : FIND ( adr n -- lfa r )
   >R >R 0 ( heisst noch nicht gefunden )
@@ -481,7 +447,7 @@ IMMEDIATE: ; 0 STAT ! CSP? RETURN , SMUDGE { SMUDGE } ;
 
 <sekt inhalt="neues Vokabular abkoppeln und Programm neu starten">
 0 DPMERK @ ! ( abkoppeln )
-HERE M. BZEIG M. BZEIG @ M.
+HERE M. BZEIG @ M.
 4 ' START MLIT DUP M. 100040 !
 
 START

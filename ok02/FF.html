@@ -1175,13 +1175,14 @@ START
 <AXIOME>
 <sekt inhalt="Axiome (sie enthalten Vorwärtsreferenzen und sind deshalb separat zusammengefasst)">
 <sekt inhalt="vorab der Ablauf, was tun, wenn diese Axiome geändert werden müssen">
+( Variante für RPIB )
 ( wenn die Axiome so bleiben wie sie sind, ganz normal 1x hintereinanderweg compilieren )
 ( wenn die Axiome verändert werden sollen, dann )
-  ( zuerst RESET und 1x die ursprünglichen Axiome laden )
+  ( zuerst RESET und 1x die ursprünglichen Axiome compilieren )
   ( anschließend die neuen Axiome compilieren, so: )
-    ( HERE 100 + DPMERK ! 3400 BANF ! )
+    ( HERE 100 + DPMERK ! 34000 BANF ! ) 
     ( 2x neue Axiome compilieren <REF1/> )
-    ( 0020 DPMERK ! 3000 BANF ! )
+    ( 100080 DPMERK ! 30000 BANF ! )
     ( 2x neue Axiome compilieren <REF1/> nochmal )
     ( danach alles, was nach den AXIOMEN folgt, 1x compilieren )
   ( bei verzwickten Veränderungen kann es vorkommen, )
@@ -1190,12 +1191,8 @@ START
 
 <sekt inhalt="Anfangszustand so herstellen wie zum Recompilieren benötigt">
 ( zuerst alles Notwendige wieder auf Ausgangszustand schalten )
-0A 04 MLIT MCODE KOOP
-0A 2E MLIT MCODE 4+
-0A 2F MLIT MCODE 4-
 2 2 M* DUP M* BASE !           ( HEX )
 DPMERK @ DP ! BANF @ BZEIG ! ( DP und BZEIG auf Anfangswerte zurücksetzen )
-HERE DPMERK !
 </sekt>
 
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
@@ -1217,31 +1214,31 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 2802 CONSTANT RP
 2803 CONSTANT PC
 
-2F00 CONSTANT XBIT
-2F01 CONSTANT SMUDGEBIT
-2F02 CONSTANT RP0 3000 RP0 !
-2F03 CONSTANT IRAMADR
-2F04 CONSTANT JRAMADR
-2F05 CONSTANT XOFF
-2F06 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
-2F07 CONSTANT CRDP DP @ 8 M- CRDP !
+2F000 CONSTANT XBIT ( 0 XBIT !
+2F004 CONSTANT SMUDGEBIT 0 SMUDGEBIT !
+2F008 CONSTANT RP0 3000 RP0 !
+2F00C CONSTANT IRAMADR
+2F010 CONSTANT JRAMADR
+2F014 CONSTANT XOFF 0 XOFF !
+2F018 CONSTANT CRBZEIG BZEIG @ CRBZEIG !
+2F01C CONSTANT CRDP DP @ 8 M- CRDP !
 
-2F08 CONSTANT BASE
-2F09 CONSTANT TIB
-2F0A CONSTANT IN1
-2F0B CONSTANT IN2
-2F0C CONSTANT IN3
-2F0D CONSTANT IN4
-2F0E CONSTANT ERRORNR 0 ERRORNR !
-2F0F CONSTANT DP
-2F10 CONSTANT STAT 0 STAT !
-2F11 CONSTANT LFA
-2F12 CONSTANT BANF
-2F13 CONSTANT BZEIG
-2F14 CONSTANT DPMERK
-2F15 CONSTANT CSP
-2F16 CONSTANT DUBIT
-2F17 CONSTANT LOCALADRESSE
+2F020 CONSTANT BASE 4 4 M* BASE !
+2F024 CONSTANT TIB ( 3B00 TIB !
+2F028 CONSTANT IN1
+2F02C CONSTANT IN2
+2F030 CONSTANT IN3
+2F034 CONSTANT IN4
+2F038 CONSTANT ERRORNR 0 ERRORNR !
+2F03C CONSTANT DP
+2F040 CONSTANT STAT 0 STAT !
+2F044 CONSTANT LFA
+2F048 CONSTANT BANF
+2F04C CONSTANT BZEIG
+2F050 CONSTANT DPMERK
+2F054 CONSTANT CSP
+2F058 CONSTANT DUBIT ( 0 DUBIT !
+2F05C CONSTANT LOCALADRESSE ( 2D000 LOCALADRESSE !
 
 VERSION 1+ CONSTANT VERSION VERSION M.
 </sekt>
@@ -1265,6 +1262,9 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0A 007 MLIT MCODE M+
 0A 009 MLIT MCODE !
 0A 00A MLIT MCODE @
+0A 004 MLIT MCODE KX
+0A 019 MLIT MCODE C!
+0A 01A MLIT MCODE C@
 
 0B 412 MLIT MCODE SWAP
 0B 502 MLIT MCODE OVER
@@ -1276,17 +1276,7 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 0B 603 MLIT MCODE 2DUP
 0B 200 MLIT MCODE 2DROP
 08 000 MLIT MCODE NOOP
-</sekt>
 
-<sekt inhalt="ein Abschnitt für die Zeichenketten">
-: B, ( b -- ) BZEIG @ ! 1 BZEIG +! ;
-: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
-  BEGIN SWAP DUP @ B, 1+ SWAP 1- DUP 0= UNTIL
-  2DROP 20 B, ; 
-COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
-: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
-22 WORD: " ;
-22 WORD: ." TYPE ;
 </sekt>
 
 <sekt inhalt="weiter mit Programmstrukturen">
@@ -1296,21 +1286,21 @@ COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
 ( **** : XSETBT 1000 M* SWAP 0FFF AND OR ;
 : XSETBT 0 10000000 ROT U* SWAP DROP SWAP 0FFFFFFF AND OR ;
 : ALLOT DP +! ;
-: BRANCH, HERE 4+ M- JRBIT XSETBT , ;
-: 0BRANCH, HERE 4+ M- JR0BIT XSETBT , ;
+: BRANCH, HERE ( 4+ ) 4 M+ M- JRBIT XSETBT , ;
+: 0BRANCH, HERE ( 4+ ) 4 M+ M- JR0BIT XSETBT , ;
 IMMEDIATE: BEGIN HERE ;
 IMMEDIATE: AGAIN BRANCH, ;
 IMMEDIATE: UNTIL 0BRANCH, ;
 IMMEDIATE: IF JR0BIT 4 ALLOT HERE ;
-IMMEDIATE: END_IF HERE OVER M- ROT XSETBT SWAP 4- ! ;
+IMMEDIATE: END_IF HERE OVER M- ROT XSETBT SWAP ( 4- ) 4 M- ! ;
 IMMEDIATE: ELSE 4 ALLOT COMPILE END_IF JRBIT HERE ;
 IMMEDIATE: WHILE COMPILE IF ;
 IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 </sekt>
 
 <sekt inhalt="etliche kleinere Funktionen">
-: C@ @ ;
-: C! ! ;
+( : C@ @ ;
+( : C! ! ;
 : 1+ ( a -- a+1 ) 1 M+ ;
 : 1- ( a -- a+1 ) -1 M+ ;
 : M- MINUS M+ ;
@@ -1325,7 +1315,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : R RP @ 1+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
 : , DP @ ! 4 DP +! ;
 : EXECUTE PC ! ;
-: KEY BEGIN ( NOOP ) KOOP KEYCODE2 NOT WHILE DROP REPEAT ;
+: KEY BEGIN ( NOOP ) KX ( KEYCODE2 ) NOOP NOT WHILE DROP REPEAT ;
 : EMIT ' EMITCODE EXECUTE ;
 : SHL16 ( a -- t a' )
   0 SWAP 10 U* SWAP ; ( t a' = SHL a )
@@ -1361,22 +1351,34 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : CSP? SP @ CSP @ M- IF 9 ERROR END_IF ;
 </sekt>
 
+<sekt inhalt="ein Abschnitt für die Zeichenketten">
+: B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
+: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
+  BEGIN SWAP DUP C@ B, 1+ SWAP 1- DUP 0= UNTIL
+  2DROP 20 B, ;
+COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
+: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
+22 WORD: " ;
+22 WORD: ." TYPE ;
+( 2F054 CONSTANT CSP
+</sekt>
+
 <sekt inhalt="lokale Variablen">
-: LOCAL ( n -- ) 1+ LOCALADRESSE @ OVER M- DUP LOCALADRESSE ! ! ;
+: LOCAL ( n -- ) 1+ 4 M* LOCALADRESSE @ OVER M- DUP LOCALADRESSE ! ! ;
 : END_LOCAL ( -- ) LOCALADRESSE @ DUP @ M+ LOCALADRESSE ! ;
-: L0 LOCALADRESSE @ 1+ ;
-: L1 LOCALADRESSE @ 2 M+ ;
-: L2 LOCALADRESSE @ 3 M+ ;
-: L3 LOCALADRESSE @ 4 M+ ;
-: L4 LOCALADRESSE @ 5 M+ ;
-: L5 LOCALADRESSE @ 6 M+ ;
-: L6 LOCALADRESSE @ 7 M+ ;
-: L7 LOCALADRESSE @ 8 M+ ; ( soviele reichen schon )
+: L0 LOCALADRESSE @ 4 M+ ;
+: L1 LOCALADRESSE @ 8 M+ ;
+: L2 LOCALADRESSE @ 0C M+ ;
+: L3 LOCALADRESSE @ 10 M+ ;
+: L4 LOCALADRESSE @ 14 M+ ;
+: L5 LOCALADRESSE @ 18 M+ ;
+: L6 LOCALADRESSE @ 1C M+ ;
+: L7 LOCALADRESSE @ 20 M+ ; ( soviele reichen schon )
 </sekt>
 
 <sekt inhalt="alles zu KEY">
 IMMEDIATE: ' ( /name/ -- -- pfa ) 
-  20 WORD FIND LCFA DROP 4+ STAT @ IF LIT, END_IF ; 
+  20 WORD FIND LCFA DROP ( 4+ ) 4 M+ STAT @ IF LIT, END_IF ; 
 
 : INCR4 ( adr -- )
   DUP @ 1+
@@ -1397,6 +1399,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
       END_IF
   0 KEYADR !
   ;
+( ' KEY_INT 04 000 MLIT OR 12 !
 
 : KEYCODE2 ( -- c f )
   JRAMADR @ IRAMADR @ = IF 0 0 
@@ -1407,7 +1410,6 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
     END_IF
   ;
 
-' KEY_INT 04 000 MLIT OR 12 !
 </sekt>
 
 <sekt inhalt="es folgt der Interpreter">
@@ -1516,8 +1518,8 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   LFA @ 
   SMUDGEBIT @ IF DUP @ M+ END_IF
   BEGIN
-    DUP 4+ DUP @ ( lfa nfa adr )
-    SWAP 4+ @ ( lfa adr n1 )
+    DUP ( 4+ ) 4 M+ DUP @ ( lfa nfa adr )
+    SWAP ( 4+ ) 4 M+ @ ( lfa adr n1 )
     ( 2DUP CR B. 2DUP TYPE
     ( BEGIN 2DUP M+ 1 M- C@ 0= WHILE 1 M- REPEAT ( ??? momentan nicht )
     R> R> 2DUP >R >R ( 0 lfa adr1 n1 adr2 n2 )
@@ -1576,7 +1578,7 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
   BEGIN ( im Prinzip nur BEGIN CR TIB @ 100 EXPECT INTERPRET AGAIN )
     CR 
     TIB @ 100 EXPECT
-    OVER @ 3C = IF 2DROP ELSE ( xml am Zeilenanfang gleich überlesen )
+    OVER C@ 3C = IF 2DROP ELSE ( xml am Zeilenanfang gleich überlesen )
       XBIT @ IF 
         3C EMIT ." ok>" 
         INTERPRET 
@@ -1590,8 +1592,9 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
       END_IF
     AGAIN 
   ;
+</sekt>
 
-
+<sekt inhalt=": START">
 : START ." FORTY-FORTH" CR CR QUIT ;
 
 
@@ -1613,13 +1616,14 @@ IMMEDIATE: ; 0 STAT ! CSP? RETURN , SMUDGE { SMUDGE } ;
 
 <sekt inhalt="neues Vokabular abkoppeln und Programm neu starten">
 0 DPMERK @ ! ( abkoppeln )
-HERE M. BZEIG M?
+HERE M. BZEIG @ M.
+4 ' START MLIT DUP M. 100040 !
 
 START
 </sekt>
 </sekt>
 </AXIOME>
-
+</INIT>
 </script>
 
 <script id="FFINIT1RPIB_NEU.txt"><?xml version="1.0" encoding="utf-8" ?>
