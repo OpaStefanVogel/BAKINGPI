@@ -1195,12 +1195,12 @@ LDMFD SP!,{R0-R7,PC}
 
 RQ0000Decode: //70//43 zu BL RQ0000Start
 STMFD SP!,{R0-R3,LR}
-ADD   R0,LR,#4 //28 RAMB03C00 nach 3C00 verschieben
-STMEA R12!,{R0}//28 ( ramb0000 )
+ADD   R0,LR,#4 //28 
+STMEA R12!,{R0}//28 ( rq0000 )
 MOV   R0,#0X00
-STMEA R12!,{R0}//28 ( ramb0000 0 )
+STMEA R12!,{R0}//28 ( rq0000 0 )
 MOV   R0,#0X80 //70
-STMEA R12!,{R0}//28 ( ramb3C00 0 80 )
+STMEA R12!,{R0}//28 ( rq0000 0 80 )
 BL    MOVE     //28 ( )
 LDMFD SP!,{R0-R3,PC}
 RQ0000Start:
@@ -1227,10 +1227,11 @@ FIQ:      //0X20
 //ADD   R9,R9,#1
 //STR   R9,[R8]
 
-//MOV   R8,   #0X20000000  //75 PBASE
-//ADD   R8,R8,#0X0000B200  //75 ARM timer
-//MOV   R9,#0
-//STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer
+MOV   R8,   #0X20000000  //75 PBASE
+ADD   R8,R8,#0X0000B400  //75 ARM timer
+MOV   R9,#0
+STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer clear interrupt flag
+
 MOV   R8,#0X20000000     //70 PBASE
 ADD   R8,R8,#0X210000    //70 GPIO_
 ADD   R8,R8,#0X5000     //70 AUX_IRQ
