@@ -25,6 +25,17 @@ FIQ=UART
 : BAUD? ( -- bd ) BAUD@ M. ;
 BAUD? ( 0000010E )
 
+( System Timer Page 172
+20003000 @ M. ( IRQ Status
+20003004 @ M. ( timer value
+20003008 @ M.
+2000300C @ M.
+
+20003004 @ 01000000 M+ 2000300C !
+20003000 @ M. 20003004 @ M. 2000300C @ M.
+-1 20003000 !
+
+
 ( Free running counter Page 196
 
 003E0220 2000B408 !
