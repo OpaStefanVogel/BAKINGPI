@@ -94,6 +94,7 @@
 //94 C! C@ ALS A0000019 A000001A und B, mit C!
 //95 RAM30000Start
 //96 gleich mit WAAGE starten ab R11=0x100000
+//97 FIQ mit extra FF
 
 //Tasten bei R9=STEPFLAG=1
 //N Neustart ab 44000 //4000
@@ -107,6 +108,16 @@
 
 //R8=STEPNR, R9=STEPFLAG, R10=RP, R11=PC, R12=SP, R13=sp, R14=lr, R15=pc
 
+//Speicher:
+//original    aktuell                     neu                      1000000
+//0000-27FF   *2+10000   10000-14FFF                               1000000-...
+//2800-28ff   ? ? RP PC
+//2900-2EFF   *2+10000   15010-15DFF      *4+10000   1A400-1BBFF
+//2F00-2F7F   *2+10000   15E00-15EFF      *4+10000   1BC00-1BDFF
+//2F80-2FFF   *2+10000   15F00-15FFF      *4+10000   1BE00-1BFFF
+//3000-3FFF   *1+13000   16000-16FFF
+
+//2C0000 SP RP FIQ //97
 
 /******************************************************************************
 *	main.s
@@ -585,15 +596,6 @@ ADD   R1,R1,#4
 B     SPDOT1_32
 SPDOT9_32:
 LDMFD SP!,{R0-R3,PC}
-
-//Speicher
-//original    aktuell                     neu                      1000000
-//0000-27FF   *2+10000   10000-14FFF                               1000000-...
-//2800-28ff   ? ? RP PC
-//2900-2EFF   *2+10000   15010-15DFF      *4+10000   1A400-1BBFF
-//2F00-2F7F   *2+10000   15E00-15EFF      *4+10000   1BC00-1BDFF
-//2F80-2FFF   *2+10000   15F00-15FFF      *4+10000   1BE00-1BFFF
-//3000-3FFF   *1+13000   16000-16FFF
 
 STEP: //29 ( --> )
 STMFD SP!,{R0-R7,LR}
@@ -1199,8 +1201,8 @@ ADD   R0,LR,#4 //28
 STMEA R12!,{R0}//28 ( rq0000 )
 MOV   R0,#0X00
 STMEA R12!,{R0}//28 ( rq0000 0 )
-MOV   R0,#0X80 //70
-STMEA R12!,{R0}//28 ( rq0000 0 80 )
+MOV   R0,#0X200 //97 //70
+STMEA R12!,{R0}//28 ( rq0000 0 200 )
 BL    MOVE     //28 ( )
 LDMFD SP!,{R0-R3,PC}
 RQ0000Start:
@@ -1227,6 +1229,16 @@ FIQ:      //0X20
 //ADD   R9,R9,#1
 //STR   R9,[R8]
 
+B hupferstmalnur
+MOV   R9,#0            //97
+MOV   R10,#0X2C0000    //97 RP FIQ
+MOV   R12,#0X2C0000    //97 SP FIQ
+MOV   R11,#0X100000
+ADD   R11,#8           //97 PC FIQ
+STR   R9,[R10,#-4]!
+BL    STEP
+
+hupferstmalnur:
 MOV   R8,   #0X20000000  //75 PBASE
 ADD   R8,R8,#0X0000B400  //75 ARM timer
 MOV   R9,#0
@@ -2910,6 +2922,8 @@ LDR   R2,[R10],#4 //44
 CMP   R2,#0X100000
 MOVGE R11,R2
 BGE   STEPEND
+CMP   R2,#0           //97
+LDMEQFD SP!,{R0-R7,PC}  //97
 LSL   R11,R2,#1
 ADD   R11,R11,#0X10000 //66
 MOV   R9,#0
