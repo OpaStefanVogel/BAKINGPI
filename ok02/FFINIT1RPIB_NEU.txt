@@ -152,9 +152,9 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : M* ( a b -- a*b ) 0 ROT ROT U* SWAP DROP ;
 : BYE BEGIN ." BYE " AGAIN ;
 : +! ( a adr -- adr+1 ) SWAP OVER @ M+ SWAP ! ;
-: R> RP @ 1+ @ RP @ 1+ RP 2DUP @ @ SWAP ! ! ;
-: >R RP @ DUP 1- RP 2DUP @ @ SWAP DUP 1- RP ! ! ! ! ; 
-: R RP @ 1+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
+: R> RP @ ( 4+ ) 1 M+ @ RP @ ( 4+ ) 1 M+ RP 2DUP @ @ SWAP ! ! ;
+: >R RP @ DUP ( 4- ) -1 M+ RP 2DUP @ @ SWAP DUP ( 4- ) -1 M+ RP ! ! ! ! ; 
+: R RP @ ( 4+ ) 1 M+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
 : , DP @ ! 4 DP +! ;
 : EXECUTE PC ! ;
 : KEY BEGIN ( NOOP ) KX ( KEYCODE2 ) NOOP NOT WHILE DROP REPEAT ;
