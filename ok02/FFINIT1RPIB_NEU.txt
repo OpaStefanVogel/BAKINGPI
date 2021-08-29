@@ -46,7 +46,7 @@ COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 
 2F000 CONSTANT XBIT ( 0 XBIT !
 2F004 CONSTANT SMUDGEBIT 0 SMUDGEBIT !
-2F008 CONSTANT RP0 3000 RP0 !
+2F008 CONSTANT RP0 1C000 RP0 !
 2F00C CONSTANT IRAMADR
 2F010 CONSTANT JRAMADR
 2F014 CONSTANT XOFF 0 XOFF !
@@ -152,9 +152,9 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : M* ( a b -- a*b ) 0 ROT ROT U* SWAP DROP ;
 : BYE BEGIN ." BYE " AGAIN ;
 : +! ( a adr -- adr+1 ) SWAP OVER @ M+ SWAP ! ;
-: R> RP @ ( 4+ ) 1 M+ @ RP @ ( 4+ ) 1 M+ RP 2DUP @ @ SWAP ! ! ;
-: >R RP @ DUP ( 4- ) -1 M+ RP 2DUP @ @ SWAP DUP ( 4- ) -1 M+ RP ! ! ! ! ; 
-: R RP @ ( 4+ ) 1 M+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
+: R> RP @ ( 4+ ) 4 M+ @ RP @ ( 4+ ) 4 M+ RP 2DUP @ @ SWAP ! ! ;
+: >R RP @ DUP ( 4- ) -4 M+ RP 2DUP @ @ SWAP DUP ( 4- ) -4 M+ RP ! ! ! ! ; 
+: R RP @ ( 4+ ) 4 M+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
 : , DP @ ! 4 DP +! ;
 : EXECUTE PC ! ;
 : KEY BEGIN ( NOOP ) KX ( KEYCODE2 ) NOOP NOT WHILE DROP REPEAT ;
