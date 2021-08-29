@@ -95,7 +95,7 @@
 //95 RAM30000Start
 //96 gleich mit WAAGE starten ab R11=0x100000
 //97 FIQ mit extra FF
-//98 R> <R R mit 4 M+ anstelle 1+ und RP0 von 3000 nach 1C000
+//98 R> <R R mit 4 M+ anstelle 1+ und RP0 von 3000 nach 1C000 mit CMP R1,#0X2900
 
 //Tasten bei R9=STEPFLAG=1
 //N Neustart ab 44000 //4000
@@ -2960,49 +2960,23 @@ AND   R0,R0,R1
 STMEA R12!,{R0} // ( --> a_and_b )
 B     STEPEND
 
-STEPA009_32: //88
-//      case 0x09: /* ! */ switch (STAPEL[ST-1]) {
-//        case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
-//        case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
-//        case 0x2801: ST=STAPEL[ST-2]; break;
-//        default: switch (STAPEL[ST-1]>>>16) {
-//          case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
-//          case 0x0010: 
-//            if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-//            RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
-//          default: RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
-//          }
-//        } break;
+STEPA009_32: //98 //88
 //0A 009 MLIT MCODE !
 LDMEA R12!,{R0,R1} //34 ( n adr --> )
-CMP   R1,#0X3000 //84
+CMP   R1,#0X2900 //84
 BGE   STORE4000_32
-CMP   R1,#0X2900 //82
-//MOVGE R9,#1
-BGE   STORE2F00_32
 CMP   R1,#0X2800
 BGE   STORE2_32
 STORE4000_32:
 STR   R0,[R1]
 B     STEPEND
-STORE2F00_32:
-ADD   R1,R1,R1
-ADD   R1,R1,R1
-ADD   R1,R1,#0X10000
-STR   R0,[R1]
-B     STEPEND
 STORE2_32:
 AND   R1,R1,#0XFF
 CMP   R1,#3
-//LSLEQ R0,R0,#1
-//ADDEQ R11,R0,#0X10000 //66
 MOVEQ   R11,R0
 BEQ   STEPEND
 CMP   R1,#2
-//LSLEQ R0,R0,#2 //45
-//ADDEQ R10,R0,#0X10000 //66
 MOVEQ R10,R0 //98
-//MOVEQ R9,#1
 BEQ   STEPEND
 CMP   R1,#1
 LSLEQ R12,R0,#2 //55
@@ -3013,50 +2987,23 @@ CMP   R1,#9
 MOV   R9,R0
 B     STEPEND
 
-STEPA00A_32: //88
-//      case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
-//        case 0x2803: STAPEL[ST-1]=PC; break;
-//        case 0x2802: STAPEL[ST-1]=RP; break;
-//        case 0x2801: STAPEL[ST-1]=ST; break;
-//        default: switch (STAPEL[ST-1]>>>16) {
-//          case 0x2020: STAPEL[ST-1]=RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]; break;
-//          case 0x0010:
-//            if (STAPEL[ST-1]&0x3) alert("@ PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-//            STAPEL[ST-1]=RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]; break;
-//          default: STAPEL[ST-1]=RAMB0000[STAPEL[ST-1]]; break;
-//          }
-//        } break;
+STEPA00A_32: //98 //88
 //0A 00A MLIT MCODE @
 LDMEA R12!,{R1} //34 ( adr --> )
-CMP   R1,#0X3000 //84
+CMP   R1,#0X2900 //84
 BGE   FETCH4000_32
-CMP   R1,#0X2900
-//MOVGE R9,#1
-BGE   FETCH2F00_32
 CMP   R1,#0X2800
 BGE   FETCH2_32
 FETCH4000_32:
 LDR   R3,[R1]
 STMEA R12!,{R3} // ( --> n )
 B     STEPEND
-FETCH2F00_32:
-ADD   R1,R1,R1
-ADD   R1,R1,R1
-ADD   R1,R1,#0X10000 //66
-LDR   R3,[R1]
-STMEA R12!,{R3} //34 ( --> n )
-B     STEPEND
 FETCH2_32: //44
 AND   R1,R1,#0XFF
 CMP   R1,#3
-//SUB   R2,R11,#0X10000 //66
-//LSREQ R0,R2,#1
 STMEQEA R12!,{R11} //44 ( --> n )
 BEQ   STEPEND
 CMP   R1,#2
-//SUB   R2,R10,#0X10000 //66
-//LSREQ R0,R2,#2
-//MOVEQ R9,#1
 MOVEQ   R0,R10 //98
 STMEQEA R12!,{R0} //44 ( --> n )
 BEQ   STEPEND
@@ -3065,8 +3012,6 @@ LSREQ R0,R12,#2
 STMEQEA R12!,{R0} //55 ( --> n )
 BEQ   STEPEND
 CMP   R1,#0       //51
-//MOV   R1,#8
-//LDRB  R0,[R1]
 MOV   R2,#0X10000
 ADD   R2,R2,#0X0C
 LDR   R1,[R2]
