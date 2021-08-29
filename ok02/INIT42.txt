@@ -1,5 +1,13 @@
 ( vorher main.s mit A00C laden
 
+' CR 40000000 M+ 100008 !
+A0000003 10000C !
+100000 @ M.
+100004 @ M.
+100008 @ M.
+10000C @ M.
+
+
 ( FIQ auf mini UART anwenden:
 0A 00C MLIT MCODE FIQ 00 FIQ M. 40 FIQ M. ( 200001D3 20000193 )
 2000B20C CONSTANT FIQ_KANAL
@@ -60,6 +68,9 @@ BAUD? ( 0000010E )
 C0 2000B20C ! 2000B20C @ M. ( FIQ erlauben mit 80 und source ARM Timer einstellen mit 40
 
 ( also 1. ARM Timer aktivieren, 2. Loadvalue einstellen, 3. FIQ auf source ARM Timer, 4. FIQ in den Flags )
+
+
+
 
 
 
