@@ -2433,10 +2433,15 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0010: 
             if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
+            if ((STAPEL[ST-1]==RAMB2F000[0x003C/4])&&((STAPEL[ST-2]&0xF0000000)==0x40000000)&&(STAPEL[ST-2]!=0x40101E34)&&((STAPEL[ST-2]&0x0FFFFFFF)<RAMB2F000[0x0050/4])) {
+              //alert(STAPEL[ST-2].toHex0000()+" DP @ !");
+              EText=EText+"♦";
+              }
             RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0002: //alert("! case 0x0002: "+STAPEL[ST-1].toHex0000());
             RAMB2F000[(STAPEL[ST-1]&0x0FFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
-          default: /*alert("! case default: "+STAPEL[ST-1].toHex0000());*/ RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
+          default: /*alert("! case default: "+STAPEL[ST-1].toHex0000());*/ 
+            RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
           }
         } break;
       case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
