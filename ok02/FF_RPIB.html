@@ -2433,9 +2433,10 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0010: 
             if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-            if ((STAPEL[ST-1]==RAMB2F000[0x003C/4])&&((STAPEL[ST-2]&0xF0000000)==0x40000000)&&(STAPEL[ST-2]!=0x40101E34)&&((STAPEL[ST-2]&0x0FFFFFFF)<RAMB2F000[0x0050/4])) {
+            if ((STAPEL[ST-1]==RAMB2F000[0x003C/4])&&((STAPEL[ST-2]&0xF0000000)==0x40000000)&&(STAPEL[ST-2]!=0x40101E34)) {
               //alert(STAPEL[ST-2].toHex0000()+" DP @ !");
-              EText=EText+"♦";
+              if ((STAPEL[ST-2]&0x0FFFFFFF)<RAMB2F000[0x0050/4]) EText=EText+"♦";
+              if ((STAPEL[ST-2]&0x0FFFFFFF)>STAPEL[ST-1]) EText=EText+"♥";
               }
             RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0002: //alert("! case 0x0002: "+STAPEL[ST-1].toHex0000());
@@ -3171,7 +3172,6 @@ IMMEDIATE: { 0 STAT ! ; ( war ursprünglich mal [ )
 IMMEDIATE: COMPILE 20 WORD FIND LCFA DROP COMPILE, ;
 : MLIT ( a b -- 1000*a+b ) SWAP 10000000 U* SWAP DROP ;
 : ABS DUP 0LT IF MINUS END_IF ;
-: LIT, ( a -- ) DUP ABS 0C 000 MLIT AND IF 111 ERROR END_IF , ;
 COMPILE: (CONSTANT:) R> @ STAT @ IF LIT, END_IF ;
 </sekt>
 
@@ -3705,9 +3705,8 @@ VERSION 1+ CONSTANT VERSION VERSION M.
 : R RP @ ( 4+ ) 4 M+ @ ; ( bei R> >R nicht unterhalb RP speichern wegen INTXY )
 : , DP @ ! 4 DP +! ;
 : MLIT ( a b -- 1000*a+b ) SWAP 10000000 U* SWAP DROP ;
-: LIT, ( a -- ) DUP ABS 0C 000 MLIT AND IF 111 ERROR END_IF , ;
 : B, ( b -- ) BZEIG @ C! 1 BZEIG +! ;
-: Z, ( badr n -- ) BZEIG @ LIT, DUP ,
+: Z, ( badr n -- ) BZEIG @ , DUP ,
   BEGIN SWAP DUP C@ B, 1+ SWAP 1- DUP 0= UNTIL
   2DROP 20 B, ;
 : COMPILE, ( adr -- ) 04 000 MLIT OR , ;
@@ -3764,7 +3763,7 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
 : L7 LOCALADRESSE @ 20 M+ ; ( soviele reichen schon )
 </sekt>
 
-<sekt inhalt="WORD und CREATE extra wegen Zeichenkettem">
+<sekt inhalt="WORD und CREATE extra wegen Zeichenketten">
 : WORD ( b -- adr n )
   >R
   IN3 @ IN2 !
@@ -3787,7 +3786,40 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
   20 WORD Z,
   1 SMUDGEBIT ! ( HERE 2 M- DUP @ MINUS SWAP ! ( UNSMUDGE )
   ;
+</sekt>
 
+<sekt inhalt="ein Abschnitt für die Zeichenketten">
+COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
+: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
+22 WORD: " ;
+22 WORD: ." TYPE ;
+( 2F054 CONSTANT CSP
+</sekt>
+
+<sekt inhalt="kleinere Funktionen Teil 2">
+: BYE BEGIN ." BYE " AGAIN ;
+: CR 
+  CRDP @ DP @ M- STAT @ 0= NOT OR XBIT @ 0= NOT AND IF 
+    3C EMIT ." fl>" CRDP @ M. CRBZEIG @ M. 3C EMIT ." /fl>"
+    3C EMIT ." fr>" DP @ M. BZEIG @ M. 3C EMIT ." /fr>"
+    DP @ CRDP ! BZEIG @ CRBZEIG ! 
+    END_IF
+  0A EMIT ;
+: FEHLERTEXT ( n -- n ) NOOP ;
+: DISABLE 
+  CR ." weiter nach Taste ESCAPE "
+  BEGIN 20 EMIT 8 EMIT KEY 1B = UNTIL ; 
+: ERROR
+  DUP ERRORNR !
+  0 STAT !
+  CR IN1 @ IN3 @ IN1 @ M- 1- TYPE ." ???"
+  FEHLERTEXT
+  CR ." ERROR - Fehler Nummer " M. 
+  DISABLE QUIT ;
+: CSP? SP @ CSP @ M- IF 9 ERROR END_IF ;
+</sekt>
+
+<sekt inhalt="dann FIND">
 : Z= ( adr1 n1 adr2 n2 -- r )
   ROT 2DUP M- IF 2DROP 2DROP 0 ELSE
     BEGIN DUP WHILE ( adr1 adr2 n1 n2
@@ -3892,6 +3924,8 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
   END_LOCAL
   ;
 
+: LIT, ( a -- ) DUP ABS 0C 000 MLIT AND IF 111 ERROR END_IF , ;
+
 : INTERPRET ( adr n -- ... )
   IN1 @ >R IN2 @ >R IN3 @ >R IN4 @ >R
   OVER M+ IN4 !
@@ -3922,30 +3956,6 @@ IMMEDIATE: REPEAT ROT COMPILE AGAIN COMPILE END_IF ;
   ;
 </sekt>
 
-<sekt inhalt="ein Abschnitt für die Zeichenketten">
-COMPILE: (WORD:) WORD STAT @ IF Z, R> COMPILE, END_IF ;
-: WORD: CREATE 1 STAT ! , COMPILE (WORD:) -1 CSP +! ;
-22 WORD: " ;
-22 WORD: ." TYPE ;
-( 2F054 CONSTANT CSP
-</sekt>
-
-<sekt inhalt="kleinere Funktionen Teil 2">
-: BYE BEGIN ." BYE " AGAIN ;
-: CR 
-  CRDP @ DP @ M- STAT @ 0= NOT OR XBIT @ 0= NOT AND IF 
-    3C EMIT ." fl>" CRDP @ M. CRBZEIG @ M. 3C EMIT ." /fl>"
-    3C EMIT ." fr>" DP @ M. BZEIG @ M. 3C EMIT ." /fr>"
-    DP @ CRDP ! BZEIG @ CRBZEIG ! 
-    END_IF
-  0A EMIT ;
-: FEHLERTEXT ( n -- n ) ;
-: DISABLE 
-  CR ." weiter nach Taste ESCAPE "
-  BEGIN 20 EMIT 8 EMIT KEY 1B = UNTIL ; 
-: CSP? SP @ CSP @ M- IF 9 ERROR END_IF ;
-</sekt>
-
 <sekt inhalt="so, mit irgendwas muss das Compilieren losgehen">
 IMMEDIATE: ( 29 WORD 2DROP ;
 IMMEDIATE: { 0 STAT ! ; ( war ursprünglich mal [ )  
@@ -3966,7 +3976,7 @@ COMPILE: (MCODE:) R> STAT @ IF @ , ELSE EXECUTE END_IF ;
 
 <sekt inhalt="alles zu KEY">
 IMMEDIATE: ' ( /name/ -- -- pfa ) 
-  20 WORD FIND LCFA DROP ( 4+ ) 4 M+ STAT @ IF LIT, END_IF ; 
+  20 WORD FIND LCFA DROP ( 4+ ) 4 M+ STAT @ IF , END_IF ; 
 
 : INCR4 ( adr -- )
   DUP @ 1+
@@ -4022,13 +4032,6 @@ IMMEDIATE: ' ( /name/ -- -- pfa )
     AGAIN 
   ;
 
-: ERROR
-  DUP ERRORNR !
-  0 STAT !
-  CR IN1 @ IN3 @ IN1 @ M- 1- TYPE ." ???"
-  " FEHLERTEXT" INTERPRET
-  CR ." ERROR - Fehler Nummer " M. 
-  DISABLE QUIT ;
 </sekt>
 
 <sekt inhalt=": START">
