@@ -2470,7 +2470,9 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
       case 0x0E: /* ORR */ STAPEL[ST-2]=STAPEL[ST-2]|STAPEL[ST-1]; ST=ST-1; break;
       case 0x0F: /*  0< */ if (STAPEL[ST-1]<0) STAPEL[ST-1]=-1; else STAPEL[ST-1]=0; break;
       case 0x12: /* G* */ STAPEL[ST-2]=BigInt(STAPEL[ST-2])*BigInt(STAPEL[ST-1]);  ST=ST-1; break;
+      case 0x13: /* G^ */ STAPEL[ST-2]=BigInt(STAPEL[ST-2])**BigInt(STAPEL[ST-1]);  ST=ST-1; break;
       case 0x17: /* G+ */ STAPEL[ST-2]=BigInt(STAPEL[ST-2])+BigInt(STAPEL[ST-1]);  ST=ST-1; break;
+      case 0x18: /* G. */ EText=EText+STAPEL[ST-1].toString(16).toUpperCase()+" "; ST=ST-1; break;
       case 0x19: /* C! */ switch (STAPEL[ST-1]>>>16) {
         case 0x0003://alert(STAPEL[ST-1].toHex0000()+" C! "+RAMB30000.length.toHex0000()+" ST="+ST);
         var adr=Math.floor((STAPEL[ST-1]&0xFFFF)/4);
@@ -2551,7 +2553,7 @@ function FF_RESTART() {
   for (var i=0;i<RAMB3000.length;i++) RAMB0000[i+0x3000]=RAMB3000[i];
   for (var i=0;i<RAMB3C00.length;i++) RAMB0000[i+0x3C00]=RAMB3C00[i];
   for (var i=0;i<RAMB2F00.length;i++) RAMB0000[i+0x2F00]=RAMB2F00[i];
-  var Startcode="7 1+ M.\n77 88 M* M.\nRP @ M.\n0A 12 MLIT MCODE G*\n0A 17 MLIT MCODE G+\n: + G+ ;\n: * G* ;\n' * 04 00 MLIT M+ DUP M.\n' + 04 00 MLIT M+ DUP M.\n: T 10174C ! 101748 ! ; ( NUMBER mit * + )\nT\n: - M- ;\n: . M. ;\n77 88 * .\n111111111 DUP * ( Enter drücken um Ergebnis auf Stapel sichtbar zu machen\n";
+  var Startcode="7 1+ M.\n77 88 M* M.\nRP @ M.\n0A 12 MLIT MCODE G*\n0A 13 MLIT MCODE G^\n0A 17 MLIT MCODE G+\n0A 18 MLIT MCODE G.\n: + G+ ;\n: * G* ;\n: ^ G^ ;\n' * 04 00 MLIT M+ DUP M.\n' + 04 00 MLIT M+ DUP M.\n: T 10174C ! 101748 ! ; ( NUMBER mit * + )\nT\n: - M- ;\n: . G. ;\n77 88 * .\n111111111 DUP * .\n10 10 ^ -1 + .\n";
 //  var Startcode="7 1+ M.\n77 98 M* M.\n2803 @ M.\n2802 @ M.\n";
   for (var i=0;i<Startcode.length;i++) RAMB0000[i+0x3C00]=Startcode.charCodeAt(i);
   RAMB0000[0x2F03]=0x3C00+Startcode.length;
