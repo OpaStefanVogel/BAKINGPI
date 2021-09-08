@@ -2544,14 +2544,14 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
   //Logtext=Logtext+"                          "+STAPEL.slice(0,ST);
   if (STEP>STARTSTEP||PC>=0x200000) Logtext=Logtext+"\n";
   }
-//alert(BigInt(1)&1n);
+
 function FF_RESTART() {
   PC=0x100000; SP=0; RP=0x3000; STEP=0; STAPEL=[]; ST=0;
   for (var i=0x2900;i<0x4000;i++) RAMB0000[i]=0;
   for (var i=0;i<RAMB3000.length;i++) RAMB0000[i+0x3000]=RAMB3000[i];
   for (var i=0;i<RAMB3C00.length;i++) RAMB0000[i+0x3C00]=RAMB3C00[i];
   for (var i=0;i<RAMB2F00.length;i++) RAMB0000[i+0x2F00]=RAMB2F00[i];
-  var Startcode="7 1+ M.\n77 88 M* M.\nRP @ M.\n0A 12 MLIT MCODE G*\n0A 17 MLIT MCODE G+\n: + G+ ;\n: - M- ;\n: * G* ;\n: . M. ;\n77 88 * .\n";
+  var Startcode="7 1+ M.\n77 88 M* M.\nRP @ M.\n0A 12 MLIT MCODE G*\n0A 17 MLIT MCODE G+\n: + G+ ;\n: * G* ;\n' * 04 00 MLIT M+ DUP M.\n' + 04 00 MLIT M+ DUP M.\n: T 10174C ! 101748 ! ; ( NUMBER mit * + )\nT\n: - M- ;\n: . M. ;\n77 88 * .\n111111111 DUP * ( Enter drücken um Ergebnis auf Stapel sichtbar zu machen\n";
 //  var Startcode="7 1+ M.\n77 98 M* M.\n2803 @ M.\n2802 @ M.\n";
   for (var i=0;i<Startcode.length;i++) RAMB0000[i+0x3C00]=Startcode.charCodeAt(i);
   RAMB0000[0x2F03]=0x3C00+Startcode.length;
