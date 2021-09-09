@@ -2436,11 +2436,11 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
           case 0x2020: RAMB20200000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0010: 
             if (STAPEL[ST-1]&0x3) alert("! PC="+(((PC-4)&0xFFFFF)/4).toHex0000()+" STAPEL[ST-1]="+STAPEL[ST-1].toHex0000());
-            if ((STAPEL[ST-1]==RAMB2F000[0x003C/4])&&((STAPEL[ST-2]&0xF0000000)==0x40000000)&&(STAPEL[ST-2]!=0x40101E34)) {
+//            if ((STAPEL[ST-1]==RAMB2F000[0x003C/4])&&((STAPEL[ST-2]&0xF0000000)==0x40000000)&&(STAPEL[ST-2]!=0x40101E34)) {
               //alert(STAPEL[ST-2].toHex0000()+" DP @ !");
-              if ((STAPEL[ST-2]&0x0FFFFFFF)<RAMB2F000[0x0050/4]) EText=EText+"♦";
-              if ((STAPEL[ST-2]&0x0FFFFFFF)>STAPEL[ST-1]) EText=EText+"♥";
-              }
+//              if ((STAPEL[ST-2]&0x0FFFFFFF)<RAMB2F000[0x0050/4]) EText=EText+"♦";
+//              if ((STAPEL[ST-2]&0x0FFFFFFF)>STAPEL[ST-1]) EText=EText+"♥";
+//              }
             RAMB100000[(STAPEL[ST-1]&0xFFFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
           case 0x0002: //alert("! case 0x0002: "+STAPEL[ST-1].toHex0000());
             RAMB2F000[(STAPEL[ST-1]&0x0FFF)/4]=STAPEL[ST-2]; ST=ST-2; break;
@@ -2553,7 +2553,7 @@ function FF_RESTART() {
   for (var i=0;i<RAMB3000.length;i++) RAMB0000[i+0x3000]=RAMB3000[i];
   for (var i=0;i<RAMB3C00.length;i++) RAMB0000[i+0x3C00]=RAMB3C00[i];
   for (var i=0;i<RAMB2F00.length;i++) RAMB0000[i+0x2F00]=RAMB2F00[i];
-  var Startcode="7 1+ M.\n77 88 M* M.\nRP @ M.\n0A 12 MLIT MCODE G*\n0A 13 MLIT MCODE G^\n0A 17 MLIT MCODE G+\n0A 18 MLIT MCODE G.\n: + G+ ;\n: * G* ;\n: ^ G^ ;\n' * 04 00 MLIT M+ DUP M.\n' + 04 00 MLIT M+ DUP M.\n: T 10174C ! 101748 ! ; ( NUMBER mit * + )\nT\n: - M- ;\n: . G. ;\n77 88 * .\n111111111 DUP * .\n10 10 ^ -1 + .\n";
+  var Startcode="7 1+ M.\n77 88 M* M.\n";
 //  var Startcode="7 1+ M.\n77 98 M* M.\n2803 @ M.\n2802 @ M.\n";
   for (var i=0;i<Startcode.length;i++) RAMB0000[i+0x3C00]=Startcode.charCodeAt(i);
   RAMB0000[0x2F03]=0x3C00+Startcode.length;
@@ -2661,6 +2661,7 @@ function Kopiere(Code) {
   <button onclick='Kopiere("FFCode")'>FFCode</button> 
   <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> 
   <button onclick='Kopiere("FFINIT1RPIB.txt")'>FFINIT1RPIB.txt</button> 
+  <button onclick='Kopiere("BigInt")'>BigInt</button> 
   <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> 
   <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> 
   <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=0x1646">STARTSTEP=0</button> 
@@ -4069,6 +4070,27 @@ START
 </sekt>
 </AXIOME>
 </INIT>
+</script>
+
+<script id="BigInt">7 1+ M.
+77 88 M* M.
+RP @ M.
+0A 12 MLIT MCODE G*
+0A 13 MLIT MCODE G^
+0A 17 MLIT MCODE G+
+0A 18 MLIT MCODE G.
+: + G+ ;
+: * G* ;
+: ^ G^ ;
+: - MINUS G+ ;
+: . G. ;
+: T 101748 ! 10174C ! ; ( NUMBER mit * + )
+' + 04 00 MLIT M+ DUP M. ' * 04 00 MLIT M+ DUP M. T
+( : TT ' M* 04 00 MLIT M+ DUP M. 101748 ! ' M+ 04 00 MLIT M+ DUP M. 10174C ! ; ( NUMBER wieder mit M* M+ )
+77 88 * .
+111111111 DUP * .
+10 40 ^ -1 + .
+( @ geht noch nicht )
 </script>
 
 <script id="DUMPZ">
