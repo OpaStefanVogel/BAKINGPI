@@ -18,10 +18,10 @@ A0000003 10000C !
   -1 UARTUMSCHALTBIT ! 
   ;
 
-FIQ=UART 
+( FIQ=UART 
 
 : FIQ=0
-  0 FIQ_KANAL ! ( FIQ=AUX
+  0 FIQ_KANAL ! ( FIQ=0
   0 UARTUMSCHALTBIT ! 
   ;
 
@@ -68,8 +68,15 @@ BAUD? ( 0000010E )
 C0 2000B20C ! 2000B20C @ M. ( FIQ erlauben mit 80 und source ARM Timer einstellen mit 40
 
 ( also 1. ARM Timer aktivieren, 2. Loadvalue einstellen, 3. FIQ auf source ARM Timer, 4. FIQ in den Flags )
+000FFFFF 2000B400 !
 
+FIQ=0
 
+: FIQ=TIMER
+  C0 FIQ_KANAL ! ( FIQ=TIMER
+  ;
+
+FIQ=TIMER
 
 
 
