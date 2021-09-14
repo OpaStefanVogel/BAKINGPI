@@ -2428,7 +2428,7 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
       case 0x06: /*  */ alert(STEP.toHex0000()+" "+PD.toHex0000()); break;
       case 0x07: /* M+ */ STAPEL[ST-2]=(STAPEL[ST-2]+STAPEL[ST-1])&0xFFFFFFFF;  ST=ST-1; break;
       case 0x08: /* AND */ STAPEL[ST-2]=STAPEL[ST-2]&STAPEL[ST-1]; ST=ST-1; break;
-      case 0x09: /* ! */ switch (STAPEL[ST-1]) {
+      case 0x09: /* ! */ if ((typeof STAPEL[ST-1])=="bigint") STAPEL[ST-1]=Number(BigInt.asIntN(32,STAPEL[ST-1])); switch (STAPEL[ST-1]) {
         case 0x2803: PC=STAPEL[ST-2]; ST=ST-2; break;
         case 0x2802: RP=STAPEL[ST-2]; ST=ST-2; break;
         case 0x2801: ST=STAPEL[ST-2]; break;
@@ -2448,7 +2448,7 @@ STAPEL[ST+1]=-1; ST=ST+2} break;
             RAMB0000[STAPEL[ST-1]]=STAPEL[ST-2]; ST=ST-2; break;
           }
         } break;
-      case 0x0A: /* @ */ switch (STAPEL[ST-1]) {
+      case 0x0A: /* @ */ if ((typeof STAPEL[ST-1])=="bigint") STAPEL[ST-1]=Number(BigInt.asIntN(32,STAPEL[ST-1])); switch (STAPEL[ST-1]) {
         case 0x2803: STAPEL[ST-1]=PC; break;
         case 0x2802: /*alert(PC.toHex0000()+" "+RP.toHex0000()+" "+SP.toHex0000());*/ STAPEL[ST-1]=RP; break;
         case 0x2801: STAPEL[ST-1]=ST; break;
@@ -4090,7 +4090,11 @@ RP @ M.
 77 88 * .
 111111111 DUP * .
 10 40 ^ -1 + .
-( @ geht noch nicht )
+100000 @ ( 40100040 ) .
+100004 @ ( A0000003 ) .
+100008 @ .
+7777 100008 !
+100008 @ .
 </script>
 
 <script id="DUMPZ">
