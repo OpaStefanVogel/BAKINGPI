@@ -1145,6 +1145,12 @@ STEPEND0:
 
 CMP   R9,#1    //56 vorher CMP   R8,R9    //42
 BLT   STEPR    //42
+MOV   R0,#0
+MOV   R1,#0X20000000
+ADD   R1,R1,#0XB200
+ADD   R1,R1,#0X0C    // CONSTANT FIQ_KANAL
+STR   R0,[R1]        // FIQ=0
+
 //MOV   R0,#0X20 //48 Fehlersuch
 //STMEA R12!,{R0}// ( ' ' )
 //BL    EMIT     // ( )
@@ -1238,7 +1244,7 @@ MOV   R11,#0X100000
 MOV   SP,#0X2E0000
 ADD   R11,R11,#4           //97 PC FIQ
 STR   R9,[R10,#-4]!
-BL    STEP_32_FIQ
+//BL    STEP_32_FIQ
 
 hupferstmalnur:
 MOV   R8,   #0X20000000  //75 PBASE
