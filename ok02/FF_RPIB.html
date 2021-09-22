@@ -2661,8 +2661,9 @@ function Kopiere(Code) {
   <button onclick='Kopiere("FFCode")'>FFCode</button> 
   <button onclick='Kopiere("FFINIT1.txt")'>FFINIT1.txt</button> 
   <button onclick='Kopiere("FFINIT1RPIB.txt")'>FFINIT1RPIB.txt</button> 
-  <button onclick='Kopiere("BigInt")'>BigInt</button> 
+  <button onclick='Kopiere("VLIST")'>VLIST</button> 
   <button onclick='Kopiere("DUMPZ")'>DUMPZ</button> 
+  <button onclick='Kopiere("BigInt")'>BigInt</button> 
   <button onclick='Kopiere("INIT41.txt")'>INIT41.txt</button> 
   <button onclick="STARTSTEP=0;STEP=0;ENDSTEP=0x1646">STARTSTEP=0</button> 
   <button onclick="Display(RAMB2F000,0x2F000)">RAMB2F000</button> 
@@ -4095,6 +4096,49 @@ RP @ M.
 100008 @ .
 7777 100008 !
 100008 @ .
+</script>
+
+<script id="VLIST">: VLIST
+  LFA @ BEGIN 
+    DUP 4 M+ @ OVER 8 M+ @ TYPE 20 EMIT 
+    DUP @ WHILE DUP @ M+ REPEAT
+  DROP ;
+
+: WLIST
+  LFA @ BEGIN ( CR ) DUP M.
+    DUP 4 M+ @ OVER 8 M+ @ TYPE 20 EMIT 
+    DUP @ WHILE DUP @ M+ REPEAT
+  DROP
+  ;
+
+: REPLACE: ( /name/ ) 
+  CSP! ( oo )
+  20 WORD FIND DUP IF 
+    LCFA DROP 4 M+ ( pfa
+(    HERE OVER M- 1- JRBIT XSETBT SWAP !
+    HERE SWAP DP ! DUP COMPILE, RETURN , DP !
+    1 STAT !
+    ELSE 2DROP 3 ERROR END_IF ;
+
+: FORGET ( /name/ )
+  20 WORD FIND IF 
+    DP !
+    HERE DUP @ M+ LFA !
+    HERE 4 M+ @ BZEIG !
+    ELSE DROP ." nicht gefunden " END_IF
+  ;
+
+: FEHLERTEXT_NEU ( n --> n )
+  CR
+  DUP 0 = IF ." Division durch Null" END_IF
+  DUP 3 = IF ." Wort nicht definiert" END_IF
+  DUP 6 = IF ." Eingabezeile zu lang" END_IF
+  DUP 9 = IF ." Strukturfehler in IF END_IF BEGIN UNTIL DO LOOP " END_IF
+  DUP 12 = IF ." negativer Exponent" END_IF
+  DUP 369 = IF ." Zahlenspeicher voll" END_IF
+  DUP 1234 = IF ." große ganze Zahlen kompilieren geht momentan nicht." END_IF
+  ;
+
 </script>
 
 <script id="DUMPZ">
