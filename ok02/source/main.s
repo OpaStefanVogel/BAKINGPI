@@ -1269,7 +1269,7 @@ MOV   R8,   #0X20000000  //75 PBASE
 ADD   R8,R8,#0X0000B400  //75 ARM timer
 MOV   R9,#0
 STR   R9,[R8,#0x0C]    //75 FIQ=ARM timer clear interrupt flag
-MOV   R8,0XFF00
+MOV   R8,#0XFF00
 LDR   R9,[R8]
 ADD   R9,R9,#1
 STR   R9,[R8]

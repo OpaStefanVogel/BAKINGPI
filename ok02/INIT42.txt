@@ -74,13 +74,33 @@ C0 2000B20C ! 2000B20C @ M. ( FIQ erlauben mit 80 und source ARM Timer einstelle
 FIQ=0
 
 : FIQ=TIMER
+  FIQ=0 (wegen UMSCHALTBIT=0
   C0 FIQ_KANAL ! ( FIQ=TIMER
   ;
 
 FIQ=TIMER
 
-
-
+0 FF00 !
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
+FF00 @ M.
 
 
 ( ----------------------------------------- alt, nur für 16 Bit
