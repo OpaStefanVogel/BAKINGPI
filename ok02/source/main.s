@@ -96,6 +96,7 @@
 //96 gleich mit WAAGE starten ab R11=0x100000
 //97 FIQ mit extra FF
 //98 R> <R R mit 4 M+ anstelle 1+ und RP0 von 3000 nach 1C000 mit CMP R1,#0X2900
+//99 FIQ=40 abfragen und auswerten
 
 //Tasten bei R9=STEPFLAG=1
 //N Neustart ab 44000 //4000
@@ -117,8 +118,14 @@
 //2F00-2F7F   *2+10000   15E00-15EFF      *4+10000   1BC00-1BDFF
 //2F80-2FFF   *2+10000   15F00-15FFF      *4+10000   1BE00-1BFFF
 //3000-3FFF   *1+13000   16000-16FFF
-
+//FF00 ob FIQ=40 vorliegt
+//10004 Anzahl der empfangenen Zeichen
+//10008 ob schon mit FIQ=28 empfangen
+//1000C Anzahl der von KX abgeholten Zeichen
+//100000 Start FF_RPIB
+//100008 Start FIQ=40 auswerten
 //2C0000 SP RP FIQ //97
+//10000000... empfangene Zeichen
 
 /******************************************************************************
 *	main.s
@@ -2724,9 +2731,17 @@ RAM2F00:
   .word 0x2D00 //2F17 CONSTANT LOCALADRESSE
 
 STEP_32: //
-LDR   R0,[R11]
+MOV   R1,#0xFF00          //99 FIQ=40 abfragen
+LDR   R0,[R1]
+CMP   R0,#0
+SUBNE R0,R0,#1
+STRNE R0,[R1]
+MOVNE R0,   #0X40000000
+ADDNE R0,R0,#0X00100000
+ADDNE R0,R0,#0X00000008  //99 FIQ=40 auswerten
+LDREQ R0,[R11]
+ADDEQ R11,R11,#4
 ADD   R8,R8,#1
-ADD   R11,R11,#4
 AND   R1,R0,#0XF0000000
 LSR   R2,R1,#26
 MOV   R3,PC
@@ -3639,8 +3654,8 @@ RAM100000:
 //.include "RAM100000.s"
   .word 0x40100040 //00100000 
   .word 0xA0000003 //00100004 
-  .word 0x00000000 //00100008 
-  .word 0x00000000 //0010000C 
+  .word 0xA0000003 //00100008 //99 FIQ=40 auswerten
+  .word 0xA0000003 //0010000C //99
   .word 0x00000000 //00100010 
   .word 0x00000000 //00100014 
   .word 0x00000000 //00100018 
