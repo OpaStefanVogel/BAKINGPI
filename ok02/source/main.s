@@ -1026,6 +1026,39 @@ STEPA004_32: //90
 //      case 0x04: /*  alert("case 0x04: "+PC.toHex0000()+" "+PD.toHex0000()+" "+RAMB0000[0x2F03]+" "+RAMB0000[0x2F04]+" "+STEP+" "+ENDSTEP); */ if (RAMB0000[0x2F03]==RAMB0000[0x2F04]) STEP=ENDSTEP; break;
 //MOV   R9,#1
 B STEPA004
+STEPA004:
+//0A 004 MLIT MCODE KX: //63// ( --> c flag )
+MOV   R2,#0X10000
+ADD   R2,R2,#4
+LDR   R0,[R2]
+ADD   R2,R2,#8
+LDR   R1,[R2]
+CMP   R0,R1
+BEQ   KEYCODE28
+ADD   R1,R1,#0X10000000 //65//62
+LDRB  R0,[R1]
+ADD   R1,R1,#1
+SUB   R1,R1,#0X10000000 //65//62
+STR   R1,[R2]
+CMP   R0,#0X02
+BNE   KEYCODE02
+MOV   R9,#1     //56 vorher MOVEQ R9,R8
+MOV   R0,   #0X20000000  //75 PBASE
+ADD   R0,R0,#0X0000B200  //75 Interrupt
+MOV   R1,#0
+STR   R1,[R0,#0x0C]    //75 FIQ=0
+B     STEPA004
+KEYCODE02:
+STMEA R12!,{R0}
+MOV   R0,#0
+SUB   R0,R0,#1
+STMEA R12!,{R0}
+B     STEPEND
+KEYCODE28:
+MOV   R0,#0
+STMEA R12!,{R0}
+STMEA R12!,{R0}
+B     STEPEND
 
 STEPA005_32: //87
 //      case 0x05: /* EMITCODE */  EText=EText+String.fromCharCode(STAPEL[ST-1]); Logtext=Logtext+String.fromCharCode(STAPEL[ST-1]); ST=ST-1; break;
@@ -1303,6 +1336,56 @@ STEPB_32: //89
 //      case 0x60C: /* 2OVER */ STAPEL[ST]=STAPEL[ST-4]; STAPEL[ST+1]=STAPEL[ST-3]; ST=ST+2; break;
 //      } break;
 B STEPB
+STEPB:
+AND   R1,R0,#0X00FF
+// 0B 412 MLIT MCODE SWAP
+CMP   R1,#0X12        //34 ( a b ) SWAP
+LDMEQEA R12!,{R0,R1}  //34 ( )
+STMEQEA R12!,{R1}     //34 ( b )
+STMEQEA R12!,{R0}     //34 ( b a )
+BEQ   STEPEND
+// 0B 502 MLIT MCODE OVER
+CMP   R1,#0X02       //39 ( a b ) OVER
+LDMEQEA R12,{R0,R1}  //39 ( a b )
+STMEQEA R12!,{R0}    //39 ( a b a )
+BEQ   STEPEND
+// 0B 501 MLIT MCODE DUP
+CMP   R1,#0X01    //33 ( a ) DUP
+LDMEQEA R12,{R0}  //33 ( a )
+STMEQEA R12!,{R0} //33 ( a a )
+BEQ   STEPEND
+// 0B 434 MLIT MCODE ROT
+CMP   R1,#0X34           //39 ( a b c ) ROT
+LDMEQEA R12!,{R0,R1,R2}  //39 ( )
+STMEQEA R12!,{R1,R2}     //39 ( b c )
+STMEQEA R12!,{R0}        //39 ( b c a )
+BEQ   STEPEND
+// 0B 300 MLIT MCODE DROP //siehe 2DROP
+// 0B 43C MLIT MCODE 2SWAP
+CMP   R1,#0X3C              //39 ( a b c d ) 2SWAP
+LDMEQEA R12!,{R0,R1,R2,R3}  //39 ( )
+STMEQEA R12!,{R2,R3}        //39 ( c d )
+STMEQEA R12!,{R0,R1}        //39 ( c d a b)
+BEQ   STEPEND
+// 0B 60C MLIT MCODE 2OVER
+CMP   R1,#0X0C              //39 ( a b c d ) 2OVER
+LDMEQEA R12,{R0,R1,R2,R3}   //39 ( a b c d )
+STMEQEA R12!,{R0,R1}        //39 ( a b c d a b )
+BEQ   STEPEND
+// 0B 603 MLIT MCODE 2DUP
+CMP   R1,#0X03              //39 ( a b ) 2DUP
+LDMEQEA R12,{R0,R1}         //39 ( a b )
+STMEQEA R12!,{R0,R1}        //39 ( a b a b )
+BEQ   STEPEND
+// 0B 200 MLIT MCODE 2DROP
+CMP   R1,#0X00    //35 ( a b ) 2DROP und DROP
+BNE   DROP9
+AND   R1,R0,#0XF00
+CMP   R1,#0X300
+LDMEA R12!,{R0}   //35 ( a )
+LDMNEEA R12!,{R0} //35 ( )
+DROP9:
+B     STEPEND
 
 //Testcode für ab 0x100000:
   .word 0x00000123 //00 
