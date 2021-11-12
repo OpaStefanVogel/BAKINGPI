@@ -1,6 +1,6 @@
 ls
 git pull
-gitk --all &
+(cd .. ; gitk --all) &
 pcmanfm . &
 mousepad ../BAKINGPI_starten.txt ../WEITER.txt source/main.s INIT41.txt INIT42.txt FFINIT1RPIB_NEU.txt FF.html source/RAM2F000.s source/RAM30000.s source/RAM100000.s&
 stty -F /dev/ttyS0 115200 raw cs8 -cstopb -parenb -crtscts -echo ixon -ixoff
