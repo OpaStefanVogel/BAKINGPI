@@ -1,3 +1,36 @@
+( Platzmach für reaktivieren KEY_INIT und KEYCODE2 
+
+: KEY_INT ( -- )
+  KEYADR @ 
+  DUP 08 LT IF 
+    18 M+ @ DUP IF DUP EXECUTE END_IF
+    DROP
+    ELSE
+      IRAMADR @ ! 
+      IRAMADR INCR4
+      IRAMADR @ JRAMADR @ M- 3FF AND 
+      80 > IF XOFF @ 0= IF -1 XOFF ! 13 EMIT END_IF END_IF 
+      END_IF
+  0 KEYADR !
+  ;
+( ' KEY_INT 04 000 MLIT OR 12 !
+
+: KEYCODE2 ( -- c f )
+  JRAMADR @ IRAMADR @ = IF 0 0 
+    ELSE JRAMADR @ @ -1
+    JRAMADR INCR4
+    IRAMADR @ JRAMADR @ M- 3FF AND
+    20 LT IF XOFF @ IF 0 XOFF ! 11 EMIT END_IF END_IF
+    END_IF
+  ;
+
+
+
+
+
+
+
+
 ( neu FIQ=40 ausführen )
 : FIQ_AKTION " FIQ40 " TYPE ;
 4 ' FIQ_AKTION MLIT DUP M. 100008 !
