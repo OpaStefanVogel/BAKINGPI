@@ -36,13 +36,31 @@ AKTUALISIEREN
 3C10 10 EXPECT
    77 99 M* M.
 
-3C20 IRAMADR !
+3C20 IRAMADR ! ( 471F )
+
+( als nächstes KEY_INT reaktivieren, dazu nur KEYADR füllen
+( dabei zählen wieviele KEY_INT möglich pro Sek.
 
 
+: KEY_INT ( -- )
+  41 ( KEYADR @ 
+  DUP 08 LT IF 
+    18 M+ @ DUP IF DUP EXECUTE END_IF
+    DROP
+    ELSE
+      IRAMADR @ ! 
+      IRAMADR INCR4
+      IRAMADR @ JRAMADR @ M- 3FF AND 
+      80 > IF XOFF @ 0= IF -1 XOFF ! NOOP NOOP ( 13 EMIT ) END_IF END_IF 
+      END_IF
+  0 0 ! ( KEYADR !
+  ;
 
-
-
-
+: TEST ( n -- )
+  BEGIN KEY_INT -1 M+ DUP 0= UNTIL ;
+  
+  
+10000 TEST ( ca. 8 sek.
 
 
 
