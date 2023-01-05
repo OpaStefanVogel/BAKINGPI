@@ -1,7 +1,7 @@
 [Desktop Entry]
 Exec=lxterminal -e "../BAKINGPI_starten.txt&bash"
 Type=Application
-Path=/home/pi/Desktop/CLONE/Repositories/BAKINGPI/ok02
+Path=/home/pi/Desktop/CLONE/BAKINGPI/ok02
 Terminal=false
 StartupNotify=true
 Icon=
