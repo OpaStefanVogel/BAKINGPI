@@ -4100,12 +4100,12 @@ RP @ M.
 </script>
 
 <script id="ULIST">: ULIST
-  LFA @ BEGIN CR DUP M.
+  LFA @ BEGIN CR DUP M. ." -------------------- "
     DUP 4 M+ @ OVER 8 M+ @ TYPE 20 EMIT 
     DUP ( lfa lfa )
     DUP @ WHILE DUP @ M+ ( lfa lfa2 )
     2DUP ( lfa lfa2 lfa lfa2 )
-    BEGIN 2DUP M- 0= NOT WHILE CR 20 EMIT 20 EMIT DUP M. 4 M+ REPEAT 2DROP
+    BEGIN 2DUP M- 0= NOT WHILE CR 20 EMIT 20 EMIT DUP M. DUP @ M. 4 M+ REPEAT 2DROP
     SWAP DROP
     REPEAT
   2DROP
